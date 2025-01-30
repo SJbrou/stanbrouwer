@@ -1,0 +1,135 @@
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainNav">
+  <div class="container">
+    <a class="navbar-brand" href="{{ "/" | relative_url }}">Home</a>
+    <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" 
+      aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+      Menu <i class="fa fa-bars"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarResponsive">
+      <ul class="navbar-nav ml-auto">
+        {% if site.email %}
+        <li class="list-inline-item">
+          <a href="mailto:{{ site.email | encode_email }}">
+            <span class="fa-stack fa-lg">
+              <i class="fas fa-circle fa-stack-2x"></i>
+              <i class="far fa-envelope fa-stack-1x fa-inverse"></i>
+            </span>
+          </a>
+        </li>
+        {% endif %}
+        {% if site.twitter_username %}
+        <li class="list-inline-item">
+          <a href="https://twitter.com/{{ site.twitter_username }}">
+            <span class="fa-stack fa-lg">
+              <i class="fas fa-circle fa-stack-2x"></i>
+              <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+            </span>
+          </a>
+        </li>
+        {% endif %}
+        {% if site.facebook_username %}
+        <li class="list-inline-item">
+          <a href="https://www.facebook.com/{{ site.facebook_username }}">
+            <span class="fa-stack fa-lg">
+              <i class="fas fa-circle fa-stack-2x"></i>
+              <i class="fab fa-facebook-f fa-stack-1x fa-inverse"></i>
+            </span>
+          </a>
+        </li>
+        {% endif %}
+        {% if site.linkedin_username %}
+        <li class="list-inline-item">
+          <a href="https://www.linkedin.com/in/{{ site.linkedin_username }}">
+            <span class="fa-stack fa-lg">
+              <i class="fas fa-circle fa-stack-2x"></i>
+              <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+            </span>
+          </a>
+        </li>
+        {% endif %}
+        {% if site.github_username %}
+        <li class="list-inline-item">
+          <a href="https://github.com/{{ site.github_username }}">
+            <span class="fa-stack fa-lg">
+              <i class="fas fa-circle fa-stack-2x"></i>
+              <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+            </span>
+          </a>
+        </li>
+        {% endif %}
+        {% if site.instagram_username %}
+        <li class="list-inline-item">
+          <a href="https://instagram.com/{{ site.instagram_username }}">
+            <span class="fa-stack fa-lg">
+              <i class="fas fa-circle fa-stack-2x"></i>
+              <i class="fab fa-instagram fa-stack-1x fa-inverse"></i>
+            </span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+
+
+
+      <!-- Dark Mode Toggle Button -->
+      <button id="dark-mode-toggle" class="btn-transparent ml-3">🌙</button>
+    </div>
+  </div>
+</nav>
+
+<!-- Dark Mode Script -->
+<script>
+  const toggle = document.getElementById('dark-mode-toggle');
+  toggle.addEventListener('click', () => {
+    // Toggle dark mode class on the body
+    document.body.classList.toggle('dark-mode');
+    // Log the class toggle action for debugging
+    console.log("Dark mode toggled: ", document.body.classList.contains('dark-mode'));
+    
+    // Save the dark mode state in localStorage
+    localStorage.setItem('dark-mode', document.body.classList.contains('dark-mode'));
+  });
+
+  // Load dark mode preference
+  if (localStorage.getItem('dark-mode') === 'true') {
+    document.body.classList.add('dark-mode');
+  }
+
+  // Check if the localStorage key is set to 'true'
+  console.log("Loaded dark mode state: ", localStorage.getItem('dark-mode'));
+</script>
+
+<style>
+  /* Dark Mode Styles */
+  body.dark-mode {
+    background-color: #121212;
+    color: white;
+  }
+
+  .navbar-light.dark-mode {
+    background-color: #333 !important;
+  }
+
+  .btn-transparent {
+    border: none;
+    background-color: transparent;
+    padding: 8px;
+    font-size: 1.5rem;
+    color: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Dark mode icon color change */
+  body.dark-mode .btn-transparent {
+    color: #fff;
+  }
+
+  /* Optional: Button hover effect */
+  .btn-transparent:hover {
+    color: #555;
+  }
+</style>

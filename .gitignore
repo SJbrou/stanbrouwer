@@ -22,3 +22,38 @@ docs/
 
 # Code coverage
 *.lst
+
+
+# Jekyll
+_site/
+
+# Jekyll configuration files
+.sass-cache/
+.jekyll-metadata
+
+# Dependency directories
+vendor/
+
+# Bundler
+.bundle/
+
+# Node modules (if you're using Node.js for frontend)
+node_modules/
+
+# MacOS system files
+.DS_Store
+
+# Thumbnails
+Thumbs.db
+
+# IDE/editor specific files
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Temporary files
+*.swp
+*.swo
+*.bak

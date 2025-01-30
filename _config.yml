@@ -1,0 +1,43 @@
+# General information
+title:              Stan Brouwer
+baseurl:            ""
+url:                "http://127.0.0.1:4000/"
+
+email:              sjbrou@gmail.com
+description:        Personal Blog
+author:             Stan Brouwer
+
+# Social Profiles
+github_username:    SJBrou
+instagram_username:  Stanbrouwer2000
+linkedin_username:  Stan Brouwer
+
+
+# Settings
+paths:
+  css: "assets/css"
+  js: "assets/js"
+  images: "/assets/images"
+
+excerpt_separator: "<!--excerpt-->"
+
+
+
+
+
+
+
+# Google analytics
+google_analytics:   	G-270JCJY9ZM
+
+# Build settings
+markdown:           kramdown
+paginate:           0 # Disable pagination to show all posts
+paginate_path:      "/posts/page:num/"
+plugins:
+  - jekyll-feed
+  - jekyll-paginate
+  - jekyll-sitemap ## Uncomment this line to silently generate a sitemaps.org compliant sitemap for your Jekyll site
+
+include:
+  - _pages
