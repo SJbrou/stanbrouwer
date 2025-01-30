@@ -19,6 +19,11 @@ paths:
   js: "assets/js"
   images: "/assets/images"
 
+sass:
+  load_paths:
+    - _sass
+    - assets/vendor/startbootstrap-clean-blog/scss
+
 excerpt_separator: "<!--excerpt-->"
 
 
