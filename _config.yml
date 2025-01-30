@@ -1,7 +1,7 @@
 # General information
 title:              Stan Brouwer
-baseurl:            ""
-url:                "http://127.0.0.1:4000/"
+baseurl:            "https://stanbrouwer.com"
+url:                ""
 
 email:              sjbrou@gmail.com
 description:        Personal Blog
@@ -20,10 +20,6 @@ paths:
   images: "/assets/images"
 
 excerpt_separator: "<!--excerpt-->"
-
-
-
-
 
 
 
