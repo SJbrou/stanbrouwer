@@ -1,6 +1,6 @@
 - name: Me
-  link: me.html
+  link: "/me.html"
 - name: Activity
-  link: activity.html
+  link: "/activity.html"
 - name: Reposts
-  link: reposts.html
+  link: "/reposts.html"

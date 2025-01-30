@@ -13,13 +13,15 @@
       <ul class="nav justify-content-center">
         {% for item in site.data.navigation %}
           <li class="nav-item">
-            <a href="{{ site.baseurl }}{{ item.link }}" class="nav-link {% if page.url == item.link %}font-weight-bold{% endif %}">
+            <!-- Use site.baseurl correctly to append the relative path -->
+            <a href="{{ site.baseurl }}{{ item.link | relative_url }}" class="foot-link {% if page.url == item.link %}font-weight-bold{% endif %}">
               {{ item.name }}
             </a>
           </li>
         {% endfor %}
       </ul>
     </div>
+
 
     <!-- Copyright -->
     <div class="copyright text-center mt-4">
@@ -69,7 +71,7 @@
   }
 
   /* Optional: Add hover effect for navigation links */
-  .footer-section .nav-link:hover {
+  .footer-section .foot-link:hover {
     color: inherit;
     text-decoration: underline;
   }
