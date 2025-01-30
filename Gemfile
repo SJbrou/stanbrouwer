@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-# Use github-pages to ensure compatibility with GitHub Pages
+# Use the github-pages gem, which bundles the correct version of Jekyll and related plugins
 gem "github-pages", group: :jekyll_plugins
 
 group :jekyll_plugins do
