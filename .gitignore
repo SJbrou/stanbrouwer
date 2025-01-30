@@ -32,7 +32,6 @@ _site/
 .jekyll-metadata
 
 # Dependency directories
-vendor/
 
 # Bundler
 .bundle/
