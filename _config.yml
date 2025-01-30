@@ -32,7 +32,11 @@ excerpt_separator: "<!--excerpt-->"
 google_analytics:   	G-270JCJY9ZM
 
 # Build settings
-markdown:           kramdown
+markdown: kramdown
+kramdown:
+input: GFM
+syntax_highlighter: rouge
+
 paginate:           0 # Disable pagination to show all posts
 paginate_path:      "/posts/page:num/"
 plugins:

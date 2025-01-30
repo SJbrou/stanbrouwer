@@ -24,59 +24,40 @@ background: '/img/bg-post.jpg'
       <p id="text-vu" style="display: none;">University-related projects overview.</p>
     </div>
 
-    <ul class="list-unstyled" id="postList">
-      {% assign sorted_posts = site.posts | sort: 'date' | reverse %}
-      {% assign current_month = "" %}
-      {% assign current_year = "" %}
-      {% assign current_year_today = "now" | date: "%Y" %}
+ <ul class="list-unstyled" id="postList">
+  {% assign sorted_posts = site.posts | sort: 'date' | reverse %}
+  <div id="post-dates"></div> <!-- Placeholder for dynamically generated dates -->
 
-      {% for post in sorted_posts %}
-        {% assign post_month = post.date | date: "%B" %}
-        {% assign post_year = post.date | date: "%Y" %}
+  {% for post in sorted_posts %}
+    {% assign post_month = post.date | date: "%B" %}
+    {% assign post_year = post.date | date: "%Y" %}
+    <li class="post-item" data-categories="{{ post.tags | join: ',' }}">
+      <div class="post-entry d-flex justify-content-between">
+        <div class="post-details">
+          <span class="post-title"><a href="{{ post.url | relative_url }}">{{ post.title }}</a></span>
+          <div class="post-separator"></div>
+          <span class="post-subtitle">{{ post.subtitle }}</span>
+        </div>
+        <span class="post-date" style="display:none;" 
+              data-month="{{ post_month }}" data-year="{{ post_year }}">
+          {% assign day = post.date | date: "%d" %}
+          {% assign day_int = day | plus: 0 %}
+          {% if day_int == 11 or day_int == 12 or day_int == 13 %}
+            {{ day }}th
+          {% else %}
+            {% case day_int %}
+              {% when 1 %}{{ day }}st
+              {% when 2 %}{{ day }}nd
+              {% when 3 %}{{ day }}rd
+              {% else %}{{ day }}th
+            {% endcase %}
+          {% endif %}
+        </span>
+      </div>
+    </li>
+  {% endfor %}
+</ul>
 
-        <!-- Year Separator -->
-        {% if post_year != current_year and post_year != current_year_today %}
-          <div class="year-separator">
-            <span>{{ post_year }}</span>
-          </div>
-          {% assign current_year = post_year %}
-        {% endif %}
-
-        <!-- Month Separator -->
-        {% if post_month != current_month %}
-          <div class="month-separator-space"></div>
-          <div class="month-separator">
-            <span>{{ post_month }}</span>
-          </div>
-          {% assign current_month = post_month %}
-        {% endif %}
-
-        <!-- Post Item -->
-        <li class="post-item" data-categories="{{ post.tags | join: ',' }}">
-          <div class="post-entry d-flex justify-content-between">
-            <div class="post-details">
-              <span class="post-title"><a href="{{ post.url | relative_url }}">{{ post.title }}</a></span>
-              <div class="post-separator"></div>
-              <span class="post-subtitle">{{ post.subtitle }}</span>
-            </div>
-            <span class="post-date">
-              {% assign day = post.date | date: "%d" %}
-              {% assign day_int = day | plus: 0 %}
-              {% if day_int == 11 or day_int == 12 or day_int == 13 %}
-                {{ day }}th
-              {% else %}
-                {% case day_int %}
-                  {% when 1 %}{{ day }}st
-                  {% when 2 %}{{ day }}nd
-                  {% when 3 %}{{ day }}rd
-                  {% else %}{{ day }}th
-                {% endcase %}
-              {% endif %}
-            </span>
-          </div>
-        </li>
-      {% endfor %}
-    </ul>
   </div>
 </section>
 
@@ -84,6 +65,7 @@ background: '/img/bg-post.jpg'
 document.addEventListener("DOMContentLoaded", function () {
   const buttons = document.querySelectorAll(".category-button");
   const posts = document.querySelectorAll(".post-item");
+  const postList = document.getElementById("postList"); // Container to hold posts
   const textRecent = document.getElementById("recent-activity");
   const textProjects = document.getElementById("text-projects");
   const textThoughts = document.getElementById("text-thoughts");
@@ -114,13 +96,48 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function updatePosts() {
+    let current_month = "";
+    let current_year = "";
+    let current_year_today = new Date().getFullYear();
+    postList.innerHTML = ''; // Clear all posts before re-rendering
+
     posts.forEach(post => {
       const postCategories = post.dataset.categories.split(",");
       const isVisible = postCategories.some(cat => activeCategories.has(cat));
+
+      // Only show posts that match the active categories
       post.style.display = isVisible ? "block" : "none";
+
+      if (isVisible) {
+        const post_date = post.querySelector(".post-date");
+        const post_month = post_date.getAttribute('data-month');
+        const post_year = post_date.getAttribute('data-year');
+
+        // Add year separator if it's a new year
+        if (post_year !== current_year && post_year !== current_year_today) {
+          const yearElement = document.createElement('div');
+          yearElement.className = 'year-separator';
+          yearElement.innerHTML = `<span>${post_year}</span>`;
+          postList.appendChild(yearElement);
+          current_year = post_year; // Update current year
+        }
+
+        // Add month separator if it's a new month
+        if (post_month !== current_month) {
+          const monthElement = document.createElement('div');
+          monthElement.className = 'month-separator';
+          monthElement.innerHTML = `<span>${post_month}</span>`;
+          postList.appendChild(monthElement);
+          current_month = post_month; // Update current month
+        }
+
+        // Append the post to the list
+        postList.appendChild(post); 
+        post_date.style.display = "inline"; // Show the date for visible posts
+      }
     });
 
-    // Handle conditional text
+    // Handle conditional text based on active categories
     textRecent.style.display = activeCategories.size === buttons.length ? "block" : "none";
     textProjects.style.display = activeCategories.size === 1 && activeCategories.has("Projects") ? "block" : "none";
     textThoughts.style.display = activeCategories.size === 1 && activeCategories.has("Thoughts") ? "block" : "none";
@@ -139,17 +156,20 @@ document.addEventListener("DOMContentLoaded", function () {
         this.classList.add("active");
       }
 
-      // Update URL
+      // Update URL with selected filters
       const newUrl = new URL(window.location.href);
       newUrl.searchParams.set('active', activeCategories.size === buttons.length ? "" : Array.from(activeCategories).join(","));
       history.pushState({}, "", newUrl);
 
+      // Re-render posts based on selected categories
       updatePosts();
     });
   });
 
+  // Initial call to update posts based on categories
   updatePosts();
 });
+
 </script>
 
 
