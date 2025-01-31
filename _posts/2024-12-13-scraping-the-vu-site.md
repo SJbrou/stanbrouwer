@@ -2,9 +2,9 @@
 layout: post
 title: "Scraping the VU site"
 subtitle: "Getting an overview of the courses offered by the VU"
-date: 2024-11-13 17:00:00
+date: 2024-12-13 17:00:00
 tags: ["Projects", "VU"]
-background: 'https://assets-us-01.kc-usercontent.com/d8b6f1f5-816c-005b-1dc1-e363dd7ce9a5/7e8a06bb-03f9-4a1b-a0c9-8b960edfa092/P4280138%20tvvelzen.jpg?w=1250&h=600&fit=clip&rect=0,669,4608,2211'
+background: 'https://assets-us-01.kc-usercontent.com/d8b6f1f5-816c-005b-1dc1-e363dd7ce9a5/14718c75-0411-48d0-9941-ae3e5b5b1c76/HighRes_TVV%2020211026_190854%20TenT-binnen.jpg?w=1250&h=600&fit=clip&rect=0,1487,7975,3828'
 ---
 
 As a registered student at the VU, you can enroll in almost eny course offered. While some courses have prerequisites (accounting I before accounting II), and some are restriced to specific study programs (applied surgery), generally, you are free to follow courses on any topic you like. 
@@ -27,7 +27,7 @@ Follow the links to the
 
 ## Implementation using R
 
-Lets start by cleaning the worksapce and loading required dependencies
+Lets start by cleaning the workspace and loading required dependencies
 
 ```r
 # a nice function to clear the worksapce and install + load required packages

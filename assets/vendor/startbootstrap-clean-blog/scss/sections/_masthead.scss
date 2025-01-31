@@ -1,31 +1,40 @@
 // Styling for the masthead
 header.masthead {
-    // TIP: Background images are set within the HTML using inline CSS!
     margin-bottom: 50px;
     background: no-repeat center center;
     background-color: $gray-600;
     background-attachment: scroll;
     position: relative;
     background-size: cover;
+    height: auto;
 
-    .overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        width: 100%;
-        background-color: $gray-900;
-        opacity: 0.5;
-    }
+    // For larger screens (desktop and above)
+    @media only screen and (min-width: 768px) {
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        height: 400px;  // Adjust the height to control the background image size
+    } 
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            background-color: $gray-900;
+            opacity: 0.6;
+        }
 
+
+    // Heading styles for mobile (and the same on desktop if no flexbox is used)
     .page-heading,
     .post-heading,
     .site-heading {
-        padding: 200px 0 150px;
+        padding: 200px 0 150px; // Keeps the padding intact for mobile
         color: white;
 
         @media only screen and (min-width: 768px) {
-            padding: 200px 0;
+            padding: 100px 0;  // Reduce the padding on desktop to center the heading more effectively
         }
     }
 
@@ -92,5 +101,18 @@ header.masthead {
                 font-size: 30px;
             }
         }
+    }
+}
+
+// Additional styles for small screens (mobile)
+@media only screen and (max-width: 767px) {
+    header.masthead {
+        height: auto;  // Allow the height to adjust based on content
+    }
+
+    .page-heading,
+    .post-heading,
+    .site-heading {
+        padding: 200px 0 150px; // Retain the original mobile padding
     }
 }

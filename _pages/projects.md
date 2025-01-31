@@ -113,4 +113,15 @@ background: '/img/bg-post.jpg'
   font-style: italic; /* Make the subtitle italic */
   margin-top: 5px; /* Add a bit of space between the title and subtitle */
 }
+
+/* ensure image is not to dark on main page */
+header.masthead .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            background-color: $gray-900;
+            opacity: 0.3 !important;
+}
 </style>

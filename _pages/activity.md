@@ -2,7 +2,7 @@
 layout: page
 title: Activity
 permalink: /activity.html
-background: '/img/bg-post.jpg'
+background: '/img/at-the-office.jpeg'
 ---
 
 <section id="feed">
@@ -267,5 +267,16 @@ document.addEventListener("DOMContentLoaded", function () {
   text-align: center;
   font-size: 1.3rem;
   margin-bottom: 15px;
+}
+
+/* ensure image is not to dark on main page */
+header.masthead .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 100%;
+            background-color: $gray-900;
+            opacity: 0.3 !important;
 }
 </style>
