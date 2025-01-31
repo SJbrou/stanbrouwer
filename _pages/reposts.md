@@ -2,8 +2,8 @@
 layout: page
 title: Reposts
 permalink: /reposts.html
-description: Curation of my consumed content
-background: '/img/bg-repost.jpg'
+description: Curation of my media consumption
+background: '/img/at-the-office.jpeg'
 ---
 
 <section id="reposts">

@@ -6,7 +6,7 @@ permalink: /me.html
 background: '/img/bike-in-berlin.jpeg'
 ---
 
-I'm Stan. Currently studying Information Science and everything that intrests me at the VU. In my spare time I play arround with web-dev, sports, data science and music. 
+I'm Stan. Studying Information Science (and a bunch of other things) at the VU. I'm working on data science and web development projects. In my spare time I work-out in the morning and discover new music in the evening. I'm currently retired from cycling across europe with my brother, but have a great collection of photo's at iconic landmarks. 
 
 
 <style>
