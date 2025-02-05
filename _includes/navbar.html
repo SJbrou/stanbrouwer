@@ -1,53 +1,28 @@
-<!-- Navigation -->
-<nav class="navbar navbar-light fixed-top navbar-transparent">
-  <div class="container">
-    <div class="d-flex w-100 justify-content-between align-items-center">
-      <!-- Home Button (left-aligned) -->
-      <a class="nav-link" href="{{ "/" | relative_url }}">Home</a>
-      
-      <!-- Icons Section (right-aligned) -->
-      <div class="d-flex align-items-center">
-        {% if site.email %}
-        <a href="mailto:{{ site.email | encode_email }}" class="nav-link">
-          <i class="fas fa-envelope"></i>
-        </a>
-        {% endif %}
-        {% if site.twitter_username %}
-        <a href="https://twitter.com/{{ site.twitter_username }}" class="nav-link">
-          <i class="fab fa-twitter"></i>
-        </a>
-        {% endif %}
-        {% if site.facebook_username %}
-        <a href="https://www.facebook.com/{{ site.facebook_username }}" class="nav-link">
-          <i class="fab fa-facebook-f"></i>
-        </a>
-        {% endif %}
-        {% if site.linkedin_username %}
-        <a href="https://www.linkedin.com/in/{{ site.linkedin_username }}" class="nav-link">
-          <i class="fab fa-linkedin"></i>
-        </a>
-        {% endif %}
-        {% if site.github_username %}
-        <a href="https://github.com/{{ site.github_username }}" class="nav-link">
-          <i class="fab fa-github"></i>
-        </a>
-        {% endif %}
-        {% if site.instagram_username %}
-        <a href="https://instagram.com/{{ site.instagram_username }}" class="nav-link">
-          <i class="fab fa-instagram"></i>
-        </a>
-        {% endif %}
-        
+
+<div class="content">
+  <header>
+    <nav class="navbar">
+      <ul class="navbar-list">
+        {% for item in site.data.navigation %}
+        <li class="nav-item {% if page.url == item.url %}active{% endif %}">
+            <a href="{{ item.url }}" class="navbar-a">{{ item.title }}</a>
+          </li>
+        {% endfor %}
         <!-- Dark Mode Toggle Button -->
-        <button id="dark-mode-toggle" class="btn btn-transparent">
-          🌙
-        </button>
-      </div>
-    </div>
-  </div>
-</nav>
+        <!--<li class="nav-item">
+          <a href="#">
+            <button id="dark-mode-toggle" class="btn btn-transparent">🌙</button>
+          </a>
+        </li>
+      -->
+      </ul>
+    </nav>
+  </header>
+</div>
+
 
 <!-- Dark Mode Script -->
+<!--
 <script>
   const toggle = document.getElementById('dark-mode-toggle');
   toggle.addEventListener('click', () => {
@@ -57,101 +32,6 @@
 
   if (localStorage.getItem('dark-mode') === 'true') {
     document.body.classList.add('dark-mode');
-  }
-
-  // Navbar Scroll Behavior
-  let lastScrollTop = 0;
-  const navbar = document.querySelector('.navbar');
-
-  window.addEventListener('scroll', function() {
-    let currentScroll = window.pageYOffset || document.documentElement.scrollTop;
-
-    if (currentScroll > lastScrollTop) {
-      // Scrolling down, hide navbar
-      navbar.classList.add('navbar-hide');
-    } else {
-      // Scrolling up, show navbar
-      navbar.classList.remove('navbar-hide');
-    }
-    lastScrollTop = currentScroll <= 0 ? 0 : currentScroll; // Prevent negative scroll values
-  });
+  };
 </script>
-
-<!-- Additional Styling -->
-<style>
-  /* Transparent Navbar */
-  .navbar-transparent {
-    background-color: transparent !important;
-    box-shadow: none !important;
-  }
-
-  /* Dark Mode Styles */
-  body.dark-mode {
-    background-color: #121212;
-    color: white;
-  }
-
-  .navbar-light.dark-mode {
-    background-color: #333 !important;
-  }
-
-  /* Navbar Link Styling */
-  .nav-link {
-    color: white;
-    padding: 0.5rem 1rem;
-  }
-
-  /* Hover effect for the nav links */
-  .nav-link:hover {
-    color: #ddd;
-  }
-
-  /* Styling for the icons */
-  .nav-link i {
-    font-size: 1.2rem;
-  }
-
-  /* Dark Mode Button Styling */
-  .btn-transparent {
-    border: none;
-    background-color: transparent;
-    padding: 8px;
-    font-size: 1.5rem;
-    color: inherit;
-    cursor: pointer;
-  }
-
-  body.dark-mode .btn-transparent {
-    color: #fff;
-  }
-
-  /* Ensuring Navbar Items Stay on One Line */
-  .d-flex {
-    display: flex;
-  }
-
-  /* Align navbar content on one row and center it */
-  .navbar-nav {
-    display: flex;
-    align-items: center;
-  }
-
-  .w-100 {
-    width: 100%;
-  }
-
-  /* Ensure icons do not wrap to a new line */
-  .navbar-nav .nav-link {
-    white-space: nowrap;
-  }
-
-  /* Add a smooth transition effect for hiding/showing the navbar */
-  .navbar {
-    transition: top 0.5s ease;
-  }
-
-  /* Hide navbar when scrolling down */
-  .navbar-hide {
-    top: -70px; /* Adjust as needed for your navbar height */
-  }
-</style>
+-->

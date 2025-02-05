@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Personal site project"
-subtitle: "Technical details"
+description: "Technical details"
 date: 2024-12-01 21:20:40
 tags: ["Projects"]
 ---

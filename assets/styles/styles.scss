@@ -1,0 +1,166 @@
+/* vs code colors */
+$color-vsc-blue: #007bff;
+$color-vsc-indigo: #6610f2;
+$color-vsc-purple: #6f42c1;
+$color-vsc-pink: #e83e8c;
+$color-vsc-red: #dc3d1a;
+$color-vsc-orange: #fd7e14;
+$color-vsc-yellow: #ffc107;
+$color-vsc-green: #28a745;
+$color-vsc-teal: #20c997;
+$color-vsc-cyan: #17a2b8;
+
+$color-vs-yellow: #ffc914;
+$color-vs-lightblue: #9cdcfe;
+$color-vs-brown: #ce9178;
+$color-vs-purple: #da70d6;
+$color-vs-blue: #179ff1;
+
+$color-vs-gray: #333333;
+$color-vs-dark-gray: #252525;
+$color-vs-black: #1e1e1e;
+$color-vs-blue2: #0098ff;
+$color-vs-blue3: #0065a9;
+
+
+/* Global variables */
+$color-primary: #202635;
+$color-secondary: #ffffff;
+$color-secondary-grey: #adadad;
+$color-tertiery-red: #781717;
+$color-tertiery-yellow: #aea21f;
+
+/* Fonts */
+$font-modern: 'Montserrat', sans-serif;
+$font-lemonmilk: 'LEMONMILK';
+$font-lemonmilk-light: 'LEMONMILK-light';
+$font-old: 'FontOld';
+$font-iowan-old: 'Iowan Old Style BT';
+$font-EBGara: 'EBgaramond';
+$font-terminal-grotesque: 'Terminal Grotesque';
+$font-terminal-grotesque-web: 'Terminal Grotesque web';
+$font-OstrichSans-Black: 'OstrichSans-Black';
+$font-OstrichSans-Bold: 'OstrichSans-Bold';
+$font-OstrichSans-Light: 'OstrichSans-Light';
+$font-OstrichSans-Regular: 'OstrichSans-Regular';
+$font-OstrichSans-Rounded: 'OstrichSans-Rounded';
+$font-OstrichSans-Dashed: 'OstrichSans-Dashed';
+$font-OstrichSans-InlineRegular: 'OstrichSans-InlineRegular';
+$font-OstrichSans-InlineItalic: 'OstrichSans-InlineItalic';
+$font-LibreBaskervile: 'Libre Bakservile';
+$font-ATLangGothic: 'AT lang gothic', sans-serif;
+
+/* customization */
+$font: 100%/1.5 "AT Lang Gothic","Helvetica Neue", Helvetica,Arial,sans-serif;
+
+$navbar-font: $font-lemonmilk-light;
+$h1234-font: $font-lemonmilk-light;
+
+
+$navbar-font-color: $color-secondary;
+$navbar-font-hover-color: $color-secondary;
+
+
+.subtitle {
+  font-family: $font-lemonmilk-light;
+  font-size: 0.8em;
+}
+
+.post-info {
+  font-family: $font-lemonmilk-light;
+  font-size: 0.8em;
+  color: $color-secondary-grey;
+  font-style: italic;
+}
+
+.reading-time {
+  font-family: $font-lemonmilk-light;
+  font-size: 0.9em;
+  color: $color-secondary-grey;
+}
+
+
+* {
+    list-style: none;
+    text-decoration: none;
+    background-color: $color-primary;
+    color: $color-secondary;
+
+}
+
+h1, h2, h3, h4 {
+  font-family: $h1234-font;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+li, a, p, span{
+  font: 100% / 1.5 "AT Lang Gothic", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 300;
+  text-align: left;
+
+  font-kerning: normal;
+  font-variant-ligatures: common-ligatures contextual;
+  font-feature-settings: "kern", "liga", "clig", "calt";
+}
+
+
+#animated-text {
+  font-size: 1.5rem;
+}
+
+/* Small screen width (phones) */
+@media (max-width: 768px) {
+  #animated-text {
+      font-size: 1.3rem;
+  }
+}
+
+/* Small screen width (phones) */
+@media (max-width: 400px) {
+  #animated-text {
+      font-size: 0.9rem;
+  }
+}
+
+/*
+    FontOld
+    Montserrat
+    Terminal Grotesque
+    Terminal Grotesque Web
+    OstrichSans-Black
+    OstrichSans-Bold
+    OstrichSans-Light
+    OstrichSans-Regular
+    OstrichSans-Rounded
+    OstrichSans-Dashed
+    OstrichSans-InlineRegular
+    OstrichSans-InlineItalic
+
+
+/*
+body {
+    font-family: 'OstrichSans-Regular', sans-serif;
+  }
+  
+  h1 {
+    font-family: 'OstrichSans-Black', sans-serif;
+  }
+  
+  h2 {
+    font-family: 'OstrichSans-Bold', sans-serif;
+  }
+  
+  h3 {
+    font-family: 'OstrichSans-Light', sans-serif;
+  }
+  
+  h4 {
+    font-family: 'OstrichSans-InlineRegular', sans-serif;
+  }
+  
+  h5 {
+    font-family: 'OstrichSans-InlineItalic', sans-serif;
+  }
+*/
+

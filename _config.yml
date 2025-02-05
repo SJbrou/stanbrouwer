@@ -15,17 +15,16 @@ linkedin_username:  Stan Brouwer
 
 # Settings
 paths:
-  css: "assets/css"
+  css: "assets/styles"
   js: "assets/js"
   images: "/assets/images"
 
 sass:
   load_paths:
-    - _sass
-    - assets/vendor/startbootstrap-clean-blog/scss
+    - /assets/styles
+    - /assets/fonts
 
 excerpt_separator: "<!--excerpt-->"
-
 
 
 # Google analytics
@@ -39,6 +38,7 @@ syntax_highlighter: rouge
 
 # paginate:           0 # Disable pagination to show all posts
 # paginate_path:      "/posts/page:num/"
+
 plugins:
   - jekyll-feed
 #  - jekyll-paginate

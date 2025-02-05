@@ -1,0 +1,254 @@
+/* Import fonts */
+/* I'd like to be less dependent on google, especially since they can track IP adresses requesting their font downloads. However, the tradeoff is that their fonts usually are cahced on local devices. With fonts weighing arround 350KB, this increases traffic a bit. Howevver, I dont suspect the few visitors of my site to be of a great impact. However, If traffic becomes huge, I might have to reconsider. */
+
+@font-face {
+  font-family: 'FontOld'; /* Custom name for your font */
+  src: url('/assets/fonts/FontOld.woff2') format('woff2');
+  font-weight: 100 900; /* Defines the weight range for the variable font */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'AT lang gothic';
+  src: url('/assets/fonts/AT-LangGothic-Variable.woff2') format('woff2');
+  font-weight: 100 900; /* Defines the weight range for the variable font */
+  font-style: open;
+}
+
+@font-face {
+  font-family: 'AT lang gothic-3';
+  src: url('/assets/fonts/AT-LangGothic-Variable.woff2') format('woff2');
+  font-weight: 300; /* Defines the weight range for the variable font */
+  font-style: open;
+}
+
+
+
+@font-face {
+  font-family: 'Montserrat', sans-serif;
+  src: url('/assets/fonts//Montserrat/Montserrat-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900; /* Defines the weight range for the variable font */
+  font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'EBgaramond';
+    src: url('/assets/fonts/EBGaramond-0.016/ttf/EBGaramond12-Regular.ttf') format('truetype');
+    font-weight: 100 900; /* Defines the weight range for the variable font */
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Libre Baskerville';
+    src: url('/assets/fonts/Libre-Baskerville-master/fonts/LibreBaskerville-Regular.otf') format('opentype');
+    font-weight: 400; /* Normal weight */
+    font-style: normal;
+  }
+  
+  @font-face {
+    font-family: 'Libre Baskerville';
+    src: url('/assets/fonts/Libre-Baskerville-master/fonts/LibreBaskerville-Italic.otf') format('opentype');
+    font-weight: 400; /* Italic version, same weight as normal */
+    font-style: italic;
+  }
+  
+  @font-face {
+    font-family: 'Libre Baskerville';
+    src: url('/assets/fonts/Libre-Baskerville-master/fonts/LibreBaskerville-Bold.otf') format('opentype');
+    font-weight: 700; /* Bold version */
+    font-style: normal;
+  }
+
+
+
+/* Terminal Grotesque */
+  @font-face {
+    font-family: 'Terminal Grotesque';
+    src: url('/assets/fonts/Terminal-Grotesque-master/terminal-grotesque_open.otf') format('opentype');
+    font-weight: normal;
+    font-style: open;
+  }
+
+  @font-face {
+    font-family: 'Terminal Grotesque web';
+    src: url('/assets/fonts/terminal-grotesque-master/webspecimen/font/terminal-grotesque-webfont.woff2') format('woff2');
+    src: url('/assets/fonts/terminal-grotesque-master/webspecimen/font/terminal-grotesque-webfont.woff') format('woff');
+    src: url('/assets/fonts/terminal-grotesque-master/webspecimen/font/terminal-grotesque-webfont.ttf') format('truetype');
+    font-weight: 100 900; /* Defines the weight range for the variable font */
+    font-style: open;
+  }
+
+
+/* Ostrich-sans */
+@font-face {
+  font-family: 'OstrichSans-Black';
+  src: url('/assets/fonts/ostrich-sans-master/webfonts/ostrich-sans-black.woff') format('woff');
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'OstrichSans-Bold';
+  src: url('/assets/fonts/ostrich-sans-master/webfonts/ostrich-sans-bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'OstrichSans-Light';
+  src: url('/assets/fonts/ostrich-sans-master/webfonts/ostrich-sans-light.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'OstrichSans-Regular';
+  src: url('/assets/fonts/ostrich-sans-master/webfonts/ostrich-sans-regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'OstrichSans-Rounded';
+  src: url('/assets/fonts/ostrich-sans-master/webfonts/ostrich-sans-rounded.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'OstrichSans-Dashed';
+  src: url('/assets/fonts/ostrich-sans-master/webfonts/ostrich-sans-dashed.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'OstrichSans-InlineRegular';
+  src: url('/assets/fonts/ostrich-sans-master/webfonts/ostrich-sans-inline-regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'OstrichSans-InlineItalic';
+  src: url('/assets/fonts/ostrich-sans-master/webfonts/ostrich-sans-inline-italic.woff') format('woff');
+  font-weight: normal;
+  font-style: italic;
+}
+
+
+/* Iowan old */
+
+@font-face {
+  font-family: 'Iowan Old Style BT';
+  src: 
+    local('Bitstream Iowan Old Style BT'), 
+    url('/assets/fonts/iowanoldst-bt-webfont/bitstream-iowan-old-style-bt.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Iowan Old Style BT';
+  src: 
+    local('Bitstream Iowan Old Style Italic BT'), 
+    url('/assets/fonts/iowanoldst-bt-webfont/bitstream-iowan-old-style-italic-bt.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Iowan Old Style BT';
+  src: 
+    local('Bitstream Iowan Old Style Bold BT'), 
+    url('/assets/fonts/iowanoldst-bt-webfont/bitstream-iowan-old-style-bold-bt.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Iowan Old Style BT';
+  src: 
+    local('Bitstream Iowan Old Style Bold Italic BT'), 
+    url('/assets/fonts/iowanoldst-bt-webfont/bitstream-iowan-old-style-bold-italic-bt.woff') format('woff');
+  font-weight: 700;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Iowan Old Style BT';
+  src: 
+    local('Bitstream Iowan Old Style Black BT'), 
+    url('/assets/fonts/iowanoldst-bt-webfont/bitstream-iowan-old-style-black-bt.woff') format('woff');
+  font-weight: 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Iowan Old Style BT';
+  src: 
+    local('Bitstream Iowan Old Style Black Italic BT'), 
+    url('/assets/fonts/iowanoldst-bt-webfont/bitstream-iowan-old-style-black-italic-bt.woff') format('woff');
+  font-weight: 900;
+  font-style: italic;
+}
+
+
+
+
+/* LEMONMILK */
+@font-face {
+  font-family: 'LEMONMILK';
+  src: url('/assets/fonts/lemon_milk/LEMONMILK-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'LEMONMILK';
+  src: url('/assets/fonts/lemon_milk/LEMONMILK-RegularItalic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'LEMONMILK-light';
+  src: url('/assets/fonts/lemon_milk/LEMONMILK-Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'LEMONMILK';
+  src: url('/assets/fonts/lemon_milk/LEMONMILK-LightItalic.otf') format('opentype');
+  font-weight: 300;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'LEMONMILK';
+  src: url('/assets/fonts/lemon_milk/LEMONMILK-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'LEMONMILK';
+  src: url('/assets/fonts/lemon_milk/LEMONMILK-MediumItalic.otf') format('opentype');
+  font-weight: 500;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'LEMONMILK';
+  src: url('/assets/fonts/lemon_milk/LEMONMILK-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'LEMONMILK';
+  src: url('/assets/fonts/lemon_milk/LEMONMILK-BoldItalic.otf') format('opentype');
+  font-weight: 700;
+  font-style: italic;
+}

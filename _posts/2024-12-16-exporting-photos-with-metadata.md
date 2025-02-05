@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Converting images with metadata"
-subtitle: "Using python to convert HEIC to JPG correct metadata for apple photos"
+description: "Using python to convert HEIC to JPG correct metadata for apple photos"
 date: 2024-12-16 17:00:00
 tags: ["Projects"]
 background: 'https://media.macphun.com/img/uploads/macphun/blog/585/PhotosMac.png'

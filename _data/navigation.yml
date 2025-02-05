@@ -1,6 +1,6 @@
-- name: Me
-  link: "/me.html"
-- name: Activity
-  link: "/activity.html"
-- name: Reposts
-  link: "/reposts.html"
+- title: "Stan"
+  url: "/me.html"
+- title: "activity"
+  url: "/activity.html"
+- title: "reposts"
+  url: "/reposts.html"

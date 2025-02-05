@@ -2,7 +2,7 @@
 layout: page
 title: Reach Me
 description: Want to get in touch? I'm available.
-background: '/img/bg-contact.jpg'
+background: '/assets/img/bg-contact.jpg'
 permalink: /contact.html
 form: true
 ---

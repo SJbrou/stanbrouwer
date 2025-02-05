@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Paper on the influence of a common language on trade"
-subtitle: "As part of the Network Analysis VU course "
+description: "For the VU Network Analysis course"
 date: 2024-11-12 17:00:00
 tags: ["VU"]
 background: 'https://www.royalhaskoningdhv.com/-/media/images/markets/maritime/container-terminals-h.jpg?h=1080&iar=0&w=1920&hash=3B84AB6814BB857407710B90A715764A'

@@ -1,282 +1,225 @@
 ---
 layout: page
-title: Activity
+title:
 permalink: /activity.html
-background: '/img/at-the-office.jpeg'
+background: '/assets/img/at-the-office-cropped.jpeg'
 ---
 
-<section id="feed">
-  <div class="container-lg">
+<!-- Conditional Text -->
+<p id="category-text">
+  <span id="text-content">All posts. </span><span id="caret">|</span>
+</p>
 
-    <!-- Category Filter Buttons -->
-    <div id="category-filters">
-      {% assign all_categories = site.posts | map: "tags" | uniq | sort %}
-      {% for category in all_categories %}
-        <button class="category-button active" data-category="{{ category }}">{{ category }}</button>
-      {% endfor %}
-    </div>
-
-    <!-- Conditional Text Container -->
-    <div id="conditional-text" class="conditional-text">
-      <p id="recent-activity">Recent activity</p>
-      <p id="text-projects" style="display: none;">My recent projects.</p>
-      <p id="text-thoughts" style="display: none;">A collection of my thoughts.</p>
-      <p id="text-vu" style="display: none;">University-related projects overview.</p>
-    </div>
-
- <ul class="list-unstyled" id="postList">
-  {% assign sorted_posts = site.posts | sort: 'date' | reverse %}
-  <div id="post-dates"></div> <!-- Placeholder for dynamically generated dates -->
-
-  {% for post in sorted_posts %}
-    {% assign post_month = post.date | date: "%B" %}
-    {% assign post_year = post.date | date: "%Y" %}
-    <li class="post-item" data-categories="{{ post.tags | join: ',' }}">
-      <div class="post-entry d-flex justify-content-between">
-        <div class="post-details">
-          <span class="post-title"><a href="{{ post.url | relative_url }}">{{ post.title }}</a></span>
-          <div class="post-separator"></div>
-          <span class="post-subtitle">{{ post.subtitle }}</span>
-        </div>
-        <span class="post-date" style="display:none;" 
-              data-month="{{ post_month }}" data-year="{{ post_year }}">
-          {% assign day = post.date | date: "%d" %}
-          {% assign day_int = day | plus: 0 %}
-          {% if day_int == 11 or day_int == 12 or day_int == 13 %}
-            {{ day }}th
-          {% else %}
-            {% case day_int %}
-              {% when 1 %}{{ day }}st
-              {% when 2 %}{{ day }}nd
-              {% when 3 %}{{ day }}rd
-              {% else %}{{ day }}th
-            {% endcase %}
-          {% endif %}
-        </span>
-      </div>
-    </li>
+<!-- Category Buttons -->
+<div id="category-filter-buttons">
+  <button class="category-button active" data-category="all">All</button>
+  
+  <!-- Generate buttons from all post tags -->
+  {% assign all_categories = site.posts | map:"tags" | join: "," | split: "," | uniq | sort %}
+  {% for category in all_categories %}
+    {% if category != "" %}
+      <button class="category-button" data-category="{{ category }}">{{ category }}</button>
+    {% endif %}
   {% endfor %}
-</ul>
+</div>
 
-  </div>
+<section id="activity-feed">
+  <ul id="activity-list"></ul>
 </section>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const buttons = document.querySelectorAll(".category-button");
-  const posts = document.querySelectorAll(".post-item");
-  const postList = document.getElementById("postList"); // Container to hold posts
-  const textRecent = document.getElementById("recent-activity");
-  const textProjects = document.getElementById("text-projects");
-  const textThoughts = document.getElementById("text-thoughts");
-  const textVU = document.getElementById("text-vu");
+  const activityList = document.getElementById("activity-list");
+  const textContent = document.getElementById("text-content");
+  const caret = document.getElementById("caret");
+  
+  // Global store intervals so we can cancel them
+  let deleteInterval = null;
+  let typeInterval = null;
 
-  let activeCategories = new Set();
+  let activeCategories = new Set(["all"]); // Default category
 
-  // Read 'active' category from URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const activeFilter = urlParams.get('active'); // Get the 'active' filter from URL
+  textContent.innerText = "";
 
-  if (activeFilter) {
-    // Activate only the specified category
-    activeCategories.add(activeFilter);
-    buttons.forEach(button => {
-      if (button.dataset.category === activeFilter) {
-        button.classList.add("active");
-      } else {
-        button.classList.remove("active");
-      }
-    });
-  } else {
-    // No filter specified, activate all categories
-    buttons.forEach(button => {
-      activeCategories.add(button.dataset.category);
-      button.classList.add("active");
-    });
+  // URL update based on filters
+  function updateURL() {
+    const newUrl = new URL(window.location.href);
+    if (activeCategories.has("all")) {
+      newUrl.searchParams.delete("active");
+    } else {
+      newUrl.searchParams.set("active", Array.from(activeCategories).join(","));
+    }
+    history.pushState({}, "", newUrl);
   }
 
+  // Update posts based on the filter.
   function updatePosts() {
-    let current_month = "";
-    let current_year = "";
-    let current_year_today = new Date().getFullYear();
-    postList.innerHTML = ''; // Clear all posts before re-rendering
+    activityList.innerHTML = "";
+    let currentYear = "";
+    let currentMonth = "";
+    let visiblePosts = [];
 
-    posts.forEach(post => {
-      const postCategories = post.dataset.categories.split(",");
-      const isVisible = postCategories.some(cat => activeCategories.has(cat));
+    const allPosts = [
+      {% for post in site.posts %}
+      {
+        title: "{{ post.title }}",
+        description: "{{ post.description | default: '&nbsp;' }}",
+        url: "{{ post.url | relative_url }}",
+        categories: "{{ post.tags | join: ',' }}",
+        year: "{{ post.date | date: '%Y' }}",
+        month: "{{ post.date | date: '%B' }}",
+        day: "{{ post.date | date: '%d' }}"
+      },
+      {% endfor %}
+    ];
 
-      // Only show posts that match the active categories
-      post.style.display = isVisible ? "block" : "none";
+    if (activeCategories.has("all")) {
+      visiblePosts = allPosts;
+    } else {
+      visiblePosts = allPosts.filter(post => {
+        const postCategories = post.categories.split(",");
+        return postCategories.some(cat => activeCategories.has(cat));
+      });
+    }
 
-      if (isVisible) {
-        const post_date = post.querySelector(".post-date");
-        const post_month = post_date.getAttribute('data-month');
-        const post_year = post_date.getAttribute('data-year');
-
-        // Add year separator if it's a new year
-        if (post_year !== current_year && post_year !== current_year_today) {
-          const yearElement = document.createElement('div');
-          yearElement.className = 'year-separator';
-          yearElement.innerHTML = `<span>${post_year}</span>`;
-          postList.appendChild(yearElement);
-          current_year = post_year; // Update current year
-        }
-
-        // Add month separator if it's a new month
-        if (post_month !== current_month) {
-          const monthElement = document.createElement('div');
-          monthElement.className = 'month-separator';
-          monthElement.innerHTML = `<span>${post_month}</span>`;
-          postList.appendChild(monthElement);
-          current_month = post_month; // Update current month
-        }
-
-        // Append the post to the list
-        postList.appendChild(post); 
-        post_date.style.display = "inline"; // Show the date for visible posts
+    visiblePosts.forEach(post => {
+      let separatorHTML = "";
+      if (post.year !== currentYear || post.month !== currentMonth) {
+        separatorHTML = `
+          <li class="year-month-separator">
+            <span class="year">${post.year}</span>
+            <span class="month">${post.month}</span>
+          </li>
+        `;
+        currentYear = post.year;
+        currentMonth = post.month;
       }
+
+      const postHTML = `
+        ${separatorHTML}
+        <li class="post-item" data-categories="${post.categories}">
+          <div class="post-details">
+            <span class="post-title"><a href="${post.url}">${post.title}</a></span>
+            <span class="post-date">${post.day}</span>
+          </div>
+          ${post.description ? `<p class="post-description">${post.description}</p>` : ""}
+        </li>
+      `;
+      activityList.insertAdjacentHTML("beforeend", postHTML);
     });
 
-    // Handle conditional text based on active categories
-    textRecent.style.display = activeCategories.size === buttons.length ? "block" : "none";
-    textProjects.style.display = activeCategories.size === 1 && activeCategories.has("Projects") ? "block" : "none";
-    textThoughts.style.display = activeCategories.size === 1 && activeCategories.has("Thoughts") ? "block" : "none";
-    textVU.style.display = activeCategories.size === 1 && activeCategories.has("VU") ? "block" : "none";
+    updateConditionalText();
   }
 
+  // The animateText function cancels any previous animation and then:
+  // 1. Backspaces (deletes) the current text (fast),
+  // 2. Types out the new text (slower).
+function animateText(newText) {
+  if (deleteInterval) {
+    clearInterval(deleteInterval);
+    deleteInterval = null;
+  }
+  if (typeInterval) {
+    clearInterval(typeInterval);
+    typeInterval = null;
+  }
+
+  let currentText = textContent.innerText;
+  if (currentText === newText) return;
+
+  // Determine longest commin prefix so it is not deleted.
+  let commonPrefixLen = 0;
+  const minLen = Math.min(currentText.length, newText.length);
+  while (
+    commonPrefixLen < minLen &&
+    currentText.charAt(commonPrefixLen) === newText.charAt(commonPrefixLen)
+  ) {
+    commonPrefixLen++;
+  }
+
+  const deleteSpeed = 50;
+  const typeSpeed = 80;
+
+  // Delete characters after the common prefix.
+  function startDeletion() {
+    deleteInterval = setInterval(() => {
+      if (currentText.length > commonPrefixLen) {
+        currentText = currentText.slice(0, -1);
+        textContent.innerText = currentText;
+      } else {
+        clearInterval(deleteInterval);
+        deleteInterval = null;
+        startTyping();
+      }
+    }, deleteSpeed);
+  }
+
+  // Type new text from the common prefix onward.
+  function startTyping() {
+    let index = commonPrefixLen;
+    typeInterval = setInterval(() => {
+      if (index < newText.length) {
+        currentText += newText.charAt(index);
+        textContent.innerText = currentText;
+        index++;
+      } else {
+        clearInterval(typeInterval);
+        typeInterval = null;
+      }
+    }, typeSpeed);
+  }
+
+  // If current text has extra characters beyond the common prefix, delete them. Else, type directly.
+  if (currentText.length > commonPrefixLen) {
+    startDeletion();
+  } else {
+    startTyping();
+  }
+}
+
+
+  // Determine new text based on active category.
+  function updateConditionalText() {
+    let newText = "";
+    if (activeCategories.has("all")) {
+      newText = "All posts. ";
+    } else if (activeCategories.size === 1) {
+      const category = Array.from(activeCategories)[0].toLowerCase();
+      if (category === "projects") {
+        newText = "All portfolio projects. ";
+      } else if (category === "thoughts") {
+        newText = "All my thoughts. ";
+      } else if (category === "vu") {
+        newText = "All my VU projects. ";
+      } else {
+        newText = "All posts. ";
+      }
+    }
+    animateText(newText);
+  }
+
+  // Button click. Ensures only a single category can be active.
   buttons.forEach(button => {
     button.addEventListener("click", function () {
       const category = this.dataset.category;
 
-      if (activeCategories.has(category)) {
-        activeCategories.delete(category);
-        this.classList.remove("active");
+      if (category === "all") {
+        activeCategories = new Set(["all"]);
       } else {
+        activeCategories.clear();
         activeCategories.add(category);
-        this.classList.add("active");
       }
 
-      // Update URL with selected filters
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.set('active', activeCategories.size === buttons.length ? "" : Array.from(activeCategories).join(","));
-      history.pushState({}, "", newUrl);
+      // Update button active classes.
+      buttons.forEach(btn => btn.classList.remove("active"));
+      this.classList.add("active");
 
-      // Re-render posts based on selected categories
+      updateURL();
       updatePosts();
     });
   });
 
-  // Initial call to update posts based on categories
+  // Initial rendering: animate the text and render posts.
   updatePosts();
 });
-
-</script>
-
-
-<style>
-/* General Styles */
-#feed .container {
-  padding: 20px;
-}
-
-#feed .month-separator {
-  text-align: right;
-  font-size: 1.1rem;
-  font-style: italic;
-  margin-top: 20px;
-  margin-bottom: 10px;
-  color: #333;
-}
-
-#feed .year-separator {
-  text-align: right;
-  font-weight: bold;
-  font-size: 1.2rem;
-  margin-top: 20px;
-  margin-bottom: 10px;
-  color: #333;
-}
-
-#feed .post-entry {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.post-subtitle {
-  font-size: 0.9rem; /* Adjust as needed */
-  font-style: italic;
-  color: #666; /* Optional: makes it a bit softer */
-}
-
-#feed .post-details {
-  flex: 1;
-}
-
-#feed .post-date {
-  font-size: 1rem;
-  font-style: italic;
-  /* color: #007bff; */
-  min-width: 50px;
-  text-align: right;
-}
-
-/* Responsive Design */
-@media (min-width: 768px) {
-  #feed .container {
-    width: 90%;
-    max-width: 960px;
-  }
-}
-
-@media (min-width: 1024px) {
-  #feed .container {
-    width: 80%;
-    max-width: 1200px;
-  }
-}
-
-/* Category Filter Styling */
-#category-filters {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.category-button {
-  background-color: white;
-  color: #007bff;
-  border: 1px solid #007bff;
-  padding: 5px 10px;
-  margin: 5px;
-  cursor: pointer;
-  border-radius: 5px;
-  transition: 0.2s ease-in-out;
-}
-
-.category-button:hover, .category-button.active {
-  background-color: #007bff;
-  color: white;
-}
-
-/* Conditional Text */
-.conditional-text {
-  text-align: center;
-  font-size: 1.3rem;
-  margin-bottom: 15px;
-}
-
-/* ensure image is not to dark on main page */
-header.masthead .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            width: 100%;
-            background-color: $gray-900;
-            opacity: 0.3 !important;
-}
-</style>

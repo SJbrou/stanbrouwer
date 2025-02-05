@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "VU DTS portfolio"
-subtitle: "Portfolio on digitalisation and sustainability"
+description: "Portfolio on digitalisation and sustainability"
 date: 2024-11-12 17:00:00
 tags: ["VU"]
 background: 'https://www.iss.nus.edu.sg/images/default-source/default-album/innovate-aug-2024-dsus-article.jpg?sfvrsn=4718885f_0'

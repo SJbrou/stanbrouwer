@@ -1,0 +1,8 @@
+
+reposts:
+
+content
+- consumption: a personal overview of all the media I consumed and might one day be looking for
+- curation: the content I deem worthy of sharing
+
+- About me typing should not push footer down. It should be down by default

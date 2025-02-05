@@ -2,7 +2,7 @@
 layout: page
 title: Thoughts
 permalink: /oldposts.html
-background: '/img/bg-post.jpg'
+background: '/assets/img/bg-post.jpg'
 ---
 {% for post in paginator.posts %}
   <article class="post-preview">

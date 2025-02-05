@@ -2,7 +2,7 @@
 layout: page
 title: Thoughts
 permalink: /thoughts.html
-background: '/img/bg-post.jpg'
+background: '/assets/img/bg-post.jpg'
 ---
 
 <section id="feed">

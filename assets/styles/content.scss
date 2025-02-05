@@ -1,0 +1,24 @@
+.content {
+    width: 50%;
+    max-width: 800px;
+    height: 100%;
+    margin: auto;
+    color: $color-secondary;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    text-align: left;
+}
+
+/* Medium screen width */
+@media (max-width: 1200px) {
+    .content {
+        width: 65%;
+    }
+}
+
+/* Small screen width (phones) */
+@media (max-width: 768px) {
+    .content {
+        width: 85%;
+    }
+}

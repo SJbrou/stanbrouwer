@@ -1,0 +1,115 @@
+.navbar {
+    margin: 0 auto;
+    padding: 0;
+    width: 100%;
+    height: 6rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: $navbar-font !important;
+    letter-spacing: 0.10rem;
+    color: $navbar-font-color;
+    font-size: 1em;
+}
+
+.navbar-list {
+    display: flex;
+    list-style: none;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+}
+
+.navbar-list li {
+    margin: 0 20px;
+    display: flex;
+    align-items: center;
+    font-family: $navbar-font !important;
+}
+
+.navbar-list li:first-child { /* Align first item left */
+    margin-left: 0;
+    margin-right: auto;
+    transform-origin: left center;
+}
+
+.navbar-list li:last-child { /* Align last item right */
+    margin-right: 0;
+    transform-origin: right center;
+}
+
+.navbar-a {
+    font-family: $navbar-font;
+}
+
+
+/* Active & Hober item  highlighting & animation */
+/* Base state for all nav items: normal size */
+.navbar-list .nav-item {
+    transform: scale(1);
+    transition: transform 0.2s ease-in-out;
+}
+
+  /* By default, the active item is larger */
+  .navbar-list .nav-item.active {
+    transform: scale(1.5);
+  }
+  
+  /* When hovering over a non-active item, scale it up */
+  .navbar-list .nav-item:not(.active):hover {
+    transform: scale(1.5);
+  }
+  
+  /* When any non-active item is hovered, the active item should shrink back to normal,
+     unless the active item itself is hovered */
+  .navbar-list:hover .nav-item.active:not(:hover) {
+    transform: scale(1);
+  }
+
+
+
+  /* Responsiveness */
+  /* Medium screen width */
+  @media (max-width: 1200px) {
+    .navbar {
+        font-size: 0.8em;
+    }
+}
+
+  @media (max-width: 768px) {
+    .navbar {
+        font-size: 0.7em;
+    }
+    
+    .navbar-list li {
+      margin: 0 10px;
+    }
+  
+    .navbar-list {
+      justify-content: space-between;
+    }
+  }
+
+  /* Dark Mode Button styling */
+  .btn-transparent {
+    background-color: transparent;
+    font-size: 1.3rem;
+    color: inherit;
+    cursor: pointer;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    height: 100%;
+    line-height: normal;
+  }
+  
+  body.dark-mode .btn-transparent {
+    color: #fff;
+  }
+  
+
+
+

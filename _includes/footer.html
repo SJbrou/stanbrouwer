@@ -1,84 +1,44 @@
 <!-- Section at the Bottom -->
-<section class="footer-section py-4">
-  <div class="container">
-    <!-- Footer Separator -->
-    <div class="footer-separator mb-4 text-center">
-      <span class="rotated-symbol">§</span>
-      <span class="rotated-symbol">§</span>
-      <span class="rotated-symbol">§</span>
-    </div>
+<section class="footer-section">
 
-    <!-- Footer Navigation -->
-    <div class="footer-nav text-center">
-      <ul class="nav justify-content-center">
-        {% for item in site.data.navigation %}
-          <li class="nav-item">
-            <!-- Use site.baseurl correctly to append the relative path -->
-            <a href="{{ site.baseurl }}{{ item.link | relative_url }}" class="foot-link {% if page.url == item.link %}font-weight-bold{% endif %}">
-              {{ item.name }}
-            </a>
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
+  <div class="social-icons">
+    {% if site.email %}
+      <a href="mailto:{{ site.email | encode_email }}" class="foot-link">
+        <i class="fas fa-envelope"></i>
+      </a>
+    {% endif %}
+    
+    {% if site.twitter_username %}
+      <a href="https://twitter.com/{{ site.twitter_username }}" class="foot-link">
+        <i class="fab fa-twitter"></i>
+      </a>
+    {% endif %}
 
-
-    <!-- Copyright -->
-    <div class="copyright text-center mt-4">
-      <p>&copy; {{ site.author }} {{ 'now' | date: '%Y' }}</p>
-    </div>
+    {% if site.facebook_username %}
+      <a href="https://www.facebook.com/{{ site.facebook_username }}" class="foot-link">
+        <i class="fab fa-facebook-f"></i>
+      </a>
+    {% endif %}
+    
+    {% if site.linkedin_username %}
+      <a href="https://www.linkedin.com/in/{{ site.linkedin_username }}" class="foot-link">
+        <i class="fab fa-linkedin"></i>
+      </a>
+    {% endif %}
+    
+    {% if site.github_username %}
+      <a href="https://github.com/{{ site.github_username }}" class="foot-link">
+        <i class="fab fa-github"></i>
+      </a>
+    {% endif %}
+    
+    {% if site.instagram_username %}
+      <a href="https://instagram.com/{{ site.instagram_username }}" class="foot-link">
+        <i class="fab fa-instagram"></i>
+      </a>
+    {% endif %}
   </div>
+
+  <!-- Copyright -->
+  <p style="font-family: 'LEMONMILK-light">&copy; {{ site.author }} {{ 'now' | date: '%Y' }}</p>
 </section>
-
-<!-- Custom Styles for Footer Section -->
-<style>
-  /* Ensure consistent font for the footer section with the navbar */
-  .footer-section {
-    background-color: transparent; /* Same as the main page */
-    color: inherit; /* Keep the text color same as the rest of the page */
-    padding: 3rem 0; /* Add some spacing for the section */
-    font-family: 'Open Sans', sans-serif; /* Use the same font as the navbar */
-  }
-
-  .footer-section .footer-separator {
-    font-family: var(--modern-font-family, 'Arial', sans-serif); /* Use your desired font */
-    font-size: 1.5rem;
-    text-align: center;
-    display: flex;
-    justify-content: center;
-    gap: 2rem; /* Adjust spacing between the symbols */
-    margin-bottom: 2rem;
-  }
-
-  .footer-section .rotated-symbol {
-    font-family: var(--modern-font-family, 'Arial', sans-serif); /* Use your desired font */
-    display: inline-block;
-    transform: rotate(92deg); /* NoteRotate each symbol */
-    font-size: 1.5rem; /* Adjust size as needed */
-  }
-
-  .footer-section .nav-item {
-    margin-right: 1rem;
-  }
-
-  .footer-section .nav-item:last-child {
-    margin-right: 0;
-  }
-
-  /* Active link styling */
-  .footer-section .current {
-    font-weight: bold;
-  }
-
-  /* Optional: Add hover effect for navigation links */
-  .footer-section .foot-link:hover {
-    color: inherit;
-    text-decoration: underline;
-  }
-
-  /* Styling for copyright */
-  .footer-section .copyright p {
-    font-size: 1rem;
-    color: inherit; /* Keeps the same color as the page text */
-  }
-</style>

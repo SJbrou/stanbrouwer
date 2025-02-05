@@ -3,32 +3,38 @@ layout: default
 ---
 
 <!-- Page Header -->
-{% if page.background %}
-<header class="masthead" style="background-image: url('{{ page.background | prepend: site.baseurl | replace: '//', '/' }}')">
-  {% else %}
-  <header class="masthead">
+<div class="content">
+  <header class="content-header">
+    {% if page.title %}
+    <h1 class="title">{{ page.title }}</h1>
     {% endif %}
-    <div class="overlay"></div>
-    <div class="container">
-      <div class="row">
-        <div class="col-lg-8 col-md-10 mx-auto">
-          <div class="page-heading">
-            <h1>{{ page.title }}</h1>
-            {% if page.description %}
-            <span class="subheading">{{ page.description }}</span>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-    </div>
+    {% if page.description %}
+    <span class="subtitle">{{ page.description }}</span>
+    {% endif %}
   </header>
+</div>
 
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-8 col-md-10 mx-auto">
+<div class="content">
+  <div class="main-content">
+  {{ content }}
+  </div>
+</div>
 
-        {{ content }}
-
-      </div>
+{% if page.background %}
+  <div class="content">
+    <div class="content-header-image-container">
+      <img src="{{ page.background | prepend: site.baseurl | replace: '//' , '/' }}" alt="Header Image" class="content-header-image">
     </div>
   </div>
+{% endif %}
+
+<style>
+  .content-header-image {
+  margin-top: 2rem;
+  width: 150px;       /* or any fixed size you prefer */
+  height: 150px;      /* make sure the height equals the width */
+  border-radius: 50%; /* creates the circular shape */
+  object-fit: cover;  /* ensures the image fills the container */
+}
+
+</style>

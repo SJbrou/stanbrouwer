@@ -1,15 +1,27 @@
 ---
 layout: page
-title: 
-description: What I do
-background: '/img/at-the-office.jpeg'
+title:
+description: 
+permalink: /index.html
 ---
 
-<script>
-  window.location.href = "/activity.html";
-</script>
 
-I've always thinkered around with tech and built dozens of little site projects. Now I finally made the step and bought a domain. This site currently is a Jekyll project with a lot of bootstrap5 hosted on GitHub pages. There are some projects that requre more backend so a migration to AWS EC2 is planned. 
+Welcome to my corner of the internet. 
+<br>
+
+I've always wanted my own place where I could
+<!--
+[publish my thoughts](/activity.html)
+[share my university projects](/activity.html)
+[introduce myself](/me.html)
+-->
+- Publish my thoughts
+- Share my university projects
+- Introuce myself
+<br>
+
+Finally I made the step and bought the domain. This site currently is a Jekyll project with hosted on GitHub pages. I couldn't live with the template I started with, so decided to rebuild the whole site by myself. 
+
 
 <style>
     /* ensure image is not to dark on main page */
@@ -23,3 +35,7 @@ header.masthead .overlay {
             opacity: 0.3 !important;
 }
 </style>
+
+<script>
+    window.location.href = "/me.html";
+</script>

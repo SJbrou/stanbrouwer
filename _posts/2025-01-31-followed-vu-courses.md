@@ -1,13 +1,12 @@
 ---
 layout: post
 title: "Followed courses"
-subtitle: "List of my followed courses at the VU"
+description: "List of my followed courses at the VU"
 date: 2025-01-30 17:00:00
 tags: ["VU"]
 background: 'https://assets-us-01.kc-usercontent.com/d8b6f1f5-816c-005b-1dc1-e363dd7ce9a5/54da6372-14be-40a5-a217-46edf574e15b/CH_C119960b_Student_Studeren_Vakken_2200x720.jpg?w=2200&h=540&fit=clip&rect=0,90,2200,540'
 ---
 
-Each course corresponds to 6 <a href="https://education.ec.europa.eu/education-levels/higher-education/inclusive-and-connected-higher-education/european-credit-transfer-and-accumulation-system">ECTS</a>. A full year of university education is equal to 60 <a href="https://education.ec.europa.eu/education-levels/higher-education/inclusive-and-connected-higher-education/european-credit-transfer-and-accumulation-system">ECTS</a>. 
 
 <style>
 li {
@@ -18,6 +17,7 @@ li {
   margin-left: auto;
   text-align: right;
   font-size: 0.8em; /* Slightly smaller font size, about 1px smaller */
+  color: #ADADAD;
 }
 
 </style>
