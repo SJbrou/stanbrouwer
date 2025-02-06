@@ -6,16 +6,20 @@
 
 <body>
 
-  {% include navbar.html %}
+  <div class="wrapper">
+    {% include navbar.html %}
 
-  {{ content }}
+    {{ content }}
 
-  {% include footer.html %}
+    {% include footer.html %}
 
-  {% include scripts.html %}
-
-  {% include google-analytics.html %}
+    {% include scripts.html %}
+  </div>
 
 </body>
+
+{% include scripts.html %}
+
+{% include google-analytics.html %}
 
 </html>

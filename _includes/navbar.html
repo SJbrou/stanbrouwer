@@ -8,30 +8,7 @@
             <a href="{{ item.url }}" class="navbar-a">{{ item.title }}</a>
           </li>
         {% endfor %}
-        <!-- Dark Mode Toggle Button -->
-        <!--<li class="nav-item">
-          <a href="#">
-            <button id="dark-mode-toggle" class="btn btn-transparent">🌙</button>
-          </a>
-        </li>
-      -->
       </ul>
     </nav>
   </header>
 </div>
-
-
-<!-- Dark Mode Script -->
-<!--
-<script>
-  const toggle = document.getElementById('dark-mode-toggle');
-  toggle.addEventListener('click', () => {
-    document.body.classList.toggle('dark-mode');
-    localStorage.setItem('dark-mode', document.body.classList.contains('dark-mode'));
-  });
-
-  if (localStorage.getItem('dark-mode') === 'true') {
-    document.body.classList.add('dark-mode');
-  };
-</script>
--->

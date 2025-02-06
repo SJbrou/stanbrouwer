@@ -1,21 +1,19 @@
 ---
 layout: page
-title: 
-description: 
 permalink: /me.html
 background: #'/assets/img/bike-in-berlin.jpeg'
 ---
-
+<div id="animated-text-container">
 <p id="animated-text">Hi, I'm Stan...</P>
+</div>
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const textElement = document.getElementById("animated-text");
     const introText = "Hi, I'm Stan...";
-    const fullText = `<br><br>Currently studying Information Science and a bunch of other things at the VU.<br><br>
-When I'm not studying, I'm either working as a teacher assistant at the VU, or helping companies make sense of their data.<br><br>
-My current projects focus on applied machine learning, consumer analytics, business intelligence, and ESG reporting for various organizations.<br><br>
-Please feel free to contact me if there is anything I can help with, or you'd just like to chat. I'm available.`;
+    const fullText = `<br><br>Currently studying many things computer science related, and working as a teacher assistant for the school of business and economics at VU university. <br><br>I help multiple companies make sense of their data as a freelancer, and am currently writing my masters' thesis about machine learning and ESG reporting at CapGemini. <br><br>
+    In my free time, you'll find me working out in the mornings or discovering new music in the evenings.
+    <br><br>Feel free to reach out if you like to chat, need assistance, or want to explore collaboration. I'm available! `;
 
     let currentText = "";
     let caretVisible = true;
@@ -26,7 +24,7 @@ Please feel free to contact me if there is anything I can help with, or you'd ju
             currentText += introText[index];
             textElement.innerHTML = currentText + "|"; // Keep caret visible
             index++;
-            setTimeout(typeIntroText, 100); // Slow typing speed for intro
+            setTimeout(typeIntroText, 60); // Slow typing speed for intro
         } else {
             setTimeout(removeDots, 1000); // Short pause before removing dots
         }
@@ -40,7 +38,7 @@ Please feel free to contact me if there is anything I can help with, or you'd ju
         } else if (currentText.endsWith("..")) {
             currentText = currentText.slice(0, -1); // Remove second dot
             textElement.innerHTML = currentText + "|";
-            setTimeout(() => typeText(0, currentText, 60), 500); // Start typing full text
+            setTimeout(() => typeText(0, currentText, 50), 500); // Start typing full text
         }
     }
 
@@ -74,3 +72,24 @@ Please feel free to contact me if there is anything I can help with, or you'd ju
     typeIntroText();
 });
 </script>
+
+<style>
+
+#animated-text-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Ensures text starts at the top */
+  justify-content: flex-start;
+  width: 100%;
+  min-height: 600px; /* Ensures container has enough space */
+  padding: 20px; /* Adds some spacing */
+  box-sizing: border-box;
+}
+
+#animated-text {
+  width: 100%;
+  white-space: normal; /* Allows normal text wrapping */
+}
+
+
+</style>

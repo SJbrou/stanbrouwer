@@ -18,10 +18,6 @@
     transition: color 0.3s ease; /* Smooth transition */
   }
   
-  /* Hover effect: Change color to red */
-  .footer-section .foot-link:hover svg {
-    color: #ff6347; /* Red color on hover */
-  }
   
   /* Optional: Styling the text */
   .footer-section p {
@@ -56,4 +52,13 @@
     letter-spacing: 0.10rem;
     color: $navbar-font-color;
     margin-top: 1rem; /* Vertical space between icons and copyright */
+  }
+
+  .profile-picture {
+    margin-top: 2rem;
+    width: 100px;       /* or any fixed size you prefer */
+    height: 100px;      /* make sure the height equals the width */
+    border-radius: 50%; /* creates the circular shape */
+    object-fit: cover;  /* ensures the image fills the container */
+    margin-bottom: 1rem;
   }

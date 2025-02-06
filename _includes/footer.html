@@ -1,5 +1,8 @@
 <!-- Section at the Bottom -->
 <section class="footer-section">
+  <div class="profile-pic">
+    <img src="{{ '/assets/img/at-the-office-cropped.jpeg' | prepend: site.baseurl | replace: '//' , '/' }}" alt="Profile Picutre" class="profile-picture">
+  </div>
 
   <div class="social-icons">
     {% if site.email %}
@@ -42,3 +45,4 @@
   <!-- Copyright -->
   <p style="font-family: 'LEMONMILK-light">&copy; {{ site.author }} {{ 'now' | date: '%Y' }}</p>
 </section>
+

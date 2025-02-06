@@ -80,6 +80,36 @@ $navbar-font-hover-color: $color-secondary;
 }
 
 
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Fixed space between header and content */
+.content {
+  flex: 1;
+  padding-top: 50px; /* Adjust this value to set space between header and content */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensures new content only pushes downward */
+.content-inner {
+  align-self: flex-start; /* Ensures content grows downward */
+}
+
+/* Sticky footer */
+.footer {
+  margin-top: auto; /* Pushes footer to bottom */
+}
+
+
 * {
     list-style: none;
     text-decoration: none;

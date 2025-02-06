@@ -22,7 +22,7 @@
 }
 
 .navbar-list li {
-    margin: 0 20px;
+    margin: 0 30px;
     display: flex;
     align-items: center;
     font-family: $navbar-font !important;
@@ -70,7 +70,6 @@
 
 
   /* Responsiveness */
-  /* Medium screen width */
   @media (max-width: 1200px) {
     .navbar {
         font-size: 0.8em;
@@ -83,33 +82,10 @@
     }
     
     .navbar-list li {
-      margin: 0 10px;
+      margin: 0 20px;
     }
   
     .navbar-list {
       justify-content: space-between;
     }
   }
-
-  /* Dark Mode Button styling */
-  .btn-transparent {
-    background-color: transparent;
-    font-size: 1.3rem;
-    color: inherit;
-    cursor: pointer;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    height: 100%;
-    line-height: normal;
-  }
-  
-  body.dark-mode .btn-transparent {
-    color: #fff;
-  }
-  
-
-
-

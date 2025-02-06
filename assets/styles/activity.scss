@@ -1,119 +1,71 @@
-/* Category Buttons */
-#category-filter-buttons {
-    display: flex;
-    width: auto;
-    justify-content: center;
-    margin-bottom: 20px;
-  }
-  
-  .category-button {
-    display: flex;
-    justify-content: space-between;
-    font-family: $font-lemonmilk-light;
-    padding: 5px 7px;
-    margin: 5px;
-    background-color: none;
-    cursor: pointer;
-    border-radius: 8px;
-    border: none;
-    color: white;
-  }
-  
-  .category-button.active {
-    background-color: #444;
-    border-radius: 8px;
-    border: none;
-  }
-  
-  /* Activity List */
-  #activity-list {
-    list-style: none;
-    padding: 0;
-    font: 100% / 1.5 "AT Lang Gothic", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-weight: 300;
-    text-align: left;
-    font-kerning: normal;
-    font-variant-ligatures: common-ligatures contextual;
-    font-feature-settings: "kern", "liga", "clig", "calt";
-  }
-  
-  
-  /* Post Items */
-  .post-item {
-    display: flex;
-    flex-direction: column;
-    padding: 0px 0;
-    padding-left: 10px;
-  }
-  
-  .post-details {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  .post-title {
-  }
-  
-  .post-date {
-    font-size: 14px;
-    color: #555;
-    text-align: right;
-    flex-shrink: 0;
-    min-width: 30px;
-    font-family: $font-lemonmilk-light
-  }
-  
-  /* Post Description */
-  .post-description {
-    font-size: 14px;
-    color: #777;
-    margin-top: 0px;
-  }
-  
-  /* Year & Month Separator */
-  .year-month-separator {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 1.2rem;
-    font-weight: bold;
-    padding: 10px 0;
-    font-family: $font-lemonmilk-light;
-    letter-spacing: 0.10rem;
-  }
-  
-  .year-month-separator .year {
-    text-align: left;
-    font-size: 1.2rem;
-  }
-  
-  .year-month-separator .month {
-    text-align: right;
-    font-size: 0.8rem;
-  }
-  
-  /* Conditional Text */
-  #category-text {
-    margin-bottom: 80px;
-    font-size: 1.5rem;
-    font-weight: bold;
-    font: 100% / 1.5 "AT Lang Gothic", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-weight: 300;
-    text-align: left;
-      
-    font-kerning: normal;
-    font-variant-ligatures: common-ligatures contextual;
-    font-feature-settings: "kern", "liga", "clig", "calt";
-    font-size: 1.5em;
-  }
-  
-  /* Blinking caret */
-  #caret {
-    animation: blink 1s step-start infinite;
-  }
-  
-  @keyframes blink {
-    50% { opacity: 0; }
-  }
-  
+/* Ensure activity feed is properly aligned */
+#activity-list {
+  width: 100%;
+  max-width: 800px; /* Adjust if necessary */
+  margin: 0 auto; /* Center align the list */
+}
+
+/* Year & Month Separator */
+.year-month-separator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 10px 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+  font-family: $font-lemonmilk-light;
+  letter-spacing: 0.10rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Optional: subtle separator line */
+}
+
+/* Ensuring year is aligned left and month is aligned right */
+.year-month-separator .year {
+  flex: 1;
+  text-align: left;
+  font-size: 1.2rem;
+}
+
+.year-month-separator .month {
+  text-align: right;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+/* Post Items */
+.post-item {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 0;
+  padding-left: 10px;
+  width: 100%;
+}
+
+/* Post Details */
+.post-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* Ensure post titles and dates are aligned */
+.post-title {
+  flex: 1;
+}
+
+.post-date {
+  font-size: 14px;
+  color: #555;
+  text-align: right;
+  flex-shrink: 0;
+  min-width: 50px; /* Ensures consistent width */
+  font-family: $font-lemonmilk-light;
+}
+
+/* Post Description */
+.post-description {
+  font-size: 14px;
+  color: #777;
+  margin-top: 2px;
+}
