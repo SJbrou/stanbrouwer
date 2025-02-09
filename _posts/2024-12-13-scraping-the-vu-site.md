@@ -152,21 +152,15 @@ head(studiegids_links)
     
 Each of the links in the list "studiegids_links" links to a webpage with the info we want to scrape. I'd like to scrape the following data into a dataframe:
 
-The course title as in:
-\<div id="title">
-\<h2>Academic Skills Literature and Society 2\</h2>
-
-
-from the \<div class="course-data">
-- from the table the values of the \<td> under the following \<th>'s (each in a separate column)
-  - "Course Code"
-  - "Credits"
-  - "Period"
-  - "Course Level"
-  - "Faculty"
-  - "Course Coordinator"
-  - "Examiner"
-  - "Teaching staff"
+- Course Title (separate div)
+- "Course Code"
+- "Credits"
+- "Period"
+- "Course Level"
+- "Faculty"
+- "Course Coordinator"
+- "Examiner"
+- "Teaching staff"
   
 There also is a \<div class="h3 course-data-header">Target audiences\</div>. I would like all the text values of the href's that are child elements of it. Store them into one column. 
 
@@ -274,4 +268,8 @@ head(data)
 write.csv(data, "VU_courses", row.names = FALSE)
 {% endhighlight %}
 
-Tada! now we can query the courses as intended!
+The script takes some time to run, especially as we don't want to get flagged by overloading the server with requests. However, after a while, we have a nice dataframe with all the courses offered by the VU, wich we can query as intended!
+
+
+Follow the links to the 
+<a href="https://github.com/SJbrou/scraping-vu">GitHub repository</a>, and <a href="https://github.com/SJbrou/scraping-vu/blob/main/scraped_courses.csv">final_results.csv</a>

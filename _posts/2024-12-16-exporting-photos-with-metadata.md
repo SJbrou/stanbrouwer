@@ -14,20 +14,20 @@ Luckily, photos have metadata, which we can manipulate in Python. The following 
 
 It requires some python packages that can be installed using
 
-```zsh
+{% highlight shell %}
 pip install pillow pillow-heif piexif
-```
+{% endhighlight %}
 
 The input and output directory should be specified in
-```python
+{% highlight python %}
 # Input and output directories
 from_directory = "from"
 to_directory = "to"
-```
+{% endhighlight %}
 
 Complete code (also on <a href="https://github.com/SJbrou/HEIC_to_JPG">GitHub</a>)
 
-```python
+{% highlight python %}
 
 import os
 from datetime import datetime
@@ -104,8 +104,10 @@ for filename in os.listdir(from_directory):
             print(f"Failed to process {filename}: {e}")
 
 
-"""
+{% endhighlight %}
 
+
+{% highlight python %}
 # Some code to inspect the metadata of HEIC files
 from PIL import Image
 import pillow_heif
@@ -131,6 +133,6 @@ if exif_data:
         print(f"{tag_name}: {value}")
 else:
     print("No EXIF data found.")
-"""
+{% endhighlight %}
 
-```
+And there you have it! A simple script to convert HEIC files to JPG while preserving the original creation date.
