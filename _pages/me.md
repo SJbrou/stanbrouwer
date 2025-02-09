@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: default
 permalink: /me.html
 background: #'/assets/img/bike-in-berlin.jpeg'
 ---
@@ -38,7 +38,8 @@ document.addEventListener("DOMContentLoaded", function () {
         } else if (currentText.endsWith("..")) {
             currentText = currentText.slice(0, -1); // Remove second dot
             textElement.innerHTML = currentText + "|";
-            setTimeout(() => typeText(0, currentText, 50), 500); // Start typing full text
+            setTimeout(removeDots, 300); // Pause before removing another dot
+            setTimeout(() => typeText(0, currentText, 45), 700); // Start typing full text
         }
     }
 
@@ -52,7 +53,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 index++;
             }
 
-            const acceleratedDelay = Math.max(10, delay * 0.95); // Gradually speeds up but never below 20ms
+            const acceleratedDelay = Math.max(10, delay * 0.90); // Gradually speeds up but never below 20ms
             textElement.innerHTML = currentText + "|"; // Keep caret visible
             setTimeout(() => typeText(index, currentText, acceleratedDelay), acceleratedDelay);
         } else {
@@ -74,15 +75,13 @@ document.addEventListener("DOMContentLoaded", function () {
 </script>
 
 <style>
-
 #animated-text-container {
   display: flex;
   flex-direction: column;
   align-items: flex-start; /* Ensures text starts at the top */
   justify-content: flex-start;
   width: 100%;
-  min-height: 600px; /* Ensures container has enough space */
-  padding: 20px; /* Adds some spacing */
+  min-height: 700px; /* Ensures container has enough space */
   box-sizing: border-box;
 }
 
@@ -90,6 +89,5 @@ document.addEventListener("DOMContentLoaded", function () {
   width: 100%;
   white-space: normal; /* Allows normal text wrapping */
 }
-
 
 </style>

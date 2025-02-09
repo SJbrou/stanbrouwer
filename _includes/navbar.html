@@ -1,14 +1,11 @@
-
-<div class="content">
-  <header>
-    <nav class="navbar">
-      <ul class="navbar-list">
-        {% for item in site.data.navigation %}
-        <li class="nav-item {% if page.url == item.url %}active{% endif %}">
-            <a href="{{ item.url }}" class="navbar-a">{{ item.title }}</a>
-          </li>
-        {% endfor %}
-      </ul>
-    </nav>
-  </header>
-</div>
+<header>
+  <nav>
+    <ul class="navbar-list">
+      {% for item in site.data.navigation %}
+      <li class="nav-item {% if page.url == item.url %}active{% endif %}">
+          <a href="{{ item.url }}" class="navbar-a">{{ item.title }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </nav>
+</header>

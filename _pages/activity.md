@@ -231,11 +231,11 @@ function updatePosts() {
     } else if (activeCategories.size === 1) {
       const category = Array.from(activeCategories)[0].toLowerCase();
       if (category === "projects") {
-        newText = "My projects. ";
+        newText = "All my projects. ";
       } else if (category === "thoughts") {
         newText = "A selection of my thoughts. ";
       } else if (category === "vu") {
-        newText = "My projects for VU university. ";
+        newText = "All my university stuff. ";
       } else {
         newText = "All posts. ";
       }

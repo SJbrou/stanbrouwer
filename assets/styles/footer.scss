@@ -1,64 +1,48 @@
-  /* Ensure consistent font for the footer section with the navbar */
-  .footer-section {
-    background-color: transparent; /* Same as the main page */
-    color: inherit; /* Keep the text color same as the rest of the page */
-    padding-top: 6em;
-    padding-bottom: 2em;
-    /* Flexbox to center the content vertically */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-  }
-  
-  /* Default color for all icons */
-  .footer-section .foot-link svg {
-    color: #333; /* Dark gray as default */
-    transition: color 0.3s ease; /* Smooth transition */
-  }
-  
-  
-  /* Optional: Styling the text */
-  .footer-section p {
-    font-size: 1rem;
-    color: #333; /* Adjust text color */
-    margin-top: 1rem;
-  }
-  
-  
-  /* Flex row for social icons */
-  .footer-section .social-icons {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  /* Style for social links */
-  .footer-section .foot-link {
-    margin-right: 1.7rem; /* Space between icons */
-    font-size: 1.5rem; /* Increase icon size */
-    text-decoration: none;
-  }
-  
-  .footer-section .foot-link:last-child {
-    margin-right: 0;
-  }
-  
-  
-  /* Styling for copyright */
-  .footer-section p {
-    font-size: 0.7rem;
-    letter-spacing: 0.10rem;
-    color: $navbar-font-color;
-    margin-top: 1rem; /* Vertical space between icons and copyright */
-  }
+/* Variables */
+$footer-font-color: $color-secondary;
+$footer-font-size: 0.7rem;
+$footer-font-family: $font-lemonmilk-light; 
 
-  .profile-picture {
-    margin-top: 2rem;
-    width: 100px;       /* or any fixed size you prefer */
-    height: 100px;      /* make sure the height equals the width */
-    border-radius: 50%; /* creates the circular shape */
-    object-fit: cover;  /* ensures the image fills the container */
-    margin-bottom: 1rem;
-  }
+.footer-section {
+  background-color: transparent;
+  padding-top: 6rem;
+  padding-bottom: 2em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.profile-picture {
+  margin-top: 2rem;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 0.8rem;
+  box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.3); /* shadow (horizontal-offset vertocal-offset blur-radius rgb-color-with-opacity */
+}
+
+.footer-section a {
+  margin: 0 0.8rem;
+}
+
+.footer-section .foot-link {
+  font-size: 1.6rem;
+  color: $color-secondary;
+  text-decoration: none;
+}
+
+.footer-section .foot-link svg:hover {
+  color: $color-secondary-grey;
+}
+
+.footer-copy-right {
+  font-size: $footer-font-size;
+  font-family: $footer-font-family;
+  letter-spacing: 0.10rem;
+  color: $footer-font-color;
+  margin-top: 1rem;
+}
+

@@ -33,8 +33,8 @@ google_analytics:   	G-270JCJY9ZM
 # Build settings
 markdown: kramdown
 kramdown:
-input: GFM
-syntax_highlighter: rouge
+  input: GFM
+  syntax_highlighter: rouge
 
 # paginate:           0 # Disable pagination to show all posts
 # paginate_path:      "/posts/page:num/"

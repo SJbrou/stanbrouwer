@@ -5,22 +5,17 @@ layout: default
 <!-- Page Header -->
 {% if page.title %}
 {% if page.description %}
-<div class="content">
+<header class="content-header">
+  {% if page.title %}
+  <h1 class="title">{{ page.title }}</h1>
+  {% endif %}
+  {% if page.description %}
+  <span class="subtitle">{{ page.description }}</span>
+  {% endif %}
+</header>
+
 {% endif %} 
 {% endif %}
-  <header class="content-header">
-    {% if page.title %}
-    <h1 class="title">{{ page.title }}</h1>
-    {% endif %}
-    {% if page.description %}
-    <span class="subtitle">{{ page.description }}</span>
-    {% endif %}
-  </header>
-  {% if page.title %}
-  {% if page.description %}
-</div>
-  {% endif %} 
-  {% endif %}
 
 <div class="content">
   <div class="main-content">
@@ -35,14 +30,3 @@ layout: default
     </div>
   </div>
 {% endif %}
-
-<style>
-  .content-header-image {
-  margin-top: 2rem;
-  width: 100%;       /* or any fixed size you prefer */
-  height: auto;      /* make sure the height equals the width */
-  border-radius: 5%; /* creates the circular shape */
-  object-fit: cover;  /* ensures the image fills the container */
-}
-
-</style>

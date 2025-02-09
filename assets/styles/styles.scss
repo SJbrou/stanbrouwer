@@ -1,32 +1,9 @@
-/* vs code colors */
-$color-vsc-blue: #007bff;
-$color-vsc-indigo: #6610f2;
-$color-vsc-purple: #6f42c1;
-$color-vsc-pink: #e83e8c;
-$color-vsc-red: #dc3d1a;
-$color-vsc-orange: #fd7e14;
-$color-vsc-yellow: #ffc107;
-$color-vsc-green: #28a745;
-$color-vsc-teal: #20c997;
-$color-vsc-cyan: #17a2b8;
-
-$color-vs-yellow: #ffc914;
-$color-vs-lightblue: #9cdcfe;
-$color-vs-brown: #ce9178;
-$color-vs-purple: #da70d6;
-$color-vs-blue: #179ff1;
-
-$color-vs-gray: #333333;
-$color-vs-dark-gray: #252525;
-$color-vs-black: #1e1e1e;
-$color-vs-blue2: #0098ff;
-$color-vs-blue3: #0065a9;
-
-
 /* Global variables */
 $color-primary: #202635;
 $color-secondary: #ffffff;
 $color-secondary-grey: #adadad;
+$color-secondary-grayer: #949494;
+$color-code-background: #38425c;
 $color-tertiery-red: #781717;
 $color-tertiery-yellow: #aea21f;
 
@@ -52,13 +29,66 @@ $font-ATLangGothic: 'AT lang gothic', sans-serif;
 
 /* customization */
 $font: 100%/1.5 "AT Lang Gothic","Helvetica Neue", Helvetica,Arial,sans-serif;
+$font-code: $font-EBGara, monospace;
 
 $navbar-font: $font-lemonmilk-light;
 $h1234-font: $font-lemonmilk-light;
 
 
-$navbar-font-color: $color-secondary;
-$navbar-font-hover-color: $color-secondary;
+
+/* Generals */
+
+
+html, body {
+  height: 100%;
+  margin: 0;
+  background-color: $color-primary;
+  list-style: none;
+  text-decoration: none;
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 50%;
+  max-width: 800px;
+  margin: auto;
+  /* color: $color-secondary; */
+  text-align: left;
+}
+
+.content-inner {
+  align-self: flex-start;
+}
+
+/* RESPONSIVE WIDTHS */
+/* Medium screen width */
+@media (max-width: 1200px) {
+  .wrapper {
+      width: 65%;
+  }
+}
+
+/* Small screen width (phones) */
+@media (max-width: 768px) {
+  .wrapper {
+      width: 85%;
+  }
+}
+
+
+/* others */
+
+.content-header-image {
+  margin-top: 2rem;
+  width: 100%;       /* or any fixed size you prefer */
+  height: auto;      /* make sure the height equals the width */
+  border-radius: 5%; /* creates the circular shape */
+  object-fit: cover;  /* ensures the image fills the container */
+}
+
+
 
 
 .subtitle {
@@ -80,43 +110,14 @@ $navbar-font-hover-color: $color-secondary;
 }
 
 
-html, body {
-  height: 100%;
-  margin: 0;
-}
 
-.wrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
 
-/* Fixed space between header and content */
-.content {
-  flex: 1;
-  padding-top: 50px; /* Adjust this value to set space between header and content */
-  display: flex;
-  flex-direction: column;
-}
-
-/* Ensures new content only pushes downward */
-.content-inner {
-  align-self: flex-start; /* Ensures content grows downward */
-}
 
 /* Sticky footer */
 .footer {
   margin-top: auto; /* Pushes footer to bottom */
 }
 
-
-* {
-    list-style: none;
-    text-decoration: none;
-    background-color: $color-primary;
-    color: $color-secondary;
-
-}
 
 h1, h2, h3, h4 {
   font-family: $h1234-font;
@@ -128,69 +129,23 @@ li, a, p, span{
   font: 100% / 1.5 "AT Lang Gothic", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 300;
   text-align: left;
-
   font-kerning: normal;
   font-variant-ligatures: common-ligatures contextual;
   font-feature-settings: "kern", "liga", "clig", "calt";
-}
-
-
-#animated-text {
   font-size: 1.5rem;
 }
 
-/* Small screen width (phones) */
-@media (max-width: 768px) {
-  #animated-text {
-      font-size: 1.3rem;
-  }
-}
 
-/* Small screen width (phones) */
-@media (max-width: 400px) {
-  #animated-text {
-      font-size: 0.9rem;
-  }
-}
-
-/*
-    FontOld
-    Montserrat
-    Terminal Grotesque
-    Terminal Grotesque Web
-    OstrichSans-Black
-    OstrichSans-Bold
-    OstrichSans-Light
-    OstrichSans-Regular
-    OstrichSans-Rounded
-    OstrichSans-Dashed
-    OstrichSans-InlineRegular
-    OstrichSans-InlineItalic
-
-
-/*
-body {
-    font-family: 'OstrichSans-Regular', sans-serif;
+  /* Small screen width (phones) */
+  @media (max-width: 768px) {
+    li, a, p, span{
+        font-size: 1.3rem;
+    }
   }
   
-  h1 {
-    font-family: 'OstrichSans-Black', sans-serif;
+  /* Small screen width (phones) */
+  @media (max-width: 400px) {
+    li, a, p, span{
+        font-size: 0.9rem;
+    }
   }
-  
-  h2 {
-    font-family: 'OstrichSans-Bold', sans-serif;
-  }
-  
-  h3 {
-    font-family: 'OstrichSans-Light', sans-serif;
-  }
-  
-  h4 {
-    font-family: 'OstrichSans-InlineRegular', sans-serif;
-  }
-  
-  h5 {
-    font-family: 'OstrichSans-InlineItalic', sans-serif;
-  }
-*/
-

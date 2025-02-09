@@ -4,7 +4,6 @@ title: "Scraping the VU site"
 description: "Getting an overview of the courses offered by the VU"
 date: 2024-12-13 17:00:00
 tags: ["Projects", "VU"]
-background: 'https://assets-us-01.kc-usercontent.com/d8b6f1f5-816c-005b-1dc1-e363dd7ce9a5/14718c75-0411-48d0-9941-ae3e5b5b1c76/HighRes_TVV%2020211026_190854%20TenT-binnen.jpg?w=1250&h=600&fit=clip&rect=0,1487,7975,3828'
 ---
 
 As a registered student at the VU, you can enroll in almost eny course offered. While some courses have prerequisites (accounting I before accounting II), and some are restriced to specific study programs (applied surgery), generally, you are free to follow courses on any topic you like. 
@@ -18,9 +17,10 @@ Follow the links to the
 
 <div class="container">
   <img 
-    src="{{ '/img/posts/scraping-vu.png' | relative_url }}" 
+    src="{{ '/assets/img/posts/scraping-vu.png' | relative_url }}" 
     alt="Why is querying the period impossible?!" 
-    class="img-fluid image-bordered">
+    class="img-fluid image-bordered"
+    style="width: 100%; border-radius: 8px;">
 </div>
 
 
@@ -29,7 +29,7 @@ Follow the links to the
 
 Lets start by cleaning the workspace and loading required dependencies
 
-```r
+{% highlight r %}
 # a nice function to clear the worksapce and install + load required packages
 
 # Clear workspace
@@ -46,11 +46,11 @@ install_and_load <- function(packages) {
   suppressMessages(lapply(packages, require, character.only = TRUE, quietly = TRUE))  # Load
 }
 install_and_load(c("xml2", "rvest", "dplyr"))
-```
+{% endhighlight %}
 
 Lets scrape all URL's linking to course pages from the search page. As only 2500 out of \~3600 pages are returend, we have to request all courses both ascendingly and descendingly. We can filter for duplacates later.
 
-```r
+{% highlight r %}
 # Initialize base URLs and page numbers
 asc_url <- "https://research.vu.nl/en/courses/?year=2024&ordering=title&descending=false&format=rss&page="
 desc_url <- "https://research.vu.nl/en/courses/?year=2024&ordering=title&descending=true&format=rss&page="
@@ -103,11 +103,11 @@ head(all_links)
 # save all_links to an file
 # saveRDS(all_links, "all_links.RDS")
 
-```
+{% endhighlight %}
 
 These url's all lead to research.vu.nl pages that contain many different links. We are only interested in links containing "studiegids". lets loop through all pages and store all links containing "studielink" and thus lead to the information page.
 
-```r
+{% highlight r %}
 studiegids_links <- vector("character", length = 3575)
 counter <- 1
 
@@ -147,7 +147,7 @@ head(studiegids_links)
 # Save studiegids_links to an R file
 # saveRDS(studiegids_links, "studiegids_links.RDS")   # saving results in between here. 
 
-```
+{% endhighlight %}
 
     
 Each of the links in the list "studiegids_links" links to a webpage with the info we want to scrape. I'd like to scrape the following data into a dataframe:
@@ -176,7 +176,7 @@ If there exists an \<h3>Course Content\</h3> I would like the text value of its 
 Finally, also store the link used to access it in the dataframe. 
 
 
-```r
+{% highlight r %}
 # Number of pages to scrape
 num_pages <- 3526 # might change. In hindsight I should have called length() to determine this
 
@@ -272,6 +272,6 @@ for (url in studiegids_links) {
 # Final dataframe!
 head(data)
 write.csv(data, "VU_courses", row.names = FALSE)
-```
+{% endhighlight %}
 
 Tada! now we can query the courses as intended!

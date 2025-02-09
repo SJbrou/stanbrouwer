@@ -1,13 +1,12 @@
 ---
 layout: page
-title: Reposts
+title:
 permalink: /reposts.html
-description: Curation of my media consumption
 ---
 
 <!-- Conditional Text -->
 <p id="category-text">
-  <span id="text-content">All reposts. </span><span id="caret">|</span>
+  <span id="text-content">A curration of my media consumption.  </span><span id="caret">|</span>
 </p>
 
 <!-- Category Buttons -->
