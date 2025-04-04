@@ -11,8 +11,9 @@ background: #'/assets/img/bike-in-berlin.jpeg'
 document.addEventListener("DOMContentLoaded", function () {
     const textElement = document.getElementById("animated-text");
     const introText = "Hi, I'm Stan...";
-    const fullText = `<br><br>Currently studying many things computer science related, and working as a teacher assistant for the school of business and economics at VU university. <br><br>I help multiple companies make sense of their data as a freelancer, and am currently writing my masters' thesis about machine learning and ESG reporting at CapGemini. <br><br>
-    In my free time, you'll find me working out in the mornings or discovering new music in the evenings.
+    const fullText = `<br><br>Currently finishing my IT-related master thesis on predicting carbon emissions using machine learning for Capgemini. My academic intrests range from behavioral economics to data science, which caused me to get involved with course design and teaching (TA) for the VU School of Business and Economics. <br><br>
+    I help companies make sense of their data as a freelancer. During the summer period I'm involved with the organization and logistics of a couple of local events. <br><br>
+    In my spare time, you'll find me working out in the mornings, playing with IoT home devices and reading when they do work in the afternoon, and discovering new music in the evenings.
     <br><br>Feel free to reach out if you like to chat, need assistance, or want to explore collaboration. I'm available! `;
 
     let currentText = "";
