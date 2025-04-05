@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Graduated with distinction from atheneum VWO"
-description: "With special recognition by the rector and conrector for execptional contributions to the school community"
+description: "With special recognition by the rector and conrector for exceptional contributions to the school community"
 date: 2019-07-02 00:00:00
 tags: ["CV"]
 background: 'https://werenfridus.nl/wp-content/uploads/2023/06/Kopie-van-photographybyIK-Werenfridus-septbember2019-017-scaled.jpg'

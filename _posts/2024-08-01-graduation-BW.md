@@ -8,7 +8,7 @@ background: 'https://assets-us-01.kc-usercontent.com:443/d8b6f1f5-816c-005b-1dc1
 ---
 
 Graduated from the Vrije Universiteit Amsterdam with a Bachelor of Science in Human Movement Sciences. <br><br>
-The program focuses on the scientific study of human movement, including biomechanics, physiology, and behavioral psychology. After a strong focus on statistics I decided to persue a masters in data- and computer science. I completed 60 ECTS (an full additional year worth of study) in computer science related extracurriculars in 2024. 
+The program focuses on the scientific study of human movement, including biomechanics, physiology, and behavioral psychology. After a strong focus on statistics I decided to pursue a masters in data- and computer science. I completed 60 ECTS (an full additional year worth of study) in computer science related extracurriculars in 2024. 
 
 During my studies, I was actively involved in many extracurricular activities, including serving as the elected chair of the programme committee for Human Movement Sciences and helping with various events such as the taster days. 
 
