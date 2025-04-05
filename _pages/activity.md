@@ -118,28 +118,45 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     visiblePosts.forEach(post => {
-      // Add a year/month separator if needed.
-      if (post.year !== currentYear || post.month !== currentMonth) {
-        const separator = document.createElement("li");
-        separator.classList.add("year-month-separator");
-        separator.innerHTML = `<span class="year">${post.year}</span><span class="month">${post.month}</span>`;
-        items.push(separator);
-        currentYear = post.year;
-        currentMonth = post.month;
-      }
-      // Create the post entry.
-      const listItem = document.createElement("li");
-      listItem.classList.add("post-item");
-      listItem.setAttribute("data-categories", post.categories);
-      listItem.innerHTML = `
-        <div class="post-details">
-          <span class="post-title"><a href="${post.url}">${post.title}</a></span>
-          <span class="post-date">${post.day}</span>
-        </div>
-        ${post.description ? `<p class="post-description">${post.description}</p>` : ""}
+  const isNewYear = post.year !== currentYear;
+  const isNewMonth = post.month !== currentMonth;
+
+  if (isNewYear || isNewMonth) {
+    const separator = document.createElement("li");
+    separator.classList.add("year-month-separator");
+
+    if (isNewYear) {
+      // Year and month in the same line
+      separator.innerHTML = `
+        <span class="year">${post.year}</span>
+        <span class="month">${post.month}</span>
       `;
-      items.push(listItem);
-    });
+      currentYear = post.year;
+      currentMonth = post.month;
+    } else if (isNewMonth) {
+      // Just the month, aligned right
+      separator.innerHTML = `<span class="month only">${post.month}</span>`;
+      currentMonth = post.month;
+    }
+
+    items.push(separator);
+  }
+
+  // Create the post entry
+  const listItem = document.createElement("li");
+  listItem.classList.add("post-item");
+  listItem.setAttribute("data-categories", post.categories);
+  listItem.innerHTML = `
+    <div class="post-details">
+      <span class="post-title"><a href="${post.url}">${post.title}</a></span>
+      <span class="post-date">${post.day}</span>
+    </div>
+    ${post.description ? `<p class="post-description">${post.description}</p>` : ""}
+  `;
+  items.push(listItem);
+});
+
+
 
     function appendItemsSequentially(index) {
       if (version !== currentAnimationVersion) return; // abort if a new animation started
@@ -227,15 +244,17 @@ function updatePosts() {
   function updateConditionalText() {
     let newText = "";
     if (activeCategories.has("all")) {
-      newText = "All posts. ";
+      newText = "All my projects, thoughts and milestones. ";
     } else if (activeCategories.size === 1) {
       const category = Array.from(activeCategories)[0].toLowerCase();
       if (category === "projects") {
-        newText = "All my projects. ";
+        newText = "An overview of some of my projects. ";
       } else if (category === "thoughts") {
-        newText = "A selection of my thoughts. ";
+        newText = "Some thoughts. ";
       } else if (category === "vu") {
-        newText = "All my university stuff. ";
+        newText = "University stuff. ";
+      } else if (category === "cv") {
+        newText = "An overview of my professional milestones. ";
       } else {
         newText = "All posts. ";
       }
@@ -260,6 +279,24 @@ function updatePosts() {
     });
   });
 
+  // Check for ?active=category in URL on first load
+  const urlParams = new URLSearchParams(window.location.search);
+  const activeParam = urlParams.get("active");
+  if (activeParam) {
+    const categories = activeParam.split(",");
+    activeCategories = new Set(categories);
+
+    // Update button styling to reflect the correct active filter
+    buttons.forEach(button => {
+      const category = button.dataset.category;
+      if (activeCategories.has(category)) {
+        button.classList.add("active");
+      } else {
+        button.classList.remove("active");
+      }
+    });
+  }
+  
   // Initial rendering: animate the text and render posts.
   updatePosts();
 });
@@ -345,20 +382,28 @@ function updatePosts() {
 .year-month-separator {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  font-size: 1.2rem;
+  align-items: baseline;
   font-weight: bold;
   padding: 10px 0;
   margin-top: 20px;
   margin-bottom: 10px;
 }
+
 .year-month-separator .year {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
 }
+
 .year-month-separator .month {
   font-size: 1rem;
   font-style: italic;
 }
+
+/* When only the month is shown (no year), push it fully to the right */
+.year-month-separator .month.only {
+  margin-left: auto;
+}
+
+
 .post-item {
   list-style: none;
   padding: 10px 0;
