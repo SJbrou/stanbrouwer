@@ -254,7 +254,7 @@ function updatePosts() {
       } else if (category === "vu") {
         newText = "University stuff. ";
       } else if (category === "cv") {
-        newText = "An overview of my professional milestones. ";
+        newText = "A curration of my professional milestones. ";
       } else {
         newText = "All posts. ";
       }
