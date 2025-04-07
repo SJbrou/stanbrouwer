@@ -16,7 +16,7 @@ The site is powered by <a href="https://jekyllrb.com/">Jekyll</a>, which convert
 
 For the <a href="https://stanbrouwer.com/reposts.html">Reposts</a> page, I wanted a way to easily update and add links on the go. To achieve this, I use JavaScript to fetch data from a Google Sheet via the <a href="https://developers.google.com/sheets/api/reference/rest">Google Sheets API</a>. This allows me to add new links by simply entering a title and URL into a spreadsheet, with the site dynamically displaying them.
 
-Supporting syntax highlighting and copyable code blocks turned out to be a nuissance. Since I plan to share a lot of code examples, I really wanted to make this feature work. I ran into some issues setting it up with Jekyll and Rouge. However, a simple solution involved using Rouge’s generated GitHub themed CSS and adding custom JavaScript to place a "Copy" button at the top of each code block. Now it should look great
+Supporting syntax highlighting and copyable code blocks turned out to be a nuissance. Since I plan to share a lot of code examples, I really wanted to make this feature work. I ran into some issues setting it up with Jekyll and Rouge. However, a simple solution involved using Rouge’s generated GitHub themed CSS and adding custom JavaScript to place a “Copy” button at the top of each code block. Now it should look great
 
 ```python
 # A quick example of a python code block

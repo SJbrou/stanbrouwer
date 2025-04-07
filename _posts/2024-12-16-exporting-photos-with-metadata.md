@@ -8,7 +8,7 @@ background: 'https://media.macphun.com/img/uploads/macphun/blog/585/PhotosMac.pn
 ---
 
 Relatives asked me to help with their photo backups.
-Their iPhone photos were in .HEIC format, which they couldn't view on their laptop. Exporting to JPG however changed the "created" date, which they used to sort their album. After trying everything, they decided to ask the *"computer guy"* for help (me).
+Their iPhone photos were in .HEIC format, which they couldn't view on their laptop. Exporting to JPG however changed the “created” date, which they used to sort their album. After trying everything, they decided to ask the *“computer guy”* for help (me).
 
 Luckily, photos have metadata, which we can manipulate in Python. The following script converts all HEIC files in the input directory to JPG files in the output directory, and overwrites the os 'Date Created' and 'Modified' with the original 'ContentCreated' or 'DateTimeOriginal' tag. 
 

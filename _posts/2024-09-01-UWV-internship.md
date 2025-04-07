@@ -7,6 +7,6 @@ tags: ["CV"]
 background: 'https://media-01.imu.nl/storage/hetarbeidsrechtadvocatenkantoor.nl/2601/wp/2017/07/UWV.jpg'
 ---
 
-Developed a data-driven analysis to determine the prioritisation of connecting UWV divisions to the E-Publication program, including omni-channel communications and "visual letters”.
+Developed a data-driven analysis to determine the prioritisation of connecting UWV divisions to the E-Publication program, including omni-channel communications and “visual letters”.
 
 <br>
