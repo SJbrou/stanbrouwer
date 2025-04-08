@@ -1,24 +1,30 @@
 ---
 layout: post
 title: "Scraping the NWS site"
-description: "Accessing aggregate degree days statistics from the National Weather Service (US)"
+description: "Aggregating the degree days statistics from the National Weather Service (US)"
 date: 2025-04-07 19:00:00
 tags: ["Projects", "Thesis"]
 background: '/assets/img/posts/scraping_nws_output.png'
 ---
 
-I wanted to collect some historical weather data. Finding good data sources that are not behind paywalls is somewhat tricky, so I decided to scrape the data from the US National Weather Service
+# Office energy consumption determinants
 
-They have a database with the Heating Degree Days (HDD) and Cooling Degree Days (CDD) for the US per city and state. This is perfect for my project where I want to predict office energy consumption, as I want to include weather data in the model. 
+By analysing open source data concerning building energy consumption we can determine the factors that influence energy consumption in office buildings. 
 
-Unfortunately, no large archive was available, and upon reaching out my request was declined. As I'm not planning to download the data for all the cities and years that I am intrested in (5058 unique cases), I quickly spun up this scraper
+All datasets containing the energy usage (either from electric, fuel or both) of buildings were considered. Most datasets additionally contained
+- building type
+- building location (often on zip code / city level due to  privacy concerns)
+- floor area
+- construction year
+- number of occupants (sometimes)
+- energy start rating (sometimes)
+- operating hours (sometimes)
 
-The database looks like a simple php file structure, and luckily the URL structure was quite simple. We don't have to travers and collect all the URLs on the site.  (which is why we chose this site over the PD&R site)
+One dataset with more information concerning wall types, insulations, windows etc was also considered. However, due to its limited size, those variables are not analyzed. 
 
-URL structure:
-https://ftp.cpc.ncep.noaa.gov/htdocs/products/analysis_monitoring/cdus/degree_days/archives/Cooling%20Degree%20Days/monthly%20cooling%20degree%20days%20city/2011/Feb%202011.txt
+The location of the buildings is enriched with public weather data from the (US) National Weather Service, to include the environmental factors. (Link)[https://stanbrouwer.com/2025/04/07/scraping-weather-data.html] for more information on the data collection from the NWS site. 
 
-Manipulating the year and month should do. 
+As weather sources are often behind a paywall, it was unfeasable to collect many different variables per location for the analysis. A case study on what weather variables best predict energy usage will be performed for a dutch office building in a later post (electric building).
 
 {% highlight python %}
 import os
