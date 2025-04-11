@@ -4,16 +4,17 @@ title: "Finding job vacancies on WerkenvoorNederland.nl"
 description: "Scraping WerkenvoorNederland.nl to analyse job vacancies "
 date: 2025-04-10 19:00:00
 tags: ["Projects"]
-background: '/assets/img/posts/scraping_nws_output.png'
+background: '/assets/img/posts/werkenvoornederland.png'
 ---
+As I'm graduating and entering the job market, I entertain the idea of working for the Dutch government. 
+While looking through the job vacancies on [werkenvoornederland.nl](https://werkenvoornederland.nl/) I wanted to filter on more specific criteria, and was curios about the trends and requirements for different departments. I figured it would be helpfull for my search to scrape the site, and intresting to get a better overview of the job market. 
 
-As I'm nearing my graduating, I'm entering the job market and entertained the idea of working for the Dutch government.
-I was looking through the job vacancies on [werkenvoornederland.nl](https://werkenvoornederland.nl/) and wanted to filter on some specific criteria. Also, I'm curious about the differences in compensation and benefits between departments, and thought it would be intresting to combine the data into a single dataset. 
+The scraped data is published [here](https://docs.google.com/spreadsheets/d/14fKTAu_SwgT8mrjDrPWaolr0E-JWrLnj6fOTXPXyh2I/edit?usp=sharing) (google sheets). Last update 11 April 2025. Below is the code I used to scrape the data if you want to try it yourself.
 
-I decided to scrape the site to get the data I wanted, and am still working on automating the process so the daily updated data will be available for download from my site. 
-Data will be made available when I set up automation. I'm wondering if it is better to do this within github actions and automatically push to my page, or set up a cron job on my raspberry pi, and publish new entries to a google sheets. 
+I'm still working on automating the process with a github action or cron job on my raspberry pi so I can update the data daily. 
 
-If you want to access the data, please reach out to me!
+While I have little ethical objections to scraping the site, I do have concerns about automating the application process. Spinning up a selenium project with an AI model to send out personalized applications for each vacancy doesn't seem like too hard, but I prefer having to keep some thought into the applications for now. 
+
 
 # Fetch all vacancies URLs
 

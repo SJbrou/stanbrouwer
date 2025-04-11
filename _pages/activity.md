@@ -253,6 +253,8 @@ function updatePosts() {
         newText = "Some thoughts. ";
       } else if (category === "vu") {
         newText = "University stuff. ";
+        } else if (category === "thesis") {
+        newText = "Posts related to my thesis. ";
       } else if (category === "cv") {
         newText = "A curration of my professional milestones. ";
       } else {
