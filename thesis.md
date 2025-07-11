@@ -6,5 +6,5 @@ permalink: /thesis
 ---
 
 <script>
-    window.location.href = "/2025/07/11/thesis.html
+    window.location.href = "{{ site.baseurl }}/assets/content/posts/masterthesis_01.pdf";
 </script>
