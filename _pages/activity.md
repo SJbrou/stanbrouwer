@@ -35,6 +35,13 @@ permalink: /activity.html
 <script>
 document.addEventListener("DOMContentLoaded", function () {
   const primaryCategories = ["Thoughts", "Projects", "Books", "CV"];
+  const fallbackCategoryByTag = {
+    VU: "Projects",
+    Thesis: "Projects"
+  };
+  const validatedFallbackCategoryByTag = Object.fromEntries(
+    Object.entries(fallbackCategoryByTag).filter(([, category]) => primaryCategories.includes(category))
+  );
   const categoryButtons = document.querySelectorAll(".category-button");
   const tagFilter = document.getElementById("tag-filter");
   const tagButtonsContainer = document.getElementById("tag-filter-buttons");
@@ -66,7 +73,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const normalized = (tags || []).map(tag => String(tag).trim());
     const matched = primaryCategories.find(category => normalized.includes(category));
     if (matched) return matched;
-    if (normalized.includes("VU") || normalized.includes("Thesis")) return "Projects";
+    const fallbackTag = normalized.find(tag => validatedFallbackCategoryByTag[tag]);
+    if (fallbackTag) return validatedFallbackCategoryByTag[fallbackTag];
     return "Thoughts";
   }
 
