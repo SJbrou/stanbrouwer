@@ -1,0 +1,20 @@
+.content {
+  margin-bottom: 1.8rem;
+}
+
+.main-content {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 1.4rem 1.6rem;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration-color: var(--color-tertiary);
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  opacity: 0.85;
+}

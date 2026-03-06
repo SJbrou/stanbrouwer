@@ -1,11 +1,11 @@
 /* Global variables */
-$color-primary: #21283c;
+$color-primary: #1d4f91;
 $color-secondary: #ffffff;
-$color-secondary-grey: #adadad;
-$color-secondary-grayer: #949494;
-$color-code-background: #38425c;
+$color-secondary-grey: #6b7280;
+$color-secondary-grayer: #9ca3af;
+$color-code-background: #10253f;
 $color-tertiery-red: #781717;
-$color-tertiery-yellow: #aea21f;
+$color-tertiery-yellow: #f2c94c;
 
 /* Fonts */
 $font-modern: 'Montserrat', sans-serif;
@@ -42,22 +42,44 @@ $h1234-font: $font-lemonmilk-light;
 html, body {
   height: 100%;
   margin: 0;
-  background-color: $color-primary;
+  background-color: var(--color-background);
   list-style: none;
   text-decoration: none;
+}
+
+:root {
+  --color-background: #ffffff;
+  --color-surface: #f8f9fc;
+  --color-text: #123b78;
+  --color-text-muted: #64748b;
+  --color-accent: #1d4f91;
+  --color-tertiary: #f2c94c;
+  --color-border: #d6e0ef;
+  --color-code-background: #eef4ff;
+}
+
+[data-theme="dark"] {
+  --color-background: #1d4f91;
+  --color-surface: #173f74;
+  --color-text: #ffffff;
+  --color-text-muted: #dbeafe;
+  --color-accent: #ffffff;
+  --color-tertiary: #f2c94c;
+  --color-border: #3f6da7;
+  --color-code-background: #10253f;
 }
 
 .wrapper {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  width: 50%;
+  width: 56%;
   max-width: 800px;
   margin: auto;
-  /* color: $color-secondary; */
+  color: var(--color-text);
   text-align: left;
-  word-wrap: break-word;       /* legacy support */
-  overflow-wrap: anywhere;     /* preferred */
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
 }
 
 .content-inner {
@@ -96,19 +118,20 @@ html, body {
 .subtitle {
   font-family: $font-lemonmilk-light;
   font-size: 1em;
+  color: var(--color-text-muted);
 }
 
 .post-info {
   font-family: $font-lemonmilk-light;
   font-size: 0.8em;
-  color: $color-secondary-grey;
+  color: var(--color-text-muted);
   font-style: italic;
 }
 
 .reading-time {
   font-family: $font-lemonmilk-light;
   font-size: 0.9em;
-  color: $color-secondary-grey;
+  color: var(--color-text-muted);
 }
 
 
@@ -125,6 +148,7 @@ h1, h2, h3, h4 {
   font-family: $h1234-font;
   margin-top: 1rem;
   margin-bottom: 1rem;
+  color: var(--color-text);
 }
 
 li, a, p, span{
@@ -135,11 +159,11 @@ li, a, p, span{
   font-variant-ligatures: common-ligatures contextual;
   font-feature-settings: "kern", "liga", "clig", "calt";
   font-size: 1.5rem;
-  color: $color-secondary;
+  color: var(--color-text);
 }
 
 .animated-text {
-  color: $color-secondary;
+  color: var(--color-text);
 }
 
   /* Small screen width (phones) */
@@ -155,4 +179,3 @@ li, a, p, span{
         font-size: 0.9rem;
     }
   }
-

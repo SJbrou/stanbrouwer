@@ -1,6 +1,6 @@
 /* Variables */
-$navbar-font-color: $color-secondary;
-$navbar-font-hover-color: $color-secondary;
+$navbar-font-color: var(--color-text);
+$navbar-font-hover-color: var(--color-accent);
 $navbar-font: $font-lemonmilk-light;
 $navbar-font-size: 1.1rem; /* General font size for the navbar */
 
@@ -47,7 +47,7 @@ header {
 
 .navbar-a {
   font-family: $navbar-font;
-  color: $color-secondary;
+  color: var(--color-text);
   text-decoration: none;
   font-size: $navbar-font-size;       /* Font size for the navbar */
 }
@@ -59,15 +59,30 @@ header {
 }
 
 .navbar-list .nav-item.active {
-  transform: scale(1.6);
+  transform: scale(1.2);
 }
 
 .navbar-list .nav-item:not(.active):hover {
-  transform: scale(1.6);
+  transform: scale(1.1);
 }
 
 .navbar-list:hover .nav-item.active:not(:hover) {
   transform: scale(1);
+}
+
+.theme-toggle-item {
+  margin-right: 0 !important;
+}
+
+#theme-toggle {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: 999px;
+  width: 2.2rem;
+  height: 2.2rem;
+  font-size: 1rem;
+  cursor: pointer;
 }
 
 /* Responsiveness  */

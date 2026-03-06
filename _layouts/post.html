@@ -2,26 +2,34 @@
 layout: default
 ---
 
-<!-- Page Header -->
 <div class="content">
   <header class="content-header">
-    <h1 class="title">{{ page.title | default: "&nbsp;" }}</h1>    
+    <h1 class="title">{{ page.title | default: "&nbsp;" }}</h1>
     {% if page.description %}
     <span class="subtitle">{{ page.description }}</span>
     {% endif %}
     <span class="post-info">Published by
       {% if page.author %}{{ page.author }}{% else %}{{ site.author }}{% endif %}
-      on {{ page.date | date: '%d/%m/%y' }} &middot; {% include read_time.html
-      content=page.content %}
+      on {{ page.date | date: '%d/%m/%y' }} &middot; {% include read_time.html content=page.content %}
     </span>
   </header>
 </div>
 
-
-
 <div class="content">
   <div class="main-content">
-  {{ content }}
+    {% if page.tags contains "Books" %}
+      {% assign rating_value = page.rating | default: 0 | plus: 0 %}
+      <section class="book-summary">
+        <p class="book-rating">
+          {% for i in (1..5) %}
+            {% if i <= rating_value %}★{% else %}☆{% endif %}
+          {% endfor %}
+        </p>
+        <p class="book-justification">{{ page.justification | default: page.description }}</p>
+      </section>
+    {% endif %}
+
+    {{ content }}
   </div>
 </div>
 
@@ -33,42 +41,111 @@ layout: default
   </div>
 {% endif %}
 
-        <!-- Related Posts Section -->
-<div class="content">
-  <h3>Related Thoughts</h3>
-  <ul class="list-unstyled">
-    {% assign post_tags = page.tags %}
-    {% assign related_posts = site.posts | where_exp: "post", "post.url != page.url" %}
+{% if page.tags contains "Projects" %}
+  <div class="content">
+    <h3>Related Projects</h3>
+    <ul class="related-list">
+      {% assign reference_tags = "" | split: "," %}
+      {% for tag in page.tags %}
+        {% unless tag == "Projects" %}
+          {% assign reference_tags = reference_tags | push: tag %}
+        {% endunless %}
+      {% endfor %}
 
-    {% assign filtered_posts = "" | split: "," %}
-    {% for post in related_posts %}
-      {% for tag in post.tags %}
-        {% if post_tags contains tag %}
-          {% assign filtered_posts = filtered_posts | push: post %}
-          {% break %}  <!-- Stop checking once a matching tag is found -->
+      {% if reference_tags.size == 0 %}
+        {% assign reference_tags = "Projects" | split: "," %}
+      {% endif %}
+
+      {% assign related_posts = "" | split: "," %}
+      {% for post in site.posts %}
+        {% if post.url != page.url and post.tags contains "Projects" %}
+          {% for tag in reference_tags %}
+            {% if post.tags contains tag %}
+              {% assign related_posts = related_posts | push: post %}
+              {% break %}
+            {% endif %}
+          {% endfor %}
         {% endif %}
       {% endfor %}
-    {% endfor %}
 
-    {% assign sorted_filtered_posts = filtered_posts | sort: "date" | reverse %}
-    {% assign recent_related_posts = sorted_filtered_posts | slice: 0, 3 %}
+      {% assign sorted_related_posts = related_posts | sort: "date" | reverse %}
+      {% for related in sorted_related_posts %}
+        <li>
+          <a href="{{ related.url | relative_url }}">{{ related.title }}</a>
+          <span>{{ related.date | date: "%d/%m/%y" }}</span>
+        </li>
+      {% endfor %}
 
-    {% for related in recent_related_posts %}
-      <li class="d-flex justify-content-between">
-        <a href="{{ related.url | relative_url }}">{{ related.title }}</a>
-        <span class="text-muted">{{ related.date | date: "%d/%m/%y" }}</span>
-      </li>
-    {% endfor %}
+      {% if sorted_related_posts.size == 0 %}
+        <li>No related projects found.</li>
+      {% endif %}
+    </ul>
+  </div>
+{% elsif page.tags contains "Thoughts" %}
+  <div class="content">
+    <h3>Related Thoughts</h3>
+    <ul class="related-list">
+      {% assign post_tags = page.tags %}
+      {% assign related_posts = site.posts | where_exp: "post", "post.url != page.url" %}
+      {% assign filtered_posts = "" | split: "," %}
+      {% for post in related_posts %}
+        {% if post.tags contains "Thoughts" %}
+          {% for tag in post.tags %}
+            {% if post_tags contains tag %}
+              {% assign filtered_posts = filtered_posts | push: post %}
+              {% break %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      {% endfor %}
 
-    {% if recent_related_posts.size == 0 %}
-      <p>No related thoughts found.</p>
-    {% endif %}
-  </ul>
-</div>
+      {% assign sorted_filtered_posts = filtered_posts | sort: "date" | reverse %}
+      {% assign recent_related_posts = sorted_filtered_posts | slice: 0, 3 %}
+
+      {% for related in recent_related_posts %}
+        <li>
+          <a href="{{ related.url | relative_url }}">{{ related.title }}</a>
+          <span>{{ related.date | date: "%d/%m/%y" }}</span>
+        </li>
+      {% endfor %}
+
+      {% if recent_related_posts.size == 0 %}
+        <li>No related thoughts found.</li>
+      {% endif %}
+    </ul>
+  </div>
+{% endif %}
 
 <style>
-  li {
-    display: flex;
-    justify-content: space-between;
-  }
+.related-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.related-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.3rem;
+}
+
+.book-summary {
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background: var(--color-surface);
+}
+
+.book-rating {
+  margin: 0;
+  color: var(--color-tertiary);
+  font-size: 1.25rem;
+}
+
+.book-justification {
+  margin: 0.3rem 0 0;
+  color: var(--color-text-muted);
+}
 </style>
