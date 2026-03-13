@@ -4,10 +4,6 @@ title:
 permalink: /activity.html
 ---
 
-<section class="activity-intro">
-  <p id="category-text">All posts by category and tag.</p>
-</section>
-
 <section class="activity-controls">
   <div id="category-filter-buttons" class="pill-row">
     <button class="category-button active" data-category="all">All</button>
