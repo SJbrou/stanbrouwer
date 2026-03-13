@@ -8,8 +8,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const root = document.documentElement;
   const toggle = document.getElementById("theme-toggle");
   const savedTheme = localStorage.getItem("theme");
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  const initialTheme = savedTheme || (prefersDark ? "dark" : "light");
+  // Default to light mode unless the user has explicitly saved a preference
+  const initialTheme = savedTheme || "light";
 
   root.setAttribute("data-theme", initialTheme);
 
