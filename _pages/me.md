@@ -11,14 +11,16 @@ background: #'/assets/img/bike-in-berlin.jpeg'
 document.addEventListener("DOMContentLoaded", function () {
     const textElement = document.getElementById("animated-text");
     const introText = "Hi, I'm Stan...";
-    const fullText = `<br><br>Currently finishing my IT-related master thesis on predicting carbon emissions using machine learning for Capgemini. My academic intrests range from behavioral economics to data science, which caused me to get involved with course design and teaching (TA) for the VU School of Business and Economics. <br><br>
-    I help companies make sense of their data as a freelancer. During the summer period I'm involved with the organization and logistics of a couple of local events. <br><br>
-    In my spare time, you'll find me working out in the mornings, playing with IoT home devices (and reading when they finally do work!) in the afternoon, and discovering new music in the evenings.
-    <br><br>Feel free to reach out if you like to chat, need assistance, or want to explore collaboration. I'm available! `;
+    const fullText = `<br><br>During the week I'm either a Data Engineer for the governmentor or teaching at the VU. In the weekends, I'm a CrossFit enjoyer and helping with the organisation of large events. 
+
+    My current hobby projects include detecting local misinformation campaings and analysing hyrox performance data.
+
+    <br><br>Feel free to reach out if you like to chat or want to explore collaboration. I'm available! `;
 
     let currentText = "";
     let caretVisible = true;
     let index = 0;
+    let animationIntervals = [];
 
     function typeIntroText() {
         if (index < introText.length) {
@@ -63,12 +65,72 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function startFinalBlinking() {
-        setInterval(() => {
+        const blinkInterval = setInterval(() => {
             textElement.innerHTML = textElement.innerHTML.endsWith("|") 
                 ? textElement.innerHTML.replace("|", "") 
                 : textElement.innerHTML + "|";
         }, 500); // Blinks every 500ms
+        animationIntervals.push(blinkInterval);
     }
+
+    function deleteText(href) {
+        // Clear all animation intervals
+        animationIntervals.forEach(interval => clearInterval(interval));
+        animationIntervals = [];
+
+        // Remove the caret if present
+        if (textElement.innerHTML.endsWith("|")) {
+            currentText = textElement.innerHTML.slice(0, -1);
+        } else {
+            currentText = textElement.innerHTML;
+        }
+
+        const initialLength = currentText.length;
+        const halfwayPoint = Math.ceil(initialLength / 2);
+        let hasNavigated = false;
+
+        function deleteChar() {
+            if (currentText.length > 0) {
+                // Handle HTML tags - if we end with >, find the start of the tag and remove it all
+                if (currentText.endsWith(">")) {
+                    let tagStart = currentText.lastIndexOf("<");
+                    if (tagStart !== -1) {
+                        currentText = currentText.slice(0, tagStart);
+                    } else {
+                        currentText = currentText.slice(0, -1);
+                    }
+                } else {
+                    currentText = currentText.slice(0, -1);
+                }
+                textElement.innerHTML = currentText + "|";
+
+                // Check if we've reached halfway and navigate
+                if (!hasNavigated && currentText.length <= halfwayPoint) {
+                    hasNavigated = true;
+                    window.location.href = href;
+                }
+
+                setTimeout(deleteChar, 2); // Fast deletion speed
+            } else {
+                textElement.innerHTML = "";
+            }
+        }
+
+        deleteChar();
+    }
+
+    // Intercept all link clicks
+    document.addEventListener("click", function (e) {
+        const link = e.target.closest("a");
+        if (link && link.href && !link.href.includes("javascript:")) {
+            // Check if it's an internal link (not an anchor link)
+            const href = link.getAttribute("href");
+            if (href && !href.startsWith("#") && !href.includes(window.location.hostname === "localhost" ? "" : "external")) {
+                e.preventDefault();
+                deleteText(href);
+            }
+        }
+    });
 
     // Start typing intro text first
     typeIntroText();

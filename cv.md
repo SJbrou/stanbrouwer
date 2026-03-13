@@ -6,5 +6,5 @@ permalink: /cv
 ---
 
 <script>
-    window.location.href = "/activity.html?active=CV";
+    window.location.href = "/activity.html?category=CV";
 </script>
