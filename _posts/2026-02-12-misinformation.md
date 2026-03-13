@@ -293,10 +293,27 @@ Cluster-level statistics (mean feature values and user counts) are exported to:
   style="max-width:100%; height:auto;"
 />
 
+*Some descriptive statistics*
+<img 
+  src="https://raw.githubusercontent.com/SJbrou/botdetection/refs/heads/main/anomaly_report.png"
+  style="max-width:100%; height:auto;"
+/>
+
+
 ### Results
 
-Unfortunately, the current results are inconclusive. This might be caused by moderation efforts of the forum itself. One identified cluster contained only comments with *"redacted"* in the text, and where thus likely removed by the admins. We will need to apply some better feature engineering.....
+Unfortunately, the current results are inconclusive.<br><br>
+ This might be caused by moderation efforts of the forum itself. One identified cluster contained only comments with *"redacted"* in the text, and where thus likely removed by the admins. We will need to apply some better feature engineering.....
+
+
+<img 
+  src="https://raw.githubusercontent.com/SJbrou/botdetection/refs/heads/main/most_likely_bots_segment_comments_top10.png"
+  style="max-width:100%; height:auto;"
+/>
 
 
 
+
+
+<br>
 Full script and project can be found at [github](https://github.com/SJbrou/botdetection/tree/main)
