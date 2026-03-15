@@ -222,3 +222,57 @@ pre code {
 [data-theme="dark"] pre {
   box-shadow: 0 6px 18px rgba(2,6,23,0.12);
 }
+
+/* Ensure Rouge/Github `figure.highlight` matches theme vars and looks good in light mode */
+figure.highlight {
+  background-color: var(--color-code-background) !important;
+  border: 1px solid var(--color-code-border, rgba(0,0,0,0.06));
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 6px 12px rgba(2,6,23,0.04);
+  position: relative;
+}
+
+/* Code actions (copy / hide) container placed near top-right with slight margin */
+.code-actions {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  display: flex;
+  gap: 0.5rem;
+  z-index: 120;
+}
+
+.copy-btn, .hide-btn {
+  padding: 4px 8px;
+  font-size: 0.75rem;
+  background-color: rgba(0,0,0,0.55);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  opacity: 0.85;
+}
+
+.copy-btn:hover, .hide-btn:hover {
+  opacity: 1;
+  background-color: rgba(0,0,0,0.7);
+}
+
+/* Lighter buttons in light mode to match palette */
+:root .copy-btn, :root .hide-btn {
+  background-color: rgba(10,40,90,0.08);
+  color: var(--color-text);
+  border: 1px solid rgba(10,40,90,0.08);
+}
+
+[data-theme="dark"] .copy-btn, [data-theme="dark"] .hide-btn {
+  background-color: rgba(0,0,0,0.55);
+  color: #fff;
+}
+
+/* When code is hidden, keep the figure compact */
+.figure-collapsed pre {
+  display: none;
+}
+
