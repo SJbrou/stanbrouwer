@@ -1,17 +1,39 @@
 ---
 layout: post
-title: "Upfront supply chain data analysis"
-description: "case study for Upfront"
+title: "Upfront supply chain"
+description: "Building a model to determine optimal logistics for scale-up retailers"
 date: 2026-03-13 00:00:00
 tags: ["Projects"]
 ---
 
-Note: this is a work in progress, code and updates are first published at [github](https://github.com/SJbrou/upfront)
+Online dashboard can be found [here](https://sjbrou.shinyapps.io/upfront/), code can be found [here](https://github.com/SJbrou/upfront) 
 
-Being intrested in Upfront's mission to open 100+ stores in the Netherlands, I wanted to do a quick data analysis of their supply chain. 
+<img 
+  src="https://github.com/SJbrou/upfront/blob/main/pics/dashboard_import_schedule.png"
+  style="max-width:100%; height:auto;"
+/>
 
-### Web scraping
-Upfront lists the products currently sold in the store at [https://upfront.nl/collections/foodstore](https://upfront.nl/collections/foodstore), which we can quickly scrape to get an overview of all 160 items:
+
+Being intrested in Upfront's mission to open 100+ stores in the Netherlands, I was curious how to approach an optimal supply chain for a scale-up retailer like them, so I built a quick online-available model to explore different scenarios and assumptions.
+
+Features
+- interactive map to visualize store and warehouse locations, automatically calculates optimal transport routes
+- products scraped from the Upfront foodstore website, demand modeling per product, with seasonal and random terms
+- inventory management and spill calculations based on expiration dates
+- transport cost calculations based on store and warehouse locations, transport modes and distances
+- transportation vehicle fleet management, with different capacities and costs for different modes of transport
+- profit margin calculations to prioritize high-margin items in case of capacity constraints
+
+the linear solver tries to minimize operating costs from transportation and missed revenue from being out of stock, while trying to stay at the 99% (variable by user) service level target. 
+
+Everything is fully customizable, so you can edit the demand, product mix, store locations, transport costs and more to see how it affects the overall supply chain performance.
+
+## Technical implementation
+I wanted to make the model interactive and online available. Javascript or a pure HTML + CSS + Javascript framework misses the data science packages that Python and R have. While I have more experience with python, the fact that I could freely host the model on [shinyapps.io](https://www.shinyapps.io/) made R the better choice for this project.
+
+
+## Products
+Upfront's current available products are listed at [https://upfront.nl/collections/foodstore](https://upfront.nl/collections/foodstore), which we can quickly scrape:
 
 <details>
 <summary>Foodstore scraper code</summary>
@@ -183,12 +205,16 @@ We know that Upfront is likely going to have 5 stores in the near future. Lets a
 - Amsterdam
 - Utrecht
 - Den Haag
-- Eindhoven
-- Adittionally, there will be a central warehouse. Lets put it centrally in Gouda. 
+- Leiden
+- Adittionally, there will be a central warehouse. Lets put it centrally in Vianen. 
+
+(by the way, I would use location of current delivery adresses to determine the optimal locations for new stores :)
 
 ### Demand
-It is public knowledge that Upfront's current store does about €20.000,- of revenue per day. Their average product price is €3,44, which means they sell about 5.797 items per day. <br><br>
-For demand, lets assume a long tail distribution (Pareto) of sales, where the top 20% of products account for 80% of sales. This means that the top 32 items would account for ~4.600 sales per day, with the remaining 128 items accounting for ~1.200 sales per day. In the code we will model the actual demand per product with a seasonal (weekly and quarterly) and random term that can be modified. 
+It is public knowledge that Upfront's current store does about €20.000,- of revenue per day. Their average product price is €3,44, which means they sell about 5.797 items per day. per store. <br><br>
+As we currently use 50 items in the model, with an average price of 4,51, we are likely to sell 87 units per item per day. For now we assume a linear distribution, while it does more likely follow a long tail distribution. Individual demand can be modified in the editor. <br><br>
+
+### Needs more writing here. 
 
 #### Products
 Per product we need to know:
@@ -198,7 +224,12 @@ Per product we need to know:
 - profit margin (to prioritize high-margin items)
 
 ### Transport & Logistics
+- assuming each truck can drive for 12 hours per day
+- loading/unloading times are neglected. 
 - location of stores & warehouse (to calculate transport distances)
 - storage capacity per location
 - transport cost per km (if we want to do cost calculations)
 - modes of transport (e.g. can frozen and non-frozen food be transported together, how much capacity per mode of transport, etc)
+
+### Shiny code
+the shiny app code is 2k LOC. It can be found on my github.  
