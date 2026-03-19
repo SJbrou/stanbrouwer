@@ -6,18 +6,18 @@ date: 2026-03-19 21:00:00
 tags: ["Projects"]
 ---
 
-**Context**
+**Context**<br>
 De Foodstore is visueel rustig doordat producten per "verpakkingstype" gesorteerd staan.<br><br>
 De bevroren producten, ongekoelde groenten en fruit staan in het middenpad. De overige producten staan tegen de muur. Minstens 2 breed, 5 planken hoog. Ook in de koeling.
 
 <img 
   src="https://www.frankhanswijk.nl/media/images/upfront-samplestudio-cfrank-hanswijk-48.jpg"
-  style="max-width:100%; height:auto;"
+  style="max-width:100%; height:auto; border-radius: 8px;"
 />
 
 ## Uitdaging
 
-Hoe de Foodstore in te delen dat er zo min mogelijk transport van & naar de winkel nodig zijn? 
+*Hoe de Foodstore in te delen dat er zo min mogelijk transport van & naar de winkel nodig zijn?*
 
 Om de winkel netjes te houden gaan we geen potjes tussen de diepvriesartikelen houden. De ordening per "categorie blijft". 
 Stap 1 is dus om de huidige categorieen te bepalen. Stel voor dat dit zijn:
@@ -50,20 +50,18 @@ Er zijn nog heel wat andere categorieeen (eieren? brood?). Voor een meeneemopdra
 <br><br>
 Daarnaast heeft elk product ook dimensies, kunnen ze stapelbaar zijn, hebben ze een gewicht, houdsbaarheidsdatum, etc. Al mijn aannames staan 
 [Hier](https://docs.google.com/spreadsheets/d/1XvqgXeZ9WEhTQ9a_3e4yTI7yGERQDXMbX_NgFn2IbY8/edit?usp=sharing)
-
 <br><br>
 
-## Conceptuele oplossing. 
+## Conceptueel model van de winkel
+Laten we aannemen dat de lengte van de schappen & koeling 24m is (10m diep, 4m breed). De verhouding koeling:schap hangt af van de vraag naar producten, en laten we de vriezer, groenten en fruit in het middenpad houden. Voor het vraagstuk kunnen we de winkel dan beschouwen als een lang schap/koelschap van 24 meter lang, 5 planken hoog. Hoe dit in te delen?
 
-
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-Stel dat de foodstore schappen & koeling 10m diep en 4m breed is, dan is er in totaal 24m aan schapruimte
+## Minimale indeling
+Omdat we de winkel netjes houden, blijft de ordening per categorie, en houden we vast aan minstens twee rijen van dezelfde producten naast elkaar. De minimale breedte can een categorie wordt dan:
 
 $$
 W_C = \sum_{i \in C} \big(2 \cdot (w_i + M)\big)
 $$
 
-
-qweqwe
+Waarbij $W_C$ de minimale breedte is voor categorie $C$, $w_i$ de breedte van product $i$ is, en $M$ de marge tussen verschillende producten is;
 
 
