@@ -49,10 +49,10 @@ r_i = \frac{D_i}{w_i}
 $$
 
 waarbij:
-- $D_i$ = vraag naar product $i$  
-- $w_i$ = breedte van product $i$  
+- \(D_i\) = vraag naar product \(i\)  
+- \(w_i\) = breedte van product \(i\)  
 <br>
-Dit geeft aan hoeveel vraag er is per meter schapruimte. Producten met een hoge $r_i$ zullen sneller door hun voorraad heen gaan en hebben dus relatief meer ruimte nodig.
+Dit geeft aan hoeveel vraag er is per meter schapruimte. Producten met een hoge \(r_i\) zullen sneller door hun voorraad heen gaan en hebben dus relatief meer ruimte nodig.
 
 *Stap 2: Relatieve verdeling van schapruimte*<br>
 
@@ -65,7 +65,7 @@ $$
 Hiermee bepalen we welk aandeel van de totale schapruimte theoretisch naar product $i$ gaat.
 
 *Stap 3: Initiele breedte per product*<br>
-De totale beschikbare schapbreedte noemen we $S_{tot}$ (in dit geval 24 meter). De breedte per product wordt dan:
+De totale beschikbare schapbreedte noemen we \(S_{tot}\) (in dit geval 24 meter). De breedte per product wordt dan:
 
 $$
 S_i = p_i \cdot S_{tot}
@@ -79,15 +79,15 @@ $$
 S_i^{min} = 2 \cdot (w_i + M)
 $$
 
-Waarbij $M$ de marge tussen producten is. (ga na: deze houden we aan tussen elke individuele rij producten, en moet hier dus ook twee keer worden meegenomen). 
-Indien de berekende breedte kleiner is dan deze ondergrens, verhogen we $S_i$ naar het minimum:
+Waarbij \(M\) de marge tussen producten is. (ga na: deze houden we aan tussen elke individuele rij producten, en moet hier dus ook twee keer worden meegenomen). 
+Indien de berekende breedte kleiner is dan deze ondergrens, verhogen we \(S_i\) naar het minimum:
 
 $$
 S_i = \max(S_i, S_i^{min})
 $$
 
 *Stap 5: Normalisatie naar totale schapruimte*<br>
-Ervanuitgaande dat de minimale breedtes passen, hoeven we alleen de *vraag-gecorrigeerde breedtes proportioneel te schalen* om te voldoen aan $S_{tot}$:
+Ervanuitgaande dat de minimale breedtes passen, hoeven we alleen de *vraag-gecorrigeerde breedtes proportioneel te schalen* om te voldoen aan \(S_{tot}\):
 
 $$
 S_i^{nieuw} = S_i \cdot \frac{S_{tot}}{\sum_i S_i}
@@ -101,7 +101,12 @@ Hierbij blijven de minimale breedtes gegarandeerd en wordt de totale ruimte opti
 - De frequentie van bijvullen wordt geminimaliseerd, waardoor transportbewegingen afnemen.
 
 
-
+<br>
+<br>
+<hr>
+<br>
+Oude notities:
+<br>
 <hr>
 <br>
 <br>
