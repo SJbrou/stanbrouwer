@@ -233,3 +233,8 @@ Per product we need to know:
 
 ### Shiny code
 the shiny app code is 2k LOC. It can be found on my github.  
+
+
+<hr>
+
+### Online available data:
