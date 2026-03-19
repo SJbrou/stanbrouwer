@@ -10,7 +10,7 @@ Online dashboard can be found [here](https://sjbrou.shinyapps.io/upfront/), code
 
 <img 
   src="https://github.com/SJbrou/upfront/blob/main/pics/dashboard_import_schedule.png"
-  style="max-width:100%; height:auto;"
+  style="max-width:100%; height:auto;border-radius: 8px;"
 />
 
 
