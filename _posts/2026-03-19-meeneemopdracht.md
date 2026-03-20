@@ -19,15 +19,16 @@ Er is een middenpad met groente, fruit en diepvries. De rest staat tegen de mure
 
 *Hoe de Foodstore in te delen dat er zo min mogelijk transport van & naar de winkel nodig zijn?*
 
-Om de winkel netjes te houden gaan we geen potjes tussen de diepvriesartikelen houden. De ordening per "categorie blijft".
+Om de winkel netjes te houden gaan we geen potjes tussen de diepvriesartikelen houden. De ordening per "categorie" blijft.
 
 ## Conceptueel vereenvoudigen (simpel denken!)
-Eigenlijk kan je de foodstore zien als een enkel heel lang schap, en willen we weten hoe we de breedte van het schap het beste kunnen indelen met verschillende producten.
+Eigenlijk kan je de foodstore zien als 24m(? 2x 10m diep, 4m breed) aan schap, en willen we weten hoe we de breedte van het schap het beste kunnen indelen met de verschillende producten
+
 - de 5 planken boven elkaar zijn altijd met hetzelfde product gevuld, dus met de 5 planken hoeven we eigenlijk geen rekening te houden.
 - Vriesvak, groente en fruit gaan we niet verplaatsen (out of scope). 
 - De verhouding koeling:schap valt nog te veranderen
 <br>
-Stel dat de schappen + koeling 24 meter zijn (10m diep, 4m breed). We hoeven alleen te bepalen hoe we de verschillende producten verdelen over deze 24 meter aan schap. 
+
 <br><br>
 Omdat we de winkel netjes willen houden, moeten er minstens 2 rijen van hetzelfde product naast elkaar staan. Er is dus een *minimale breedte per product* (of categorie) die we moeten aanhouden. Daarnaast willen we dat de breedte van het schap *proportioneel is aan de vraag naar het product*, zodat we zo min mogelijk hoeven bij te vullen. Hierbij moet ook rekening worden gehouden met de fysieke breedte van elk product.
 
@@ -100,16 +101,16 @@ Hierbij blijven de minimale breedtes gegarandeerd en wordt de totale ruimte opti
 - Minimale breedtes zorgen voor een visueel consistente winkel.  
 - De frequentie van bijvullen wordt geminimaliseerd, waardoor transportbewegingen afnemen.
 
+<br>
+<hr>
+<br>
+<br>
 
-<br>
-<br>
-<hr>
-<br>
-Oude notities:
-<br>
-<hr>
-<br>
-<br>
+## Implementatie
+
+Er zijn nog andere zaken om rekening mee te houden
+- producten staan per categorie bij elkaar.
+- sommige producten vallen op te stapelen (bv. blik. Dan kunnen er dus meer producten per breedte)
 
 
 
