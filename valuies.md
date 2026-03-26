@@ -2,7 +2,7 @@
 layout: page
 title:
 description: 
-permalink: /looking-for
+permalink: /values
 ---
 
 <script>
