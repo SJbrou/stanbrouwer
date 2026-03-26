@@ -16,7 +16,7 @@ My best performances came when I was given a bit too much responsibility and I h
 Practically, this means that there should be room to discuss the vision and strategy, and that there should be a path laid down to earning trust and ownership. <br><br>
 
 - Culture
-I need to be surrounded by people that are driven and ambitious. I know that I can learn any technical skill myself, and prefer to be surrounded by people from whom I can learn other things, such as: how to lead, be more proactive, or just how to be a better person. <br><br>
+I need to be surrounded by people that are driven and ambitious. I know that I can learn any technical skill myself, and prefer to be surrounded by people from whom I can learn other things, such as: how to think, how to lead, or just how to be a better person. <br><br>
 
 **Nice to haves** 
 Long deliberation and decision making drains my energy. If I think something is worth doing, I want to do it. I want to be somewhere that rewards trying, iterating and learning from the occasional mistake. (Action & Speed)
