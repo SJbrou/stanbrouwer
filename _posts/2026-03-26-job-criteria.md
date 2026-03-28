@@ -6,16 +6,22 @@ date: 2026-03-26 12:00:00
 tags: ["CV"]
 ---
 
-With youthful naivety, I believe that you can archieve anything given the right environment.<br>
+I want to clearify what I'm looking for in my working life. It's still a collection of notes.<br>
+First draft I ended up writing about all values like Culture, Ownership, Direct feedback and other corporate buzzwords cringe.
+And while all the corpo-speak about values is true, the most important thing for me is the environment that I want to end up in.
 
-### Profile
-I'm proactive, energetic, have a scientific education, a broad network of peers in all walks of life that I can ask anything. I'm not risk averse and do not feel bound by traditional means of employment or location. What should my environment look like?
 
-### Ownership, expectations and direction
-My best performances came when I was given a bit too much responsibility and I had to figure out how to get the job done on the fly. Periods of working extremely hard are rewarding to me. They require me to understand the vision so I can put in the work with the confidence that I know that where I'm heading is the right direction.<br>
-Practically, this means that there should be room to discuss the vision and strategy, and that there should be a path laid down to earning trust and ownership. <br>
+I'm well educated (scientifically) and hard working, so I have the youthful naivety to believe I can still learn pretty much any technical skill. This makes me care less about the branche or sector that I'm applying to, but more about the people and culture that I want to be working with. <br>
+
+
+## Generalism vs Specialism.
+I've played with the thought of becoming a COBOL engineer, have a very narrow focus and become the best in a niche (and rake in the cash). However, I just enjoy knowing a bit of everything and be able to connect the dots between totally different domains. Adittionally, the technical skills such as programming languages seem like a means to an end for me, so I do not envision building a carreer on a very specific technical skill. Rather, I'd like to be responsible for specific outcomes and be able to use whatever skill is needed to get there.
+
+## (Too much) Responsibility and ownership
+My best performances came when I was given a bit too much responsibility and I had to figure out how to get the job done on the fly. Periods of wo§rking extremely hard are rewarding to me. Working truely hard requires the confidence of knowing that I'm heading in the right direction. That requires me to understand the vision. There should be room to discuess the vision and strategy, and there should be a path laid down to earning trust and ownership.
 
 ### Culture
+Long deliberation and decision making processes drain my energy. If I think something is worth doing, I want to do it. I want to be somewhere that rewards trying, iterating and learning from the occasional mistake. (Action & Speed)
 I need to be surrounded by people that are driven and ambitious. I know that I can learn any technical skill myself, and prefer to be surrounded by people from whom I can learn other things, such as: how to think, how to lead, or just how to be a better person. 
 
 ### Nice to haves
