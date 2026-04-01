@@ -27,6 +27,11 @@ sass:
 excerpt_separator: "<!--excerpt-->"
 
 
+# Ticketing – Google Sheets webhook
+# Set these after deploying your Google Apps Script web app
+ticketing_webhook_url:   ""   # paste your Apps Script web app URL here
+ticketing_webhook_token: ""   # paste your chosen secret token here
+
 # Google analytics
 google_analytics:   	G-270JCJY9ZM
 

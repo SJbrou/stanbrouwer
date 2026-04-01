@@ -1,0 +1,184 @@
+- id: "loods_easter"
+  title: "De Loods - Easter"
+  date: "Sat 4 Apr 2026"
+  time: "13:00 – 00:00"
+  location: "De Loods, Hoorn"
+  description: "Easter daycare at de Loods"
+  image: "/assets/img/events/loods.jpg"
+  pdf: "/assets/content/tickets/loods-easter-2026.pdf"
+  ticket_types:
+    - id: "loods_easter_run"
+      name: "11:30 Runclub easter"
+      description: "Join for an easy 8k to start the day!"
+      price: "Free"
+      max: 40
+    - id: "loods_easter_brunch"
+      name: "13:00 Brunch @ de Loods"
+      description: "Brunch with friends! Brunch is provided, a treat would be welcomed!"
+      price: "Free"
+      max: 30
+    - id: "loods_easter_prosseco"
+      name: "15:00 Prosseco pasen"
+      description: "Don't look for eggs, but for bubbles!"
+      price: "Free"
+      max: 30
+    - id: "loods_easter_dinner"
+      name: "18:00 Dinner at de Loods"
+      description: "Wine & Dine! We don't want to cook, so we'll order"
+      price: "Free"
+      max: 30
+    - id: "loods_easter_borrel"
+      name: "20:00 Borrel at de Loods"
+      description: " Enjoy some drinks and snacks!"
+      price: "Free"
+      max: 30
+    - id: "de_loods_easter"
+      name: "23:00 de Loods - Easter"
+      description: "Come early, stay late! Let's close off the day @ de Loods. Don't forget to bring a USB!"
+      price: "Free"
+      max: 30
+
+- id: "gamenight_1"
+  title: "Game Night"
+  date: "Sat 28 Mar 2026"
+  time: "13:00 – 21:00"
+  location: "De Loods, Hoorn"
+  description: "Game Night 28-3."
+  image: "/assets/img/events/gamenight.jpg"
+  pdf: "/assets/content/tickets/gamenight-2026.pdf"
+  ticket_types:
+    - id: "gamenight_28_3"
+      name: "Game Night 28-3"
+      description: "Neem jezelf en een bordspelletje mee voor een gezellige avond"
+      price: "Free"
+      max: 5
+
+- id: "Pubgolf-2026"
+  title: "Pubgolf 2026"
+  date: "Sat 21 Maart 2026"
+  time: "15:00 – 23:00"
+  location: "De Loods, Hoorn"
+  description: "Pubgolf Breda goes Hoorn."
+  image: "/assets/img/events/summer-party.jpg"
+  pdf: "/assets/content/tickets/summer-party-2026.pdf"
+  ticket_types:
+    - id: "basic"
+      name: "Vrienden Weekend Ticket"
+      description: "Weekend met slaapzaal overnachting"
+      price: "Free"
+      max: 10
+    - id: "general"
+      name: "Single Day Ticket"
+      description: "1 Dag Pubgolf"
+      price: "Free"
+      max: 20
+    - id: "eigenhotel"
+      name: "Eigen Hotel"
+      description: "Ben je een slappe? boek je toch lekker je eigen hotel!?"
+      price: "Free"
+      max: 2
+
+- id: "Starwars-marathon2"
+  title: "Star Wars Marathon (4-5-6)"
+  date: "Sun 1 Mar 2026"
+  time: "13:00 – 21:00"
+  location: "De Loods, Hoorn"
+  description: "Star Wars Marathon (Episodes 4-5-6)."
+  image: "/assets/img/events/starwars.jpg"
+  pdf: "/assets/content/tickets/starwars-marathon-2026.pdf"
+  ticket_types:
+    - id: "episode_456"
+      name: "Episodes 4-5-6"
+      description: "Star Wars Marathon (Episodes 4-5-6)."
+      price: "Free"
+      max: 5
+
+- id: "Runclub-3"
+  title: "Runclub"
+  date: "Sun 1 Mar 2026"
+  time: "10:00 – 11:00"
+  location: "De Wielerbaan, Hoorn"
+  description: "Easy sunday runclub."
+  image: "/assets/img/events/autumn-gathering.jpg"
+  pdf: "/assets/content/tickets/autumn-gathering-2026.pdf"
+  ticket_types:
+    - id: "easy_5k"
+      name: "5K"
+      description: "5 kilometer easy run"
+      price: "Free"
+      max: 20
+    - id: "10k"
+      name: "10K"
+      description: "10 kilometer run"
+      price: "Free"
+      max: 10
+    - id: "spectator"
+      name: "Spectator"
+      description: "Kom gezellig kijken!"
+      price: "Free"
+      max: 20
+
+- id: "Starwars-marathon"
+  title: "Star Wars Marathon (1-2-3)"
+  date: "Sun 15 Feb 2026"
+  time: "13:00 – 21:00"
+  location: "De Loods, Hoorn"
+  description: "Star Wars Marathon (Episodes 1-2-3)."
+  image: "/assets/img/events/starwars.jpg"
+  pdf: "/assets/content/tickets/starwars-marathon-2026.pdf"
+  ticket_types:
+    - id: "episode_123"
+      name: "Episodes 1-2-3"
+      description: "Star Wars Marathon (Episodes 1-2-3)."
+      price: "Free"
+      max: 5
+
+- id: "Runclub-2"
+  title: "Runclub"
+  date: "Sun 15 Feb 2026"
+  time: "10:00 – 11:00"
+  location: "De Wielerbaan, Hoorn"
+  description: "Easy sunday runclub."
+  image: "/assets/img/events/autumn-gathering.jpg"
+  pdf: "/assets/content/tickets/autumn-gathering-2026.pdf"
+  ticket_types:
+    - id: "easy_5k"
+      name: "5K"
+      description: "5 kilometer easy run"
+      price: "Free"
+      max: 20
+    - id: "10k"
+      name: "10K"
+      description: "10 kilometer run"
+      price: "Free"
+      max: 10
+    - id: "spectator"
+      name: "Spectator"
+      description: "Kom gezellig kijken!"
+      price: "Free"
+      max: 20
+
+- id: "Runclub-1"
+  title: "Runclub"
+  date: "Sun 8 Feb 2026"
+  time: "10:00 – 11:00"
+  location: "De Wielerbaan, Hoorn"
+  description: "Easy sunday runclub."
+  image: "/assets/img/events/autumn-gathering.jpg"
+  pdf: "/assets/content/tickets/autumn-gathering-2026.pdf"
+  ticket_types:
+    - id: "easy_5k"
+      name: "5K"
+      description: "5 kilometer easy run"
+      price: "Free"
+      max: 20
+    - id: "10k"
+      name: "10K"
+      description: "10 kilometer run"
+      price: "Free"
+      max: 10
+    - id: "spectator"
+      name: "Spectator"
+      description: "Kom gezellig kijken!"
+      price: "Free"
+      max: 20

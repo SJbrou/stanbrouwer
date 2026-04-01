@@ -1,0 +1,65 @@
+// ============================================================
+//  Ticketing webhook – Google Apps Script
+//  Paste this into Extensions → Apps Script in your Google Sheet
+// ============================================================
+
+const SECRET_TOKEN = 'REPLACE_WITH_YOUR_TOKEN'; // pick anything, e.g. "stan-events-2026"
+const SHEET_NAME   = 'Reservations';
+
+function doPost(e) {
+  var output = ContentService.createTextOutput();
+  output.setMimeType(ContentService.MimeType.JSON);
+
+  try {
+    var data = JSON.parse(e.postData.contents);
+
+    // Reject requests with wrong token
+    if (data.token !== SECRET_TOKEN) {
+      output.setContent(JSON.stringify({ success: false, error: 'Unauthorized' }));
+      return output;
+    }
+
+    var ss    = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
+
+    // Write header row if sheet is empty
+    if (sheet.getLastRow() === 0) {
+      sheet.appendRow([
+        'Timestamp', 'Order ID',
+        'Event', 'Event Date', 'Location',
+        'First Name', 'Last Name', 'Email', 'City', 'Date of Birth',
+        'Ticket Type', 'Quantity'
+      ]);
+      sheet.getRange(1, 1, 1, 12).setFontWeight('bold');
+    }
+
+    // One row per ticket type in the order
+    data.tickets.forEach(function(ticket) {
+      sheet.appendRow([
+        data.timestamp,
+        data.orderId,
+        data.eventTitle,
+        data.eventDate,
+        data.eventLocation,
+        data.firstName,
+        data.lastName,
+        data.email,
+        data.city,
+        data.dateOfBirth || '',
+        ticket.name,
+        ticket.count
+      ]);
+    });
+
+    output.setContent(JSON.stringify({ success: true }));
+  } catch (err) {
+    output.setContent(JSON.stringify({ success: false, error: err.message }));
+  }
+
+  return output;
+}
+
+// Lets you verify the URL is live by visiting it in a browser
+function doGet() {
+  return ContentService.createTextOutput('Ticketing webhook is live.');
+}

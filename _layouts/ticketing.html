@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+
+<html>
+
+{% include head.html %}
+
+<body class="tz-page">
+
+  <div class="wrapper">
+    {% include navbar.html %}
+
+    <main class="tz-main">
+      {{ content }}
+    </main>
+
+    {% include footer.html %}
+  </div>
+
+</body>
+
+{% include scripts.html %}
+
+{% include google-analytics.html %}
+
+</html>
