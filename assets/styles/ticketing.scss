@@ -46,10 +46,6 @@
 
 /* ── Main shop card ──────────────────────────────────────────── */
 .tz-shop {
-  background: var(--tz-surface);
-  border-radius: var(--tz-radius);
-  box-shadow: var(--tz-shadow);
-  border: 1px solid var(--tz-border);
   overflow: hidden;
   max-width: 560px;
   margin: 0 auto 2rem;
@@ -756,32 +752,54 @@
   opacity: 1;
 }
 
-.tz-event-card__date-badge {
+.tz-event-card--disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.tz-event-card--disabled .tz-event-card__arrow {
+  display: none;
+}
+
+.tz-event-card__media {
+  width: 96px;
   display: flex;
   flex-direction: column;
+  gap: 0.45rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.tz-event-card__date-badge {
+  width: 96px;
+  height: 64px;
+  display: flex;
   align-items: center;
   justify-content: center;
   background: var(--tz-accent);
   color: #fff;
-  border-radius: var(--tz-radius-sm);
-  padding: 0.4rem 0.7rem;
-  min-width: 46px;
-  flex-shrink: 0;
+  border-radius: 8px;
+  padding: 0.25rem 0.5rem;
   line-height: 1;
-}
-
-.tz-event-card__date-month {
-  font-size: 0.6rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  opacity: 0.85;
 }
 
-.tz-event-card__date-day {
-  font-size: 1.4rem;
-  font-weight: 800;
-  margin-top: 0.1rem;
+.tz-event-card__date-full {
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+
+.tz-event-card__thumb {
+  width: 96px;
+  height: 64px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.tz-event-card__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .tz-event-card__body {
@@ -795,6 +813,20 @@
   color: var(--tz-text);
   margin: 0 0 0.2rem;
   line-height: 1.2;
+}
+
+.tz-event-card__flag {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--tz-accent);
+  background: rgba(16,72,144,0.08);
+  border: 1px solid rgba(16,72,144,0.12);
+  padding: 0.18rem 0.45rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .tz-event-card__meta,
@@ -850,4 +882,41 @@
     border-radius: 0;
     box-shadow: none;
   }
+}
+
+/* ── Events section containers ─────────────────────────────── */
+.tz-events-section {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  max-width: 720px;
+  margin: 0 auto 1.5rem;
+}
+.tz-events-section--upcoming {
+  margin-top: 0.5rem;
+}
+.tz-events-section__title {
+  text-align: center;
+  margin: 0 0 0.9rem 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--tz-accent);
+}
+.tz-events-list {
+  background: var(--tz-surface);
+  border: 1px solid var(--tz-border);
+  border-radius: 12px;
+  padding: 0.35rem;
+  overflow: hidden;
+  box-shadow: var(--tz-shadow);
+  transform: translateY(-6px);
+}
+.tz-events-section + .tz-events-section {
+  margin-top: 2rem;
+}
+
+/* ensure date text is readable when used as badge */
+.tz-event-card__date-full {
+  color: #fff;
 }

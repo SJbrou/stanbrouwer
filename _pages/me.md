@@ -11,7 +11,9 @@ background: #'/assets/img/bike-in-berlin.jpeg'
 document.addEventListener("DOMContentLoaded", function () {
     const textElement = document.getElementById("animated-text");
     const introText = "Hi, I'm Stan...";
-    const fullText = `<br><br>During the week I'm either a Data Engineer for the governmentor or teaching at the VU. In the weekends, I'm a CrossFit enjoyer and helping with the organisation of large events. 
+    const fullText = `<br><br>During the week I'm a Data Engineer or teaching at the VU. In the weekends, I'm a Runclub or Crossfit enjoyer and am helping 
+    
+    the governmentor or teaching at the VU. In the weekends, I'm a CrossFit enjoyer and helping with the organisation of large events. 
 
     My current hobby projects include detecting local misinformation campaings and analysing hyrox performance data.
 

@@ -18,23 +18,29 @@ header {
   list-style: none;
   width: 100%;
   margin: 0;
-  padding: 0;
+  padding: 0 1rem;
   align-items: center;
+  flex-wrap: nowrap; /* keep all nav items on single line */
+  overflow: hidden;
+  justify-content: flex-start; /* we'll push others right using first-child auto margin */
 }
 
 .navbar-list li {
-  margin: 0 30px; /* margin inbetween 2 rightmost items */
+  margin: 0 16px; /* adjusted spacing so items fit */
   display: flex;
   align-items: center;
   font-family: $navbar-font;
-  letter-spacing: 0.10em;
+  letter-spacing: 0.08em;
+  flex: 0 1 auto; /* allow shrinking when space is tight */
+  min-width: 0; /* allow contents to truncate if needed */
 }
 
-/* Align first nav item left */
+/* First nav item: keep it inline but don't force other items to wrap */
 .navbar-list li:first-child {
   margin-left: 0;
-  margin-right: auto; /* Push all others right */
+  margin-right: auto; /* push all other items to the right */
   transform-origin: left center;
+  flex: 0 0 auto; /* keep 'Stan' from shrinking too much */
 }
 
 /* (Align last nav item totally right */
@@ -48,6 +54,11 @@ header {
   color: var(--color-text);
   text-decoration: none;
   font-size: $navbar-font-size;       /* Font size for the navbar */
+  white-space: nowrap; /* prevent label wrapping */
+  display: inline-block;
+  max-width: 160px; /* allow truncation if needed */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Active & Hover item highlighting & animation */
@@ -86,11 +97,11 @@ header {
 /* Responsiveness  */
 @media (max-width: 768px) {
   .navbar-list li {
-    margin: 0 30px;
+    margin: 0 12px;
   }
-  
-  .navbar-list {
-    justify-content: space-between;
+  .navbar-a {
+    font-size: 0.95rem;
+    max-width: 120px;
   }
 
   .navbar-list .nav-item.active {
@@ -105,11 +116,12 @@ header {
 /* Super small screens */
 @media (max-width: 550px) {
   .navbar-list li {
-    margin: 0 15px;
+    margin: 0 8px;
   }
 
   .navbar-a {
-    font-size: 0.8em;
+    font-size: 0.72em;
+    max-width: 90px;
   }
 
   .navbar-list .nav-item.active {
