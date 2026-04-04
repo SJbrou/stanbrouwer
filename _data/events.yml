@@ -6,7 +6,7 @@
   location: "De Loods, Hoorn"
   description: "Easter gathering at de Loods"
   image: "/assets/img/de_loods.jpg"
-  pdf: "/assets//tickets/Wat Leuk Dat Je Komt.pdf"
+  pdf: "/assets//tickets/Wat_Leuk_Dat_Je_Komt.pdf"
   ticket_types:
     - id: "loods_easter_run"
       name: "11:30 Runclub easter"
