@@ -118,10 +118,15 @@ document.addEventListener("DOMContentLoaded", async function () {
         const [day, month, year] = item.date.split("-");
         const postMonth = new Date(year, month - 1).toLocaleString("default", { month: "long" });
 
-        if (year !== currentYear || postMonth !== currentMonth) {
+        const isNewYear = year !== currentYear;
+        const isNewMonth = postMonth !== currentMonth;
+
+        if (isNewYear || isNewMonth) {
           const separator = document.createElement("li");
           separator.classList.add("year-month-separator");
-          separator.innerHTML = `<span class="year">${year}</span><span class="month">${postMonth}</span>`;
+          separator.innerHTML = isNewYear
+            ? `<span class="year">${year}</span><span class="month">${postMonth}</span>`
+            : `<span class="month only">${postMonth}</span>`;
           items.push(separator);
           currentYear = year;
           currentMonth = postMonth;
@@ -228,9 +233,33 @@ document.addEventListener("DOMContentLoaded", async function () {
   min-height: 500px;
 }
 .year-month-separator {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  width: 100%;
   font-size: 1.2rem;
   font-weight: bold;
-  padding: 10px 0;
+  color: #2f2f2f;
+  margin-top: 18px;
+  padding: 12px 0 8px;
+  border-bottom: 1px solid rgba(68, 68, 68, 0.3);
+}
+.year-month-separator .year {
+  flex: 1;
+  text-align: left;
+}
+.year-month-separator .month {
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #666;
+  text-align: right;
+  flex-shrink: 0;
+}
+.year-month-separator .month.only {
+  width: 100%;
+  color: #4f4f4f;
 }
 .post-item {
   list-style: none;
