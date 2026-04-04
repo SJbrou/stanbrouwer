@@ -41,6 +41,10 @@ node_modules/
 
 # MacOS system files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
 
 # Thumbnails
 Thumbs.db
