@@ -6,7 +6,7 @@
   location: "De Loods, Hoorn"
   description: "Easter gathering at de Loods"
   image: "/assets/img/de_loods.jpg"
-  pdf: "/assets/content/tickets/loods-easter-2026.pdf"
+  pdf: "/assets//tickets/Wat Leuk Dat Je Komt.pdf"
   ticket_types:
     - id: "loods_easter_run"
       name: "11:30 Runclub easter"
@@ -40,7 +40,7 @@
       max: 30
 
 - id: "Koningsnacht-2026"
-  title: "Koningsnacht AMS"
+  title: "Koningsnacht - AMS"
   date: "Sun 26 Apr 2026"
   date_iso: "2026-04-26"
   time: "20:00 – 00:00"
@@ -51,7 +51,7 @@
 #  ticket_types:
 
 - id: "Koningsdag-2026"
-  title: "Koningsdag Hoorn"
+  title: "Koningsdag - Hoorn"
   show_in_list: true
   date: "Mon 27 Apr 2026"
   date_iso: "2026-04-27"

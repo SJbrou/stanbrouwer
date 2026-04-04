@@ -1,65 +1,164 @@
+/** @OnlyCurrentDoc */
+
 // ============================================================
-//  Ticketing webhook – Google Apps Script
-//  Paste this into Extensions → Apps Script in your Google Sheet
+// Ticketing webhook - Google Apps Script
+// Create this as a bound script from the target spreadsheet via
+// Extensions > Apps Script, then deploy it as a Web App and paste
+// that URL into _config.yml as ticketing_webhook_url.
+// Use the same SECRET_TOKEN in _config.yml.
 // ============================================================
 
-const SECRET_TOKEN = 'REPLACE_WITH_YOUR_TOKEN'; // pick anything, e.g. "stan-events-2026"
-const SHEET_NAME   = 'Reservations';
+const SHEET_NAME = 'Reservations';
+const SECRET_TOKEN = 'REPLACE_WITH_YOUR_TOKEN';
+
+const HEADERS = [
+  'Timestamp',
+  'Order ID',
+  'Event ID',
+  'Event Title',
+  'Event Date',
+  'Event Time',
+  'Event Location',
+  'First Name',
+  'Last Name',
+  'Email',
+  'City',
+  'Date of Birth',
+  'Notes',
+  'Total Tickets',
+  'Ticket Summary',
+  'Ticket Type',
+  'Quantity'
+];
 
 function doPost(e) {
   var output = ContentService.createTextOutput();
   output.setMimeType(ContentService.MimeType.JSON);
 
-  try {
-    var data = JSON.parse(e.postData.contents);
+  var lock = LockService.getScriptLock();
+  lock.waitLock(30000);
 
-    // Reject requests with wrong token
+  try {
+    if (!e || !e.postData || !e.postData.contents) {
+      throw new Error('Missing request body.');
+    }
+
+    var data = JSON.parse(e.postData.contents);
+    validatePayload_(data);
+
     if (data.token !== SECRET_TOKEN) {
       output.setContent(JSON.stringify({ success: false, error: 'Unauthorized' }));
       return output;
     }
 
-    var ss    = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
+    var sheet = getSheet_();
 
-    // Write header row if sheet is empty
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow([
-        'Timestamp', 'Order ID',
-        'Event', 'Event Date', 'Location',
-        'First Name', 'Last Name', 'Email', 'City', 'Date of Birth',
-        'Ticket Type', 'Quantity'
-      ]);
-      sheet.getRange(1, 1, 1, 12).setFontWeight('bold');
+    if (orderExists_(sheet, data.orderId)) {
+      output.setContent(JSON.stringify({ success: true, duplicate: true, orderId: data.orderId }));
+      return output;
     }
 
-    // One row per ticket type in the order
-    data.tickets.forEach(function(ticket) {
-      sheet.appendRow([
+    var ticketSummary = data.tickets.map(function(ticket) {
+      return ticket.name + ' x' + ticket.count;
+    }).join(', ');
+
+    var rows = data.tickets.map(function(ticket) {
+      return [
         data.timestamp,
         data.orderId,
+        data.eventId || '',
         data.eventTitle,
         data.eventDate,
-        data.eventLocation,
+        data.eventTime || '',
+        data.eventLocation || '',
         data.firstName,
         data.lastName,
-        data.email,
+        data.email || '',
         data.city,
         data.dateOfBirth || '',
+        data.notes || '',
+        data.totalTickets || 0,
+        ticketSummary,
         ticket.name,
         ticket.count
-      ]);
+      ];
     });
 
-    output.setContent(JSON.stringify({ success: true }));
+    sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, HEADERS.length).setValues(rows);
+    output.setContent(JSON.stringify({ success: true, orderId: data.orderId, rowsWritten: rows.length }));
   } catch (err) {
     output.setContent(JSON.stringify({ success: false, error: err.message }));
+  } finally {
+    lock.releaseLock();
   }
 
   return output;
 }
 
-// Lets you verify the URL is live by visiting it in a browser
 function doGet() {
-  return ContentService.createTextOutput('Ticketing webhook is live.');
+  return ContentService
+    .createTextOutput(JSON.stringify({ success: true, status: 'live', sheet: SHEET_NAME }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function getSheet_() {
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = spreadsheet.getSheetByName(SHEET_NAME) || spreadsheet.insertSheet(SHEET_NAME);
+
+  if (sheet.getLastRow() === 0) {
+    sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
+    sheet.getRange(1, 1, 1, HEADERS.length).setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  } else {
+    sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
+  }
+
+  return sheet;
+}
+
+function orderExists_(sheet, orderId) {
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) {
+    return false;
+  }
+
+  var orderIds = sheet.getRange(2, 2, lastRow - 1, 1).getValues();
+  return orderIds.some(function(row) {
+    return String(row[0]) === String(orderId);
+  });
+}
+
+function validatePayload_(data) {
+  if (!data || typeof data !== 'object') {
+    throw new Error('Invalid payload.');
+  }
+
+  var requiredFields = [
+    'token',
+    'timestamp',
+    'orderId',
+    'eventTitle',
+    'eventDate',
+    'firstName',
+    'lastName'
+  ];
+
+  requiredFields.forEach(function(field) {
+    if (!data[field]) {
+      throw new Error('Missing field: ' + field);
+    }
+  });
+
+  if (!Array.isArray(data.tickets) || data.tickets.length === 0) {
+    throw new Error('At least one ticket is required.');
+  }
+
+  data.tickets.forEach(function(ticket, index) {
+    if (!ticket || !ticket.name) {
+      throw new Error('Missing ticket name at index ' + index);
+    }
+    if (!ticket.count || Number(ticket.count) < 1) {
+      throw new Error('Invalid ticket count at index ' + index);
+    }
+  });
 }

@@ -2,6 +2,7 @@
 layout: ticketing
 title: Order Overview
 permalink: /ticket-overview/
+hide_navbar: true
 ---
 
 <div class="tz-shop" id="tz-overview-app">
@@ -55,6 +56,12 @@ permalink: /ticket-overview/
     return;
   }
 
+  if (!isTicketingOpen(event)) {
+    document.getElementById('tz-overview-app').innerHTML =
+      '<p class="tz-error">Ticket sales have closed for this event. <a href="/events/">View all events</a></p>';
+    return;
+  }
+
   // Render event header
   document.getElementById('tz-event-header').innerHTML =
     '<div class="tz-event-banner">' +
@@ -86,13 +93,20 @@ permalink: /ticket-overview/
       '<h3 class="tz-overview__section-title">Your details</h3>' +
       '<div class="tz-overview__details">' +
         '<div class="tz-overview__detail-row"><span>Name</span><span>' + escHtml(details.firstName + ' ' + details.lastName) + '</span></div>' +
-        '<div class="tz-overview__detail-row"><span>Email</span><span>' + escHtml(details.email) + '</span></div>' +
-        '<div class="tz-overview__detail-row"><span>City</span><span>' + escHtml(details.city) + '</span></div>' +
+        (details.email ? '<div class="tz-overview__detail-row"><span>Email</span><span>' + escHtml(details.email) + '</span></div>' : '') +
+        (details.city ? '<div class="tz-overview__detail-row"><span>City</span><span>' + escHtml(details.city) + '</span></div>' : '') +
         (details.dateOfBirth ? '<div class="tz-overview__detail-row"><span>Date of birth</span><span>' + escHtml(details.dateOfBirth) + '</span></div>' : '') +
+        (details.notes ? '<div class="tz-overview__detail-row"><span>Notes</span><span>' + escHtml(details.notes) + '</span></div>' : '') +
       '</div>' +
     '</section>';
 
   document.getElementById('tz-place-order-btn').addEventListener('click', function() {
+    if (!isTicketingOpen(event)) {
+      document.getElementById('tz-overview-app').innerHTML =
+        '<p class="tz-error">Ticket sales have closed for this event. <a href="/events/">View all events</a></p>';
+      return;
+    }
+
     var btn = this;
     btn.disabled = true;
     btn.textContent = 'Processing…';
@@ -118,6 +132,10 @@ permalink: /ticket-overview/
 
   function escHtml(str) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function isTicketingOpen(currentEvent) {
+    return !window.TZTicketing || window.TZTicketing.isTicketingOpen(currentEvent);
   }
 })();
 </script>

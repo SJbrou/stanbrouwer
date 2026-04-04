@@ -7,9 +7,12 @@
 <body class="tz-page">
 
   <div class="wrapper">
+    {% unless page.hide_navbar %}
     {% include navbar.html %}
+    {% endunless %}
 
     <main class="tz-main">
+      <script src="{{ '/assets/js/ticketing.js' | relative_url }}"></script>
       {{ content }}
     </main>
 

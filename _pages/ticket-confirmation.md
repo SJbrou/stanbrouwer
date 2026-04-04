@@ -2,6 +2,7 @@
 layout: ticketing
 title: Reservation Confirmed
 permalink: /ticket-confirmation/
+hide_navbar: true
 ---
 
 <!-- Webhook config injected at build time from _config.yml -->
@@ -30,6 +31,11 @@ window.TZ_WEBHOOK_TOKEN = {{ site.ticketing_webhook_token | default: '' | jsonif
   var selection = confirmed.selection;
   var details  = confirmed.details;
   var orderId  = confirmed.orderId;
+  var syncKey  = 'tz_sheet_sync_' + orderId;
+  var syncNoticeEl;
+  var syncTitleEl;
+  var syncTextEl;
+  var syncRetryBtn;
 
   var totalTickets = selection.reduce(function(a, s) { return a + s.count; }, 0);
 
@@ -57,11 +63,19 @@ window.TZ_WEBHOOK_TOKEN = {{ site.ticketing_webhook_token | default: '' | jsonif
       '<h1 class="tz-confirm__title">Reservation confirmed!</h1>' +
       '<p class="tz-confirm__subtitle">Your ' + totalTickets + ' ticket' + (totalTickets !== 1 ? 's' : '') + ' for <strong>' + escHtml(event.title) + '</strong> have been reserved.</p>' +
       '<p class="tz-confirm__order-id">Order reference: <strong>' + escHtml(orderId) + '</strong></p>' +
+      '<div class="tz-sync-notice tz-sync-notice--pending" id="tz-sync-notice" aria-live="polite">' +
+        '<div class="tz-sync-notice__copy">' +
+          '<span class="tz-sync-notice__title" id="tz-sync-title">Saving your reservation to the registration sheet...</span>' +
+          '<span class="tz-sync-notice__text" id="tz-sync-text">Keep this page open for a moment while we sync your order.</span>' +
+        '</div>' +
+        '<button type="button" class="tz-btn tz-btn--secondary tz-sync-notice__retry" id="tz-sync-retry-btn" hidden>Retry</button>' +
+      '</div>' +
 
       '<div class="tz-confirm__event-summary">' +
         '<div class="tz-confirm__event-date">' + formatDateBadge(event.date) + '</div>' +
         '<div class="tz-confirm__event-info">' +
           '<strong>' + escHtml(event.title) + '</strong>' +
+          (event.invite_only ? '<div class="tz-event-card__flag">Invite only</div>' : '') +
           '<span>' + escHtml(event.date) + ' &bull; ' + escHtml(event.time) + '</span>' +
           '<span>' + escHtml(event.location) + '</span>' +
         '</div>' +
@@ -75,8 +89,16 @@ window.TZ_WEBHOOK_TOKEN = {{ site.ticketing_webhook_token | default: '' | jsonif
       '<a href="/events/" class="tz-btn tz-btn--secondary tz-confirm__new-order">Order more tickets</a>' +
     '</div>';
 
-  // ── Post reservation to Google Sheets ────────────────────────
-  postToGoogleSheets(confirmed);
+  syncNoticeEl = document.getElementById('tz-sync-notice');
+  syncTitleEl = document.getElementById('tz-sync-title');
+  syncTextEl = document.getElementById('tz-sync-text');
+  syncRetryBtn = document.getElementById('tz-sync-retry-btn');
+
+  syncRetryBtn.addEventListener('click', function() {
+    syncReservation(confirmed, true);
+  });
+
+  initializeSyncStatus();
 
   // Wire up download buttons
   document.querySelectorAll('.tz-btn--download').forEach(function(btn) {
@@ -133,11 +155,12 @@ window.TZ_WEBHOOK_TOKEN = {{ site.ticketing_webhook_token | default: '' | jsonif
       ['Ticket type',    ticketType],
       ['Quantity',       String(count)],
       ['Name',           det.firstName + ' ' + det.lastName],
-      ['Email',          det.email],
-      ['City',           det.city],
       ['Order ref.',     orderId]
     ];
+    if (det.email) rows.splice(3, 0, ['Email', det.email]);
+    if (det.city) rows.splice(det.email ? 4 : 3, 0, ['City', det.city]);
     if (det.dateOfBirth) rows.push(['Date of birth', det.dateOfBirth]);
+    if (det.notes) rows.push(['Notes', det.notes]);
 
     var y = 72;
     rows.forEach(function(row) {
@@ -162,23 +185,80 @@ window.TZ_WEBHOOK_TOKEN = {{ site.ticketing_webhook_token | default: '' | jsonif
     doc.save(filename);
   }
 
+  function initializeSyncStatus() {
+    var url = window.TZ_WEBHOOK_URL;
+    var state = getSyncState();
+
+    if (!url) {
+      renderSyncNotice('unconfigured');
+      return;
+    }
+
+    if (state === 'sent') {
+      renderSyncNotice('sent');
+      return;
+    }
+
+    if (state === 'failed') {
+      renderSyncNotice('failed');
+      return;
+    }
+
+    syncReservation(confirmed);
+  }
+
+  function syncReservation(data, force) {
+    var url = window.TZ_WEBHOOK_URL;
+    if (!url) {
+      renderSyncNotice('unconfigured');
+      return;
+    }
+
+    if (getSyncState() === 'sent' && !force) {
+      renderSyncNotice('sent');
+      return;
+    }
+
+    renderSyncNotice('pending');
+    postToGoogleSheets(data)
+      .then(function() {
+        setSyncState('sent');
+        renderSyncNotice('sent');
+      })
+      .catch(function(err) {
+        setSyncState('failed');
+        renderSyncNotice('failed');
+        console.warn('[ticketing] Could not reach webhook:', err);
+      });
+  }
+
   function postToGoogleSheets(data) {
     var url   = window.TZ_WEBHOOK_URL;
     var token = window.TZ_WEBHOOK_TOKEN;
-    if (!url) return; // not configured yet
+    if (!url) {
+      return Promise.resolve();
+    }
+
+    var totalTickets = data.selection.reduce(function(sum, ticket) {
+      return sum + ticket.count;
+    }, 0);
 
     var payload = {
       token:         token,
       timestamp:     data.timestamp,
       orderId:       data.orderId,
+      eventId:       data.event.id,
       eventTitle:    data.event.title,
       eventDate:     data.event.date,
+      eventTime:     data.event.time,
       eventLocation: data.event.location,
       firstName:     data.details.firstName,
       lastName:      data.details.lastName,
-      email:         data.details.email,
-      city:          data.details.city,
+      email:         data.details.email || '',
+      city:          data.details.city || '',
       dateOfBirth:   data.details.dateOfBirth || '',
+      notes:         data.details.notes || '',
+      totalTickets:  totalTickets,
       tickets:       data.selection.map(function(s) {
         return { name: s.name, count: s.count };
       })
@@ -186,14 +266,60 @@ window.TZ_WEBHOOK_TOKEN = {{ site.ticketing_webhook_token | default: '' | jsonif
 
     // Use no-cors so the browser doesn't block the cross-origin POST.
     // We can't read the response in this mode, but the data is delivered.
-    fetch(url, {
+    return fetch(url, {
       method:  'POST',
       mode:    'no-cors',
       headers: { 'Content-Type': 'text/plain' },
       body:    JSON.stringify(payload)
-    }).catch(function(err) {
-      console.warn('[ticketing] Could not reach webhook:', err);
     });
+  }
+
+  function getSyncState() {
+    try {
+      return localStorage.getItem(syncKey);
+    } catch (err) {
+      return null;
+    }
+  }
+
+  function setSyncState(state) {
+    try {
+      localStorage.setItem(syncKey, state);
+    } catch (err) {
+      console.warn('[ticketing] Could not persist sync state:', err);
+    }
+  }
+
+  function renderSyncNotice(state) {
+    var title = '';
+    var text = '';
+    var showRetry = false;
+
+    if (!syncNoticeEl || !syncTitleEl || !syncTextEl || !syncRetryBtn) {
+      return;
+    }
+
+    if (state === 'sent') {
+      title = 'Saved to the registration sheet';
+      text = 'Your reservation details were synced successfully.';
+    } else if (state === 'failed') {
+      title = 'Could not save to the registration sheet';
+      text = 'Your reservation is still confirmed. Retry to send the details again.';
+      showRetry = true;
+    } else if (state === 'unconfigured') {
+      title = 'Registration sheet sync is not configured';
+      text = 'The reservation is confirmed, but this site does not have a webhook URL yet.';
+    } else {
+      state = 'pending';
+      title = 'Saving your reservation to the registration sheet...';
+      text = 'Keep this page open for a moment while we sync your order.';
+    }
+
+    syncNoticeEl.className = 'tz-sync-notice tz-sync-notice--' + state;
+    syncTitleEl.textContent = title;
+    syncTextEl.textContent = text;
+    syncRetryBtn.hidden = !showRetry;
+    syncRetryBtn.disabled = state === 'pending';
   }
 
   function formatDateBadge(dateStr) {

@@ -2,6 +2,7 @@
 layout: ticketing
 title: Your Details
 permalink: /ticket-details/
+hide_navbar: true
 ---
 
 <div class="tz-shop" id="tz-details-app">
@@ -44,20 +45,25 @@ permalink: /ticket-details/
     </div>
 
     <div class="tz-form__group">
-      <label class="tz-form__label" for="tz-email">Email address <span class="tz-required">*</span></label>
-      <input class="tz-form__input" type="email" id="tz-email" name="email" autocomplete="email" required placeholder="jana@example.com">
+      <label class="tz-form__label" for="tz-email">Email address <span class="tz-optional">(optional)</span></label>
+      <input class="tz-form__input" type="email" id="tz-email" name="email" autocomplete="email" placeholder="jana@example.com">
       <span class="tz-form__error" id="err-email"></span>
     </div>
 
     <div class="tz-form__group">
-      <label class="tz-form__label" for="tz-city">City <span class="tz-required">*</span></label>
-      <input class="tz-form__input" type="text" id="tz-city" name="city" autocomplete="address-level2" required placeholder="Amsterdam">
+      <label class="tz-form__label" for="tz-city">City <span class="tz-optional">(optional)</span></label>
+      <input class="tz-form__input" type="text" id="tz-city" name="city" autocomplete="address-level2" placeholder="Amsterdam">
       <span class="tz-form__error" id="err-city"></span>
     </div>
 
     <div class="tz-form__group">
       <label class="tz-form__label" for="tz-dob">Date of birth <span class="tz-optional">(optional)</span></label>
       <input class="tz-form__input" type="date" id="tz-dob" name="dateOfBirth" autocomplete="bday">
+    </div>
+
+    <div class="tz-form__group">
+      <label class="tz-form__label" for="tz-notes">Notes <span class="tz-optional">(optional)</span></label>
+      <textarea class="tz-form__input tz-form__input--textarea" id="tz-notes" name="notes" rows="4" placeholder="Anything we should know?"></textarea>
     </div>
 
     <div class="tz-shop__footer">
@@ -84,15 +90,22 @@ permalink: /ticket-details/
     return;
   }
 
+  if (!isTicketingOpen(event)) {
+    document.getElementById('tz-details-app').innerHTML =
+      '<p class="tz-error">Ticket sales have closed for this event. <a href="/events/">View all events</a></p>';
+    return;
+  }
+
   // Fix back link to include event id
   document.getElementById('tz-back-btn').href = '/tickets/?event=' + encodeURIComponent(event.id);
 
-  // Render event header
+  // Render event header (include invite-only flag if present)
   document.getElementById('tz-event-header').innerHTML =
     '<div class="tz-event-banner">' +
       '<div class="tz-event-banner__date-badge">' + formatDateBadge(event.date) + '</div>' +
       '<div class="tz-event-banner__info">' +
         '<h2 class="tz-event-banner__title">' + escHtml(event.title) + '</h2>' +
+        (event.invite_only ? '<div class="tz-event-card__flag">Invite only</div>' : '') +
         '<p class="tz-event-banner__meta">' + escHtml(event.date) + ' &bull; ' + escHtml(event.time) + '</p>' +
         '<p class="tz-event-banner__location">' + escHtml(event.location) + '</p>' +
       '</div>' +
@@ -101,22 +114,27 @@ permalink: /ticket-details/
   // Pre-fill saved details
   var saved = JSON.parse(sessionStorage.getItem('tz_details') || 'null');
   if (saved) {
-    ['firstName','lastName','email','city','dateOfBirth'].forEach(function(k) {
+    ['firstName','lastName','email','city','dateOfBirth','notes'].forEach(function(k) {
       var el = document.querySelector('[name="' + k + '"]');
-      if (el && saved[k]) el.value = saved[k];
+      if (el && saved[k] != null) el.value = saved[k];
     });
   }
 
   // Form validation & submission
   document.getElementById('tz-details-form').addEventListener('submit', function(e) {
     e.preventDefault();
+
+    if (!isTicketingOpen(event)) {
+      document.getElementById('tz-details-app').innerHTML =
+        '<p class="tz-error">Ticket sales have closed for this event. <a href="/events/">View all events</a></p>';
+      return;
+    }
+
     var valid = true;
 
     var fields = [
       { name: 'firstName', label: 'First name' },
-      { name: 'lastName',  label: 'Last name' },
-      { name: 'email',     label: 'Email address' },
-      { name: 'city',      label: 'City' }
+      { name: 'lastName',  label: 'Last name' }
     ];
 
     fields.forEach(function(f) {
@@ -127,15 +145,15 @@ permalink: /ticket-details/
         err.textContent = f.label + ' is required.';
         el.classList.add('tz-form__input--error');
         valid = false;
-      } else if (f.name === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
-        err.textContent = 'Please enter a valid email address.';
-        el.classList.add('tz-form__input--error');
-        valid = false;
       } else {
         err.textContent = '';
         el.classList.remove('tz-form__input--error');
       }
     });
+
+    if (!validateOptionalEmail()) {
+      valid = false;
+    }
 
     if (!valid) return;
 
@@ -144,7 +162,8 @@ permalink: /ticket-details/
       lastName:  document.querySelector('[name="lastName"]').value.trim(),
       email:     document.querySelector('[name="email"]').value.trim(),
       city:      document.querySelector('[name="city"]').value.trim(),
-      dateOfBirth: document.querySelector('[name="dateOfBirth"]').value || null
+      dateOfBirth: document.querySelector('[name="dateOfBirth"]').value || null,
+      notes: document.querySelector('[name="notes"]').value.trim() || ''
     };
 
     sessionStorage.setItem('tz_details', JSON.stringify(details));
@@ -158,8 +177,34 @@ permalink: /ticket-details/
       var err = document.getElementById('err-' + name);
       if (err) err.textContent = '';
       el.classList.remove('tz-form__input--error');
+
+      if (name === 'email') {
+        validateOptionalEmail();
+      }
     });
   });
+
+  function validateOptionalEmail() {
+    var emailEl = document.querySelector('[name="email"]');
+    var err = document.getElementById('err-email');
+    var val = emailEl.value.trim();
+
+    if (!val) {
+      err.textContent = '';
+      emailEl.classList.remove('tz-form__input--error');
+      return true;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+      err.textContent = 'Please enter a valid email address.';
+      emailEl.classList.add('tz-form__input--error');
+      return false;
+    }
+
+    err.textContent = '';
+    emailEl.classList.remove('tz-form__input--error');
+    return true;
+  }
 
   function formatDateBadge(dateStr) {
     var d = new Date(dateStr);
@@ -170,6 +215,10 @@ permalink: /ticket-details/
 
   function escHtml(str) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function isTicketingOpen(currentEvent) {
+    return !window.TZTicketing || window.TZTicketing.isTicketingOpen(currentEvent);
   }
 })();
 </script>

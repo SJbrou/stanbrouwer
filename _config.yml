@@ -28,9 +28,11 @@ excerpt_separator: "<!--excerpt-->"
 
 
 # Ticketing – Google Sheets webhook
-# Set these after deploying your Google Apps Script web app
-ticketing_webhook_url:   ""   # paste your Apps Script web app URL here
-ticketing_webhook_token: ""   # paste your chosen secret token here
+# 1. Deploy the script in app_script.txt as a Google Apps Script web app.
+# 2. Paste the deployment URL below.
+# 3. Use the same token here and in app_script.txt.
+ticketing_webhook_url:   "https://script.google.com/macros/s/AKfycbwvo-g5D2TozK5mSZrpzsXBjxM63FTPIfW8OcYCJR5cXVVE35mwKHeMK21NujTvfPBs1w/exec"
+ticketing_webhook_token: "TokenWetiknietmeer2000"
 
 # Google analytics
 google_analytics:   	G-270JCJY9ZM

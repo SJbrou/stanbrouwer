@@ -2,6 +2,7 @@
 layout: ticketing
 title: Select Tickets
 permalink: /tickets/
+hide_navbar: true
 ---
 
 <!-- Embed all events data for client-side JS -->
@@ -62,6 +63,18 @@ window.TZ_EVENTS = {{ site.data.events | jsonify }};
   if (!event) {
     document.getElementById('tz-tickets-app').innerHTML =
       '<p class="tz-error">Event not found. <a href="/events/">View all events</a></p>';
+    return;
+  }
+
+  if (!isTicketingOpen(event)) {
+    document.getElementById('tz-tickets-app').innerHTML =
+      '<p class="tz-error">Ticket sales have closed for this event. <a href="/events/">View all events</a></p>';
+    return;
+  }
+
+  if (!Array.isArray(event.ticket_types) || event.ticket_types.length === 0) {
+    document.getElementById('tz-tickets-app').innerHTML =
+      '<p class="tz-error">Tickets are not available for this event yet. <a href="/events/">View all events</a></p>';
     return;
   }
 
@@ -137,6 +150,12 @@ window.TZ_EVENTS = {{ site.data.events | jsonify }};
   }
 
   document.getElementById('tz-continue-btn').addEventListener('click', function() {
+    if (!isTicketingOpen(event)) {
+      document.getElementById('tz-tickets-app').innerHTML =
+        '<p class="tz-error">Ticket sales have closed for this event. <a href="/events/">View all events</a></p>';
+      return;
+    }
+
     var selection = event.ticket_types
       .filter(function(tt) { return counts[tt.id] > 0; })
       .map(function(tt) { return { id: tt.id, name: tt.name, price: tt.price, count: counts[tt.id] }; });
@@ -156,6 +175,10 @@ window.TZ_EVENTS = {{ site.data.events | jsonify }};
   }
   function escAttr(str) {
     return String(str).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function isTicketingOpen(currentEvent) {
+    return !window.TZTicketing || window.TZTicketing.isTicketingOpen(currentEvent);
   }
 
   // Initialise minus buttons disabled
