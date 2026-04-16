@@ -62,6 +62,23 @@
   pdf: "/assets/content/tickets/koningsdag-2026.pdf"
 #  ticket_types:
 
+- id: "de_loods_weekender"
+  title: "de Loods Weekender"
+  show_in_list: true
+  date: "T.B.A."
+  date_iso: ""
+  time: "T.B.A."
+  location: "De Loods, Hoorn"
+  description: "Weekend gathering at de Loods — date T.B.A. Early-bird tickets available."
+  image: "/assets/img/de_loods.jpg"
+  pdf: ""
+  ticket_types:
+    - id: "weekender_early_bird"
+      name: "Early bird"
+      description: "Date to be announced. "
+      price: "T.B.A."
+      max: 50
+
 - id: "gamenight_1"
   title: "Game Night"
   date: "Sat 28 Mar 2026"
