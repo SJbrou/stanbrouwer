@@ -6,7 +6,7 @@
   time: "19:45"
   location: "Amsterdam"
   description: "Birthday 2026"
-  image: "/assets/img/thuis_oranje.jpg"
+  image: "/assets/img/thuis_oranje.JPG"
   pdf: ""
   ticket_types:
     - id: "vroege_genieter"
