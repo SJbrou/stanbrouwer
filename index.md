@@ -20,7 +20,7 @@ I've always wanted my own place where I could
 - Introuce myself
 <br>
 
-Finally I made the step and bought the domain. This site currently is a Jekyll project with hosted on GitHub pages. I couldn't live with the template I started with, so decided to rebuild the whole site by myself. 
+Finally I made the step and bought a domain. This site currently is a Jekyll project with hosted on GitHub pages. I couldn't live with the template I started with, so decided to rebuild the whole site by myself. 
 
 
 <style>

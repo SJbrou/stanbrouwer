@@ -11,7 +11,7 @@ background: #'/assets/img/bike-in-berlin.jpeg'
 document.addEventListener("DOMContentLoaded", function () {
     const textElement = document.getElementById("animated-text");
     const introText = "Hi, I'm Stan...";
-    const fullText = `<br><br>During the week I'm working at a tech startup in Amsterdam or teaching at the VU. In the weekends, I'm a CrossFit enjoyer and organizing large events. 
+    const fullText = `<br><br>During the week I'm working at a tech startup in Amsterdam or teaching at the VU. In the weekends, I'm a CrossFit enjoyer and organizing large events. <br><br>
     
     Currently playing arround with lightning, LLM tooling, analysing performance data and home automation.
 
