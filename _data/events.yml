@@ -1,3 +1,30 @@
+- id: "birthday_2026"
+  title: "Birthday 2026"
+  show_in_list: true
+  date: "Sat 18 Jul 2026"
+  date_iso: "2026-07-18"
+  time: "19:45"
+  location: "Amsterdam"
+  description: "Birthday 2026"
+  image: "/assets/img/thuis_oranje.jpg"
+  pdf: ""
+  ticket_types:
+    - id: "vroege_genieter"
+      name: "19:00 - Vroege Genieters"
+      description: ""
+      price: "Free"
+      max: 50
+    - id: "spot_on"
+      name: "19:45 - Man van de tijd"
+      description: ""
+      price: "Free"
+      max: 50
+    - id: "fashionably_late"
+      name: "20:00 - Fashionably Late"
+      description: ""
+      price: "Free"
+      max: 50
+
 - id: "loods_easter"
   title: "De Loods - Easter"
   date: "Sat 4 Apr 2026"
@@ -62,22 +89,9 @@
   pdf: "/assets/content/tickets/koningsdag-2026.pdf"
 #  ticket_types:
 
-- id: "de_loods_weekender"
-  title: "de Loods Weekender"
-  show_in_list: true
-  date: "T.B.A."
-  date_iso: ""
-  time: "T.B.A."
-  location: "De Loods, Hoorn"
-  description: "Weekend gathering at de Loods — date T.B.A. Early-bird tickets available."
-  image: "/assets/img/de_loods.jpg"
-  pdf: ""
-  ticket_types:
-    - id: "weekender_early_bird"
-      name: "Early bird"
-      description: "Date to be announced. "
-      price: "T.B.A."
-      max: 50
+
+
+
 
 - id: "gamenight_1"
   title: "Game Night"
