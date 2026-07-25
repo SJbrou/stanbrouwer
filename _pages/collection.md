@@ -1,7 +1,7 @@
 ---
 layout: collection
 title: Collection
-permalink: /collection/
+permalink: /
 ---
 
 <main class="collection-page">

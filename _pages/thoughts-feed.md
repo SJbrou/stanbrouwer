@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Thoughts feed
-permalink: /thoughts-feed.html
+permalink: /old/thoughts-feed.html
 ---
 
 <p id="feed-title">Thoughts feed</p>

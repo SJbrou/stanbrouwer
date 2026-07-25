@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Thoughts
-permalink: /thoughts.html
+permalink: /old/thoughts.html
 background: '/assets/img/bg-post.jpg'
 ---
 

@@ -1,7 +1,7 @@
 ---
 layout: ticketing
 title: Reservation Confirmed
-permalink: /ticket-confirmation/
+permalink: /old/ticket-confirmation/
 hide_navbar: true
 ---
 
@@ -23,7 +23,7 @@ window.TZ_WEBHOOK_TOKEN = {{ site.ticketing_webhook_token | default: '' | jsonif
 
   if (!confirmed) {
     document.getElementById('tz-confirmation-app').innerHTML =
-      '<p class="tz-error">No confirmed reservation found. <a href="/events/">Start over</a></p>';
+      '<p class="tz-error">No confirmed reservation found. <a href="/old/events/">Start over</a></p>';
     return;
   }
 
@@ -86,7 +86,7 @@ window.TZ_WEBHOOK_TOKEN = {{ site.ticketing_webhook_token | default: '' | jsonif
         ticketItems +
       '</div>' +
 
-      '<a href="/events/" class="tz-btn tz-btn--secondary tz-confirm__new-order">Order more tickets</a>' +
+      '<a href="/old/events/" class="tz-btn tz-btn--secondary tz-confirm__new-order">Order more tickets</a>' +
     '</div>';
 
   syncNoticeEl = document.getElementById('tz-sync-notice');

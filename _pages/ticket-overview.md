@@ -1,12 +1,12 @@
 ---
 layout: ticketing
 title: Order Overview
-permalink: /ticket-overview/
+permalink: /old/ticket-overview/
 hide_navbar: true
 ---
 
 <div class="tz-shop" id="tz-overview-app">
-  <a href="/ticket-details/" class="tz-back-link">
+  <a href="/old/ticket-details/" class="tz-back-link">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="tz-icon"><path fill-rule="evenodd" d="M11.03 3.97a.75.75 0 010 1.06l-6.22 6.22H21a.75.75 0 010 1.5H4.81l6.22 6.22a.75.75 0 11-1.06 1.06l-7.5-7.5a.75.75 0 010-1.06l7.5-7.5a.75.75 0 011.06 0z" clip-rule="evenodd" /></svg>
     Back
   </a>
@@ -52,13 +52,13 @@ hide_navbar: true
 
   if (!event || !selection || !details) {
     document.getElementById('tz-overview-app').innerHTML =
-      '<p class="tz-error">No active reservation. <a href="/events/">Start over</a></p>';
+      '<p class="tz-error">No active reservation. <a href="/old/events/">Start over</a></p>';
     return;
   }
 
   if (!isTicketingOpen(event)) {
     document.getElementById('tz-overview-app').innerHTML =
-      '<p class="tz-error">Ticket sales have closed for this event. <a href="/events/">View all events</a></p>';
+      '<p class="tz-error">Ticket sales have closed for this event. <a href="/old/events/">View all events</a></p>';
     return;
   }
 
@@ -103,7 +103,7 @@ hide_navbar: true
   document.getElementById('tz-place-order-btn').addEventListener('click', function() {
     if (!isTicketingOpen(event)) {
       document.getElementById('tz-overview-app').innerHTML =
-        '<p class="tz-error">Ticket sales have closed for this event. <a href="/events/">View all events</a></p>';
+        '<p class="tz-error">Ticket sales have closed for this event. <a href="/old/events/">View all events</a></p>';
       return;
     }
 

@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Projects
-permalink: /projects.html
+permalink: /old/projects.html
 background: '/assets/img/bg-post.jpg'
 ---
 

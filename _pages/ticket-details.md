@@ -1,12 +1,12 @@
 ---
 layout: ticketing
 title: Your Details
-permalink: /ticket-details/
+permalink: /old/ticket-details/
 hide_navbar: true
 ---
 
 <div class="tz-shop" id="tz-details-app">
-  <a href="/tickets/" class="tz-back-link" id="tz-back-btn">
+  <a href="/old/tickets/" class="tz-back-link" id="tz-back-btn">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="tz-icon"><path fill-rule="evenodd" d="M11.03 3.97a.75.75 0 010 1.06l-6.22 6.22H21a.75.75 0 010 1.5H4.81l6.22 6.22a.75.75 0 11-1.06 1.06l-7.5-7.5a.75.75 0 010-1.06l7.5-7.5a.75.75 0 011.06 0z" clip-rule="evenodd" /></svg>
     Back
   </a>
@@ -86,18 +86,18 @@ hide_navbar: true
 
   if (!event || !selection) {
     document.getElementById('tz-details-app').innerHTML =
-      '<p class="tz-error">No active reservation. <a href="/events/">Start over</a></p>';
+      '<p class="tz-error">No active reservation. <a href="/old/events/">Start over</a></p>';
     return;
   }
 
   if (!isTicketingOpen(event)) {
     document.getElementById('tz-details-app').innerHTML =
-      '<p class="tz-error">Ticket sales have closed for this event. <a href="/events/">View all events</a></p>';
+      '<p class="tz-error">Ticket sales have closed for this event. <a href="/old/events/">View all events</a></p>';
     return;
   }
 
   // Fix back link to include event id
-  document.getElementById('tz-back-btn').href = '/tickets/?event=' + encodeURIComponent(event.id);
+  document.getElementById('tz-back-btn').href = '/old/tickets/?event=' + encodeURIComponent(event.id);
 
   // Render event header (include invite-only flag if present)
   document.getElementById('tz-event-header').innerHTML =
@@ -126,7 +126,7 @@ hide_navbar: true
 
     if (!isTicketingOpen(event)) {
       document.getElementById('tz-details-app').innerHTML =
-        '<p class="tz-error">Ticket sales have closed for this event. <a href="/events/">View all events</a></p>';
+        '<p class="tz-error">Ticket sales have closed for this event. <a href="/old/events/">View all events</a></p>';
       return;
     }
 

@@ -1,7 +1,7 @@
 ---
 layout: ticketing
 title: Select Tickets
-permalink: /tickets/
+permalink: /old/tickets/
 hide_navbar: true
 ---
 
@@ -12,7 +12,7 @@ window.TZ_EVENTS = {{ site.data.events | jsonify }};
 
 <div class="tz-shop" id="tz-tickets-app">
   <!-- Back link -->
-  <a href="/events/" class="tz-back-link">
+  <a href="/old/events/" class="tz-back-link">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="tz-icon"><path fill-rule="evenodd" d="M11.03 3.97a.75.75 0 010 1.06l-6.22 6.22H21a.75.75 0 010 1.5H4.81l6.22 6.22a.75.75 0 11-1.06 1.06l-7.5-7.5a.75.75 0 010-1.06l7.5-7.5a.75.75 0 011.06 0z" clip-rule="evenodd" /></svg>
     All events
   </a>
@@ -62,19 +62,19 @@ window.TZ_EVENTS = {{ site.data.events | jsonify }};
 
   if (!event) {
     document.getElementById('tz-tickets-app').innerHTML =
-      '<p class="tz-error">Event not found. <a href="/events/">View all events</a></p>';
+      '<p class="tz-error">Event not found. <a href="/old/events/">View all events</a></p>';
     return;
   }
 
   if (!isTicketingOpen(event)) {
     document.getElementById('tz-tickets-app').innerHTML =
-      '<p class="tz-error">Ticket sales have closed for this event. <a href="/events/">View all events</a></p>';
+      '<p class="tz-error">Ticket sales have closed for this event. <a href="/old/events/">View all events</a></p>';
     return;
   }
 
   if (!Array.isArray(event.ticket_types) || event.ticket_types.length === 0) {
     document.getElementById('tz-tickets-app').innerHTML =
-      '<p class="tz-error">Tickets are not available for this event yet. <a href="/events/">View all events</a></p>';
+      '<p class="tz-error">Tickets are not available for this event yet. <a href="/old/events/">View all events</a></p>';
     return;
   }
 
@@ -152,7 +152,7 @@ window.TZ_EVENTS = {{ site.data.events | jsonify }};
   document.getElementById('tz-continue-btn').addEventListener('click', function() {
     if (!isTicketingOpen(event)) {
       document.getElementById('tz-tickets-app').innerHTML =
-        '<p class="tz-error">Ticket sales have closed for this event. <a href="/events/">View all events</a></p>';
+        '<p class="tz-error">Ticket sales have closed for this event. <a href="/old/events/">View all events</a></p>';
       return;
     }
 

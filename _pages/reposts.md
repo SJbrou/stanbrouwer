@@ -1,7 +1,7 @@
 ---
 layout: page
 title:
-permalink: /reposts.html
+permalink: /old/reposts.html
 ---
 
 <!-- Conditional Text -->

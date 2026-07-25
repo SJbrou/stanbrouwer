@@ -2,7 +2,7 @@
 layout: page
 title:
 description: 
-permalink: /index.html
+permalink: /old/index.html
 ---
 
 
@@ -37,5 +37,5 @@ header.masthead .overlay {
 </style>
 
 <script>
-    window.location.href = "/me.html";
+    window.location.href = "/old/me.html";
 </script>

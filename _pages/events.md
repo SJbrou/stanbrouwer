@@ -1,7 +1,7 @@
 ---
 layout: ticketing
 title: Events
-permalink: /events/
+permalink: /old/events/
 hide_navbar: true
 ---
 
@@ -25,7 +25,7 @@ window.TZ_EVENTS = {{ site.data.events | jsonify }};
       {% assign event_epoch = event.date_iso | date: "%s" %}
       {% if event_epoch >= now_epoch and event.show_in_list != false %}
         {% assign has_upcoming = true %}
-        <a class="tz-event-card" href="/tickets/?event={{ event.id }}" data-event-id="{{ event.id }}">
+        <a class="tz-event-card" href="/old/tickets/?event={{ event.id }}" data-event-id="{{ event.id }}">
           <div class="tz-event-card__media">
             {% if event.image %}
               <div class="tz-event-card__thumb"><img src="{{ event.image | relative_url }}" alt="{{ event.title }}"></div>
@@ -66,7 +66,7 @@ window.TZ_EVENTS = {{ site.data.events | jsonify }};
       {% for event in events_sorted reversed %}
         {% assign event_epoch = event.date_iso | date: "%s" %}
         {% if event_epoch < now_epoch and event.show_in_list != false %}
-          <a class="tz-event-card tz-event-card--past tz-event-card--disabled" href="/tickets/?event={{ event.id }}" data-event-id="{{ event.id }}" aria-disabled="true">
+          <a class="tz-event-card tz-event-card--past tz-event-card--disabled" href="/old/tickets/?event={{ event.id }}" data-event-id="{{ event.id }}" aria-disabled="true">
             <div class="tz-event-card__media">
               {% if event.image %}
                 <div class="tz-event-card__thumb"><img src="{{ event.image | relative_url }}" alt="{{ event.title }}"></div>
@@ -144,7 +144,7 @@ window.TZ_EVENTS = {{ site.data.events | jsonify }};
     var status = card.querySelector('.tz-event-card__status');
 
     card.classList.remove('tz-event-card--disabled', 'tz-event-card--past');
-    card.setAttribute('href', '/tickets/?event=' + encodeURIComponent(eventId));
+    card.setAttribute('href', '/old/tickets/?event=' + encodeURIComponent(eventId));
     card.removeAttribute('aria-disabled');
 
     if (status) {

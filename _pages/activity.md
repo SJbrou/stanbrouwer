@@ -1,7 +1,7 @@
 ---
 layout: page
 title:
-permalink: /activity.html
+permalink: /old/activity.html
 ---
 
 <section class="activity-controls">
@@ -168,7 +168,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    const feedUrl = new URL("{{ '/thoughts-feed.html' | relative_url }}", window.location.origin);
+    const feedUrl = new URL("{{ '/old/thoughts-feed.html' | relative_url }}", window.location.origin);
     if (selectedTag !== "all") feedUrl.searchParams.set("tag", selectedTag);
 
     thoughtsFeedLink.href = feedUrl.pathname + feedUrl.search;

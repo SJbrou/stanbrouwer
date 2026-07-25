@@ -1,7 +1,7 @@
 ---
 layout: page
 title: VU
-permalink: /VU.html
+permalink: /old/VU.html
 background: '/assets/img/bg-post.jpg'
 ---
 

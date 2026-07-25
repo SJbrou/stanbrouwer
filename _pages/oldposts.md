@@ -1,7 +1,7 @@
 ---
 layout: page
 title: Thoughts
-permalink: /oldposts.html
+permalink: /old/oldposts.html
 background: '/assets/img/bg-post.jpg'
 ---
 {% for post in paginator.posts %}

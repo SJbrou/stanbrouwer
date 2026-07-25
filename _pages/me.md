@@ -1,6 +1,6 @@
 ---
 layout: default
-permalink: /me.html
+permalink: /old/me.html
 background: #'/assets/img/bike-in-berlin.jpeg'
 ---
 <div id="animated-text-container">

@@ -1,7 +1,7 @@
 # General information
 title:              Stan Brouwer
 baseurl:            ""
-url:                ""
+url:                "https://www.stanbrouwer.com"
 
 email:              sjbrou@gmail.com
 description:        Personal Blog
@@ -53,3 +53,10 @@ plugins:
 
 include:
   - _pages
+
+defaults:
+  - scope:
+      path: "_posts"
+      type: "posts"
+    values:
+      permalink: /old/:year/:month/:day/:title.html
