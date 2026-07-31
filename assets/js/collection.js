@@ -32,8 +32,7 @@
     { tab: "SOUNDS", targetId: "collection-sounds", mediaKind: "soundcloud" },
     { tab: "VISUALS", targetId: "collection-visuals", mediaKind: "image" },
     { tab: "PEOPLE", targetId: "collection-people", mediaKind: "image" },
-    { tab: "PLACES", targetId: "collection-places", mediaKind: "image" },
-    { tab: "PROJECTS", targetId: "collection-projects", mediaKind: "image" }
+    { tab: "PLACES", targetId: "collection-places", mediaKind: "image" }
   ];
 
   const isDesktopMedia = () => desktopMediaQuery.matches;
@@ -1177,8 +1176,54 @@
     mobilePanel?.addEventListener("pointercancel", stopMobileDrag);
   };
 
+  const hydrateInvites = async () => {
+    const target = document.getElementById("collection-invites");
+    if (!target || !window.TZInvites) {
+      return;
+    }
+
+    try {
+      const events = (await window.TZInvites.load()).filter((event) => event.publish);
+      target.replaceChildren();
+
+      if (events.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "collection-load-error";
+        empty.textContent = "NO INVITES";
+        target.append(empty);
+      } else {
+        const fragment = document.createDocumentFragment();
+        events.forEach((event) => {
+          const link = document.createElement("a");
+          const item = document.createElement("div");
+          const past = window.TZInvites.isPast(event);
+
+          link.className = `collection-invite${past ? " is-past" : ""}`;
+          link.href = `/invites/?event=${encodeURIComponent(event.id)}`;
+          link.setAttribute("role", "listitem");
+          link.setAttribute("aria-label", `${event.title}${past ? " (past event)" : ""}`);
+          link.textContent = event.title || event.id;
+          item.append(link);
+          fragment.append(item);
+        });
+        target.append(fragment);
+      }
+
+      target.setAttribute("aria-busy", "false");
+    } catch (error) {
+      console.warn("INVITES sheet load failed:", error);
+      target.replaceChildren();
+      const message = document.createElement("p");
+      message.className = "collection-load-error";
+      message.textContent = "INVITES UNAVAILABLE";
+      target.append(message);
+      target.setAttribute("aria-busy", "false");
+    }
+  };
+
   document.addEventListener("DOMContentLoaded", () => {
     setupMobileControls();
+    hydrateInvites();
     subsections.forEach(hydrateSubsection);
     window.addEventListener("scroll", scheduleMobileSelection, { passive: true });
     window.addEventListener("resize", () => {

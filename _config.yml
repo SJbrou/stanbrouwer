@@ -7,35 +7,17 @@ email:              sjbrou@gmail.com
 description:        Personal Blog
 author:             Stan Brouwer
 
-# Social Profiles
-github_username:    SJBrou
-instagram_username:  Stanbrouwer2000
-linkedin_username:  Stan Brouwer
-
-
-# Settings
-paths:
-  css: "assets/styles"
-  js: "assets/js"
-  images: "/assets/images"
-
-sass:
-  load_paths:
-    - /assets/styles
-    - /assets/fonts
-
-excerpt_separator: "<!--excerpt-->"
-
-
 # Ticketing – Google Sheets webhook
+# Public event content source. Add an INVITES tab to this workbook using the
+# column layout documented in assets/invites-sample.tsv.
+invites_sheet_id:       "1h6TLiP4S4xh8pAxipY2XtoyiWkhVxKHL5mQoL-S_HMc"
+invites_sheet_name:     "INVITES"
+
 # 1. Deploy the script in app_script.txt as a Google Apps Script web app.
 # 2. Paste the deployment URL below.
 # 3. Use the same token here and in app_script.txt.
 ticketing_webhook_url:   "https://script.google.com/macros/s/AKfycbwvo-g5D2TozK5mSZrpzsXBjxM63FTPIfW8OcYCJR5cXVVE35mwKHeMK21NujTvfPBs1w/exec"
 ticketing_webhook_token: "TokenWetiknietmeer2000"
-
-# Google analytics
-google_analytics:   	G-270JCJY9ZM
 
 # Build settings
 markdown: kramdown
@@ -43,8 +25,19 @@ kramdown:
   input: GFM
   syntax_highlighter: rouge
 
-# paginate:           0 # Disable pagination to show all posts
-# paginate_path:      "/posts/page:num/"
+collections:
+  projects:
+    output: true
+    permalink: /projects/:name/
+
+project_columns:
+  - key: date
+    label: DATE
+    format: "%d %m"
+  - key: title
+    label: TITLE
+  - key: project-category
+    label: PROJECT CATEGORY
 
 plugins:
   - jekyll-feed
@@ -56,7 +49,21 @@ include:
 
 defaults:
   - scope:
-      path: "_posts"
-      type: "posts"
+      path: "_projects"
+      type: projects
     values:
-      permalink: /old/:year/:month/:day/:title.html
+      layout: project
+
+exclude:
+  - archive
+  - vendor
+  - .bundle
+  - .sass-cache
+  - _site
+  - node_modules
+  - app_script.txt
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - LICENSE
+  - assets/invites-sample.tsv

@@ -1,28 +1,27 @@
-<!DOCTYPE html>
-
-<html>
-
-{% include head.html %}
-
-<body class="tz-page">
-
-  <div class="wrapper">
-    {% unless page.hide_navbar %}
-    {% include navbar.html %}
-    {% endunless %}
-
-    <main class="tz-main">
-      <script src="{{ '/assets/js/ticketing.js' | relative_url }}"></script>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>{{ page.title | default: 'Tickets' | escape }} - {{ site.title | escape }}</title>
+    <link rel="canonical" href="{{ page.url | absolute_url }}">
+    <link rel="stylesheet" href="{{ '/assets/styles/collection.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+    <link rel="stylesheet" href="{{ '/assets/styles/ticketing.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+    <script>
+      window.TZ_INVITES_CONFIG = {
+        sheetId: {{ site.invites_sheet_id | jsonify }},
+        sheetName: {{ site.invites_sheet_name | default: 'INVITES' | jsonify }}
+      };
+      window.TZ_WEBHOOK_URL = {{ site.ticketing_webhook_url | default: '' | jsonify }};
+      window.TZ_WEBHOOK_TOKEN = {{ site.ticketing_webhook_token | default: '' | jsonify }};
+    </script>
+    <script src="{{ '/assets/js/invites.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+    <script src="{{ '/assets/js/invite-ticketing.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+  </head>
+  <body class="collection-body tz-page">
+    <main class="collection collection--ticketing">
       {{ content }}
     </main>
-
-    {% include footer.html %}
-  </div>
-
-</body>
-
-{% include scripts.html %}
-
-{% include google-analytics.html %}
-
+  </body>
 </html>

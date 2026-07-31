@@ -101,6 +101,46 @@ body.collection-body {
   line-height: 0.95;
 }
 
+.collection-section--invites .collection-section__heading {
+  padding-bottom: clamp(2.5rem, 5vw, 5rem);
+}
+
+.collection-invites {
+  padding: 0 var(--collection-inset) clamp(4rem, 9vw, 8rem);
+}
+
+.collection-invite {
+  display: block;
+  width: 100%;
+  padding: 0.28rem 0;
+  color: inherit;
+  font-size: clamp(1.85rem, calc(2.7vw + 0.5rem), 3rem);
+  line-height: 1;
+  letter-spacing: -0.06em;
+  text-decoration: none;
+  transition: background-color 120ms ease, color 120ms ease, opacity 120ms ease;
+}
+
+.collection-invite:hover,
+.collection-invite:focus-visible {
+  background: var(--collection-surround);
+  color: inherit;
+  opacity: 1;
+}
+
+.collection-invite.is-past {
+  opacity: 0.42;
+}
+
+.collection-invite.is-past:hover,
+.collection-invite.is-past:focus-visible {
+  opacity: 0.75;
+}
+
+.collection-invites .collection-load-error {
+  padding: 0;
+}
+
 .collection-subsection {
   position: relative;
   padding-bottom: clamp(15.75rem, 33vw, 33rem);
@@ -152,6 +192,93 @@ body.collection-body {
 .collection-row:focus-visible,
 .collection-row.is-active {
   background: #f5f6f1;
+}
+
+.project-page {
+  min-height: 100vh;
+  padding-bottom: 2rem;
+}
+
+.project-poster {
+  margin-bottom: 0;
+}
+
+.project-back-link {
+  display: block;
+  padding: 0.8rem var(--collection-inset);
+  border-bottom: var(--collection-line) solid var(--collection-ink);
+  color: inherit;
+  font-size: clamp(0.72rem, calc(1.1vw + 2px), 0.95rem);
+  letter-spacing: -0.035em;
+  text-decoration: none;
+}
+
+.project-back-link:hover,
+.project-back-link:focus-visible {
+  background: var(--collection-surround);
+}
+
+.project-header {
+  padding: clamp(2rem, 6vw, 5rem) var(--collection-inset) clamp(3rem, 8vw, 7rem);
+}
+
+.project-header h1 {
+  max-width: 12ch;
+  margin: 0 0 2rem;
+  font-size: clamp(2.5rem, calc(6vw + 1rem), 7rem);
+  font-weight: 500;
+  line-height: 0.92;
+  letter-spacing: -0.1em;
+}
+
+.project-meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 0;
+  border-top: var(--collection-line) solid var(--collection-ink);
+  padding-top: 0.65rem;
+  font-size: clamp(0.665rem, calc(1.1vw + 2px), 0.945rem);
+  letter-spacing: -0.035em;
+}
+
+.project-meta__item {
+  min-width: 0;
+}
+
+.project-meta dt {
+  margin-bottom: 0.35rem;
+  opacity: 0.55;
+}
+
+.project-meta dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.project-content {
+  max-width: 54rem;
+  margin: 0 auto;
+  padding: 0 var(--collection-inset) clamp(4rem, 10vw, 9rem);
+  font-size: clamp(0.9rem, calc(0.7vw + 0.5rem), 1.2rem);
+  line-height: 1.45;
+  letter-spacing: -0.035em;
+}
+
+.project-content > :first-child {
+  margin-top: 0;
+}
+
+.project-content img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 36rem) {
+  .project-meta {
+    grid-template-columns: 1fr;
+  }
 }
 
 .collection-row__columns {
@@ -463,6 +590,323 @@ body.collection-body {
   border: 0;
 }
 
+/* Invite detail pages */
+.invite-body {
+  min-height: 100vh;
+  background: var(--collection-surround);
+}
+
+.invite-page {
+  width: min(100% - 1rem, 72rem);
+  margin: 0 auto;
+  padding: 1rem 0 5rem;
+}
+
+.invite-back-link {
+  display: inline-block;
+  margin: 0 0 1rem;
+  color: inherit;
+  font-size: clamp(0.7rem, 1vw, 0.9rem);
+  letter-spacing: -0.04em;
+  text-decoration: none;
+}
+
+.invite-back-link:hover,
+.invite-back-link:focus-visible {
+  background: var(--collection-surround);
+}
+
+.invite-content {
+  border: var(--collection-line) solid var(--collection-ink);
+  background: var(--collection-paper);
+}
+
+.invite-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  min-height: min(62vw, 39rem);
+  border-bottom: var(--collection-line) solid var(--collection-ink);
+}
+
+.invite-hero__copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(1rem, 2.5vw, 2rem);
+}
+
+.invite-kicker {
+  margin: 0;
+  font-size: clamp(0.7rem, 1vw, 0.9rem);
+  letter-spacing: 0.08em;
+}
+
+.invite-hero h1 {
+  max-width: 9ch;
+  margin: auto 0;
+  font-size: clamp(2.8rem, 8vw, 8rem);
+  font-weight: 500;
+  line-height: 0.86;
+  letter-spacing: -0.09em;
+}
+
+.invite-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 1rem;
+  font-size: clamp(0.75rem, 1.2vw, 1rem);
+  line-height: 1.1;
+}
+
+.invite-meta span::after {
+  content: ' /';
+  margin-left: 1rem;
+}
+
+.invite-meta span:last-child::after {
+  content: '';
+  margin: 0;
+}
+
+.invite-address {
+  margin: 0.45rem 0 0;
+  font-size: clamp(0.7rem, 1vw, 0.85rem);
+}
+
+.invite-hero__media {
+  min-height: 100%;
+  border-left: var(--collection-line) solid var(--collection-ink);
+  background: var(--collection-surround);
+}
+
+.invite-hero__image,
+.invite-hero__placeholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  object-fit: cover;
+}
+
+.invite-hero__placeholder {
+  display: grid;
+  place-items: center;
+  font-size: clamp(1rem, 2vw, 2rem);
+}
+
+.invite-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem clamp(1rem, 2.5vw, 2rem);
+  border-bottom: var(--collection-line) solid var(--collection-ink);
+}
+
+.invite-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.7rem 0.9rem;
+  border: var(--collection-line) solid var(--collection-ink);
+  background: var(--collection-ink);
+  color: var(--collection-paper);
+  font-size: clamp(0.75rem, 1.1vw, 0.95rem);
+  line-height: 1;
+  text-decoration: none;
+}
+
+.invite-button:hover,
+.invite-button:focus-visible {
+  background: var(--collection-surround);
+  color: var(--collection-ink);
+  opacity: 1;
+}
+
+.invite-button--disabled {
+  opacity: 0.42;
+}
+
+.invite-detail-section {
+  display: grid;
+  grid-template-columns: minmax(9rem, 0.65fr) minmax(0, 1.35fr);
+  gap: clamp(1rem, 5vw, 6rem);
+  padding: clamp(2rem, 6vw, 5rem) clamp(1rem, 2.5vw, 2rem);
+  border-bottom: var(--collection-line) solid var(--collection-ink);
+}
+
+.invite-detail-section__rule {
+  width: 100%;
+  border-top: var(--collection-line) solid var(--collection-ink);
+}
+
+.invite-detail-section h2 {
+  align-self: start;
+  margin: 0;
+  font-size: clamp(1.4rem, 2.8vw, 2.5rem);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.07em;
+}
+
+.invite-detail-section__rule {
+  grid-column: 1 / -1;
+}
+
+.invite-markdown {
+  max-width: 42rem;
+}
+
+.invite-markdown p,
+.invite-markdown li {
+  margin: 0 0 0.8rem;
+  font-size: clamp(0.95rem, 1.5vw, 1.35rem);
+  line-height: 1.12;
+  letter-spacing: -0.05em;
+}
+
+.invite-markdown ul {
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+.invite-markdown h3,
+.invite-markdown h4 {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+}
+
+.invite-markdown a {
+  color: inherit;
+  text-decoration-thickness: 1px;
+}
+
+.invite-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--collection-line);
+  border-bottom: var(--collection-line) solid var(--collection-ink);
+  background: var(--collection-ink);
+}
+
+.invite-gallery__image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: var(--collection-paper);
+}
+
+.invite-gallery__image--wide {
+  grid-column: 1 / -1;
+  aspect-ratio: 16 / 8;
+}
+
+.invite-detail-section--tickets {
+  display: block;
+  padding-bottom: clamp(2rem, 5vw, 4rem);
+}
+
+.invite-detail-section--tickets h2 {
+  margin: clamp(1.5rem, 4vw, 3rem) 0 1.2rem;
+}
+
+.invite-ticket-list {
+  border-top: var(--collection-line) solid var(--collection-ink);
+}
+
+.invite-ticket-summary {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--collection-ink);
+}
+
+.invite-ticket-summary h3 {
+  margin: 0 0 0.35rem;
+  font-size: clamp(1.15rem, 2vw, 1.7rem);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.invite-ticket-summary__description p {
+  margin: 0;
+  font-size: clamp(0.75rem, 1vw, 0.9rem);
+}
+
+.invite-ticket-summary__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  flex-shrink: 0;
+  font-size: clamp(0.75rem, 1vw, 0.9rem);
+  text-align: right;
+}
+
+.invite-ticket-empty,
+.invite-message {
+  padding: 2rem;
+  font-size: 1rem;
+}
+
+.invite-ticket-action {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .invite-page {
+    width: 100%;
+    padding-top: 0;
+  }
+
+  .invite-back-link {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .invite-content {
+    border-right: 0;
+    border-left: 0;
+  }
+
+  .invite-hero {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  .invite-hero__media {
+    min-height: 58vw;
+    border-bottom: var(--collection-line) solid var(--collection-ink);
+    border-left: 0;
+  }
+
+  .invite-hero__copy {
+    min-height: 75vw;
+  }
+
+  .invite-detail-section {
+    display: block;
+  }
+
+  .invite-detail-section h2 {
+    margin: 1.25rem 0 1.5rem;
+  }
+
+  .invite-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .invite-actions .invite-button {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
 @media (min-width: 40rem) {
   .collection-poster {
     margin-right: 5vw;
@@ -543,5 +987,356 @@ body.collection-body {
 
   .collection-section__heading {
     width: 60%;
+  }
+}
+
+/* Compact, collection-style invite reservation page */
+.invite-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 0.01px 0 8rem;
+}
+
+.invite-poster {
+  width: min(66.6667vw, 100%);
+  margin: clamp(0.75rem, 2vw, 1.5rem) auto 0;
+  border: var(--collection-line) solid var(--collection-ink);
+  background: var(--collection-paper);
+}
+
+.invite-poster > .invite-back-link {
+  display: block;
+  margin: 0;
+  padding: 0.7rem var(--collection-inset) 0.55rem;
+  border-bottom: 1px solid var(--collection-ink);
+}
+
+.invite-content {
+  width: 100%;
+  margin: 0;
+  background: transparent;
+}
+
+.invite-combined .invite-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  min-height: clamp(18rem, 33vw, 29rem);
+  border-bottom: var(--collection-line) solid var(--collection-ink);
+}
+
+.invite-combined .invite-hero__copy {
+  min-width: 0;
+  padding: clamp(1rem, 2.3vw, 2rem);
+}
+
+.invite-combined .invite-hero h1 {
+  max-width: 10ch;
+  margin: auto 0;
+  font-size: clamp(2.2rem, 5.1vw, 5.2rem);
+  line-height: 0.88;
+}
+
+.invite-combined .invite-hero__date {
+  margin: 0;
+  font-size: clamp(0.72rem, 1vw, 0.9rem);
+}
+
+.invite-combined .invite-hero__media {
+  min-width: 0;
+  min-height: 100%;
+  border-left: var(--collection-line) solid var(--collection-ink);
+}
+
+.invite-combined .invite-hero__image,
+.invite-combined .invite-hero__placeholder {
+  min-height: 100%;
+}
+
+.invite-info-block {
+  padding: clamp(1.2rem, 2.5vw, 2rem);
+  border-bottom: var(--collection-line) solid var(--collection-ink);
+}
+
+.invite-info-block > .invite-kicker,
+.invite-reservation > .invite-kicker {
+  margin: 0 0 1.5rem;
+  font-size: clamp(0.7rem, 1vw, 0.9rem);
+  letter-spacing: 0.04em;
+}
+
+.invite-table {
+  border-top: var(--collection-line) solid var(--collection-ink);
+}
+
+.invite-table__row {
+  display: grid;
+  grid-template-columns: clamp(7.5rem, 26%, 12rem) minmax(0, 1fr);
+  border-bottom: 1px solid var(--collection-ink);
+}
+
+.invite-table__row > strong,
+.invite-table__row > div {
+  min-width: 0;
+  padding: 0.7rem 0.75rem;
+  font-size: clamp(0.72rem, 1vw, 0.9rem);
+  line-height: 1.12;
+}
+
+.invite-table__row > strong {
+  border-right: 1px solid var(--collection-ink);
+  font-weight: 500;
+}
+
+.invite-table__row--markdown > div {
+  padding-block: 0.8rem;
+}
+
+.invite-table__row--markdown .invite-markdown p,
+.invite-table__row--markdown .invite-markdown li {
+  margin: 0 0 0.55rem;
+  font-size: clamp(0.72rem, 1vw, 0.9rem);
+  line-height: 1.18;
+}
+
+.invite-table__row--markdown .invite-markdown p:last-child,
+.invite-table__row--markdown .invite-markdown li:last-child {
+  margin-bottom: 0;
+}
+
+.invite-empty {
+  opacity: 0.45;
+}
+
+.invite-empty--block {
+  margin: 0;
+  padding: 1rem 0;
+  font-size: 0.85rem;
+}
+
+.invite-reservation {
+  padding-bottom: 0;
+}
+
+.invite-reservation h2 {
+  margin: 0 0 1.2rem;
+  font-size: clamp(1.45rem, 3vw, 2.8rem);
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.07em;
+}
+
+.invite-ticket-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  padding: 0.85rem 0.75rem;
+  border-bottom: 1px solid var(--collection-ink);
+  transition: background-color 120ms ease;
+}
+
+.invite-ticket-row.is-selected {
+  background: var(--collection-surround);
+}
+
+.invite-ticket-row > div:first-child {
+  min-width: 0;
+}
+
+.invite-ticket-row strong {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: clamp(0.8rem, 1.2vw, 1rem);
+  font-weight: 500;
+}
+
+.invite-ticket-row .invite-markdown p {
+  margin: 0;
+  font-size: clamp(0.68rem, 0.9vw, 0.8rem);
+}
+
+.invite-ticket-row__side {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.65rem;
+  flex-direction: column;
+  min-width: 5.5rem;
+  text-align: right;
+}
+
+.invite-ticket-row__side > span,
+.invite-ticket-row__side > small {
+  font-size: clamp(0.68rem, 0.9vw, 0.8rem);
+}
+
+.invite-ticket-row__side > small {
+  opacity: 0.5;
+}
+
+.invite-counter {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--collection-ink);
+}
+
+.invite-counter button,
+.invite-counter output {
+  display: grid;
+  width: 1.65rem;
+  height: 1.65rem;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  background: var(--collection-paper);
+  color: inherit;
+  font: inherit;
+  line-height: 1;
+}
+
+.invite-counter button {
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+.invite-counter button:hover:not(:disabled),
+.invite-counter button:focus-visible {
+  background: var(--collection-ink);
+  color: var(--collection-paper);
+}
+
+.invite-counter button:disabled {
+  cursor: not-allowed;
+  opacity: 0.25;
+}
+
+.invite-counter output {
+  border-right: 1px solid var(--collection-ink);
+  border-left: 1px solid var(--collection-ink);
+}
+
+.invite-details-form {
+  margin-top: 1.5rem;
+  border-top: var(--collection-line) solid var(--collection-ink);
+}
+
+.invite-details-form .invite-form-field {
+  padding-inline: 0.75rem;
+}
+
+.invite-reservation-footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 0.75rem;
+}
+
+.invite-reservation-footer small,
+.invite-reservation-footer b {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 400;
+}
+
+.invite-reservation-footer small {
+  margin-bottom: 0.25rem;
+  letter-spacing: 0.08em;
+}
+
+.invite-reservation-footer .invite-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+.invite-outro {
+  border-top: var(--collection-line) solid var(--collection-ink);
+  background: var(--collection-paper);
+}
+
+.invite-outro img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.invite-outro .collection-captions {
+  padding: 0.65rem var(--collection-inset) 1.25rem;
+}
+
+/* The ticket flow uses the same bordered collection panel as the homepage. */
+main.collection.collection--ticketing {
+  position: relative;
+  z-index: 1;
+  width: min(66.6667vw, 100%);
+  min-height: calc(100vh - 2 * clamp(0.75rem, 2vw, 1.5rem));
+  margin: clamp(0.75rem, 2vw, 1.5rem) auto;
+  overflow: hidden;
+  border: var(--collection-line) solid var(--collection-ink);
+  background: var(--collection-paper);
+}
+
+main.collection.collection--ticketing .invite-ticket-app {
+  min-height: 0;
+  padding: 0;
+}
+
+main.collection.collection--ticketing .invite-ticket-event-header {
+  border-top: 0;
+  border-right: 0;
+  border-left: 0;
+}
+
+main.collection.collection--ticketing .invite-ticket-steps {
+  padding-right: clamp(1rem, 2.5vw, 2rem);
+  padding-left: clamp(1rem, 2.5vw, 2rem);
+}
+
+main.collection.collection--ticketing .invite-confirmation {
+  max-width: none;
+  margin: 0;
+  border: 0;
+}
+
+main.collection.collection--ticketing .invite-ticket-status {
+  border: 0;
+}
+
+@media (max-width: 720px) {
+  .invite-poster {
+    width: 100%;
+    margin-top: 0;
+    border-right: 0;
+    border-left: 0;
+  }
+
+  .invite-poster > .invite-back-link {
+    padding-inline: 0.5rem;
+  }
+
+  main.collection.collection--ticketing {
+    width: 100%;
+    min-height: 100vh;
+    margin: 0;
+    border-right: 0;
+    border-left: 0;
+  }
+
+  .invite-combined .invite-hero {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+
+  .invite-combined .invite-hero__media {
+    min-height: 52vw;
+    border-right: 0;
+    border-bottom: var(--collection-line) solid var(--collection-ink);
+    border-left: 0;
+  }
+
+  .invite-combined .invite-hero__copy {
+    min-height: 46vw;
+  }
+
+  .invite-table__row {
+    grid-template-columns: 6.5rem minmax(0, 1fr);
   }
 }

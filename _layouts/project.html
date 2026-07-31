@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>{{ page.title | escape }} - {{ site.title | escape }}</title>
+    <meta name="description" content="{{ page.title | escape }} — project deep dive by Stan Brouwer.">
+    <link rel="canonical" href="{{ page.url | absolute_url }}">
+    <link rel="stylesheet" href="{{ '/assets/styles/collection.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+  </head>
+  <body class="collection-body project-body">
+    <main class="collection-page project-page">
+      <article class="collection-poster project-poster">
+        <a class="project-back-link" href="{{ '/' | relative_url }}">Back to collection</a>
+
+        <header class="project-header">
+          <h1>{{ page.title | escape }}</h1>
+          <dl class="project-meta">
+            {% for column in site.project_columns %}
+              {% if column.key != "title" %}
+                {% if column.key == "date" %}
+                  {% assign project_value = page.date | date: column.format %}
+                {% else %}
+                  {% assign project_value = page[column.key] %}
+                {% endif %}
+                {% if project_value != nil and project_value != "" %}
+                  <div class="project-meta__item">
+                    <dt>{{ column.label | default: column.key | escape }}</dt>
+                    <dd>{{ project_value | escape }}</dd>
+                  </div>
+                {% endif %}
+              {% endif %}
+            {% endfor %}
+          </dl>
+        </header>
+
+        <div class="project-content">
+          {{ content }}
+        </div>
+      </article>
+    </main>
+  </body>
+</html>

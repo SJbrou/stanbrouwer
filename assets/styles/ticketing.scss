@@ -1,3 +1,6 @@
+---
+---
+
 /* ============================================================
    TICKETING SYSTEM – Weeztix-inspired styles
    ============================================================ */
@@ -994,4 +997,485 @@
 /* ensure date text is readable when used as badge */
 .tz-event-card__date-full {
   color: #fff;
+}
+
+/* Collection-style reservation flow */
+.tz-page {
+  background: #f5f6f1;
+  color: #000;
+}
+
+.tz-page .wrapper {
+  width: min(100% - 1rem, 72rem);
+  max-width: none;
+}
+
+.tz-main {
+  width: 100%;
+}
+
+.invite-ticket-app {
+  min-height: 100vh;
+  padding: 1rem 0 5rem;
+}
+
+.invite-ticket-event-header {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  min-height: min(45vw, 31rem);
+  border: 2px solid #000;
+  background: #fff;
+}
+
+.invite-ticket-event-header__image {
+  order: 2;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  object-fit: cover;
+  border-left: 2px solid #000;
+  background: #f5f6f1;
+}
+
+.invite-ticket-event-header__image--empty {
+  display: grid;
+  place-items: center;
+  color: #000;
+  font-size: 1.2rem;
+}
+
+.invite-ticket-event-header__copy {
+  order: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(1rem, 2.5vw, 2rem);
+}
+
+.invite-ticket-event-header__copy h1 {
+  max-width: 10ch;
+  margin: auto 0;
+  color: #000;
+  font-family: 'Collection Roboto Mono', 'Roboto Mono', monospace;
+  font-size: clamp(2.4rem, 6vw, 6rem);
+  font-weight: 500;
+  line-height: 0.88;
+  letter-spacing: -0.09em;
+}
+
+.invite-ticket-event-header__copy p:not(.invite-kicker) {
+  margin: 0.25rem 0 0;
+  color: #000;
+  font-family: 'Collection Roboto Mono', 'Roboto Mono', monospace;
+  font-size: clamp(0.7rem, 1vw, 0.9rem);
+}
+
+.invite-ticket-steps {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.25rem 0;
+  color: #000;
+  font-family: 'Collection Roboto Mono', 'Roboto Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.invite-ticket-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  opacity: 0.35;
+}
+
+.invite-ticket-step.is-active,
+.invite-ticket-step.is-done {
+  opacity: 1;
+}
+
+.invite-ticket-step b {
+  display: grid;
+  width: 1.35rem;
+  height: 1.35rem;
+  place-items: center;
+  border: 1px solid #000;
+  font-weight: 400;
+}
+
+.invite-ticket-step.is-active b {
+  background: #000;
+  color: #fff;
+}
+
+.invite-ticket-step__line {
+  width: 2rem;
+  border-top: 1px solid #000;
+  opacity: 0.35;
+}
+
+.invite-ticket-panel {
+  border: 2px solid #000;
+  background: #fff;
+}
+
+.invite-ticket-panel__intro {
+  padding: clamp(1.2rem, 3vw, 2.5rem);
+  border-bottom: 2px solid #000;
+}
+
+.invite-ticket-panel__intro h2 {
+  margin: 0.75rem 0 0;
+  color: #000;
+  font-family: 'Collection Roboto Mono', 'Roboto Mono', monospace;
+  font-size: clamp(2rem, 4vw, 4rem);
+  font-weight: 500;
+  line-height: 0.9;
+  letter-spacing: -0.08em;
+}
+
+.invite-selection-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem clamp(1.2rem, 3vw, 2.5rem);
+  border-bottom: 1px solid #000;
+  transition: background-color 120ms ease;
+}
+
+.invite-selection-row.is-selected {
+  background: #f5f6f1;
+}
+
+.invite-selection-row__info {
+  min-width: 0;
+}
+
+.invite-selection-row h3 {
+  margin: 0 0 0.35rem;
+  color: #000;
+  font-family: 'Collection Roboto Mono', 'Roboto Mono', monospace;
+  font-size: clamp(1rem, 1.8vw, 1.5rem);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.invite-selection-row .invite-markdown p {
+  margin: 0;
+  color: #000;
+  font-family: 'Collection Roboto Mono', 'Roboto Mono', monospace;
+  font-size: 0.75rem;
+}
+
+.invite-selection-row__limit {
+  display: block;
+  margin-top: 0.45rem;
+  color: #000;
+  font-family: 'Collection Roboto Mono', 'Roboto Mono', monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.invite-selection-row__side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.7rem;
+  flex-shrink: 0;
+  color: #000;
+  font-family: 'Collection Roboto Mono', 'Roboto Mono', monospace;
+  font-size: 0.8rem;
+}
+
+.invite-counter {
+  display: flex;
+  align-items: center;
+  border: 1px solid #000;
+}
+
+.invite-counter button,
+.invite-counter output {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border: 0;
+  background: #fff;
+  color: #000;
+  font: inherit;
+  line-height: 1;
+}
+
+.invite-counter button {
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+.invite-counter button:hover:not(:disabled),
+.invite-counter button:focus-visible {
+  background: #000;
+  color: #fff;
+}
+
+.invite-counter button:disabled {
+  cursor: not-allowed;
+  opacity: 0.25;
+}
+
+.invite-counter output {
+  border-right: 1px solid #000;
+  border-left: 1px solid #000;
+}
+
+.invite-ticket-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem clamp(1.2rem, 3vw, 2.5rem);
+}
+
+.invite-ticket-footer small,
+.invite-ticket-footer b {
+  display: block;
+  color: #000;
+  font-family: 'Collection Roboto Mono', 'Roboto Mono', monospace;
+}
+
+.invite-ticket-footer small {
+  margin-bottom: 0.25rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+}
+
+.invite-ticket-footer b {
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.invite-form-field {
+  display: block;
+  padding: 1rem clamp(1.2rem, 3vw, 2.5rem);
+  border-bottom: 1px solid #000;
+}
+
+.invite-form-field > span {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: #000;
+  font-family: 'Collection Roboto Mono', 'Roboto Mono', monospace;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+.invite-form-field > span small {
+  opacity: 0.55;
+}
+
+.invite-form-field > span b {
+  font-weight: 400;
+}
+
+.invite-form-field input,
+.invite-form-field textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem 0;
+  border: 0;
+  border-bottom: 1px solid #000;
+  border-radius: 0;
+  outline: 0;
+  background: transparent;
+  color: #000;
+  font-family: 'Collection Roboto Mono', 'Roboto Mono', monospace;
+  font-size: 1rem;
+}
+
+.invite-form-field textarea {
+  min-height: 6rem;
+  resize: vertical;
+}
+
+.invite-form-field input:focus,
+.invite-form-field textarea:focus {
+  background: #f5f6f1;
+}
+
+.invite-form-field input.has-error {
+  border-bottom-color: #9b0000;
+}
+
+.invite-form-field em {
+  display: block;
+  min-height: 1rem;
+  padding-top: 0.25rem;
+  color: #9b0000;
+  font-family: 'Collection Roboto Mono', 'Roboto Mono', monospace;
+  font-size: 0.65rem;
+  font-style: normal;
+}
+
+.invite-overview-block {
+  padding: 1.2rem clamp(1.2rem, 3vw, 2.5rem);
+  border-bottom: 1px solid #000;
+}
+
+.invite-overview-block h3 {
+  margin: 0 0 0.75rem;
+  color: #000;
+  font-family: 'Collection Roboto Mono', 'Roboto Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.invite-overview-block p {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0;
+  padding: 0.55rem 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.35);
+  color: #000;
+  font-family: 'Collection Roboto Mono', 'Roboto Mono', monospace;
+  font-size: 0.85rem;
+}
+
+.invite-ticket-status {
+  padding: 2rem;
+  border: 2px solid #000;
+  background: #fff;
+  color: #000;
+  font-family: 'Collection Roboto Mono', 'Roboto Mono', monospace;
+}
+
+.invite-ticket-status p {
+  margin: 0 0 1rem;
+}
+
+.invite-confirmation {
+  max-width: 58rem;
+  margin: 2rem auto;
+  padding: clamp(1.2rem, 4vw, 4rem);
+  border: 2px solid #000;
+  background: #fff;
+  color: #000;
+  font-family: 'Collection Roboto Mono', 'Roboto Mono', monospace;
+}
+
+.invite-confirmation h1 {
+  margin: 3rem 0 1rem;
+  color: #000;
+  font-family: 'Collection Roboto Mono', 'Roboto Mono', monospace;
+  font-size: clamp(3rem, 9vw, 8rem);
+  font-weight: 500;
+  line-height: 0.85;
+  letter-spacing: -0.1em;
+}
+
+.invite-confirmation__lead {
+  max-width: 34rem;
+  font-size: clamp(1rem, 1.8vw, 1.45rem);
+  line-height: 1.1;
+}
+
+.invite-confirmation__order {
+  padding: 0.75rem;
+  border: 1px solid #000;
+  font-size: 0.75rem;
+}
+
+.invite-sync {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 1.5rem 0;
+  padding: 0.9rem;
+  border: 1px solid #000;
+  font-size: 0.75rem;
+}
+
+.invite-confirmation__event {
+  margin: 1.5rem 0;
+}
+
+.invite-confirmation__event .invite-ticket-event-header {
+  min-height: 15rem;
+}
+
+.invite-confirmation__event .invite-ticket-event-header__copy h1 {
+  font-size: clamp(1.8rem, 4vw, 3.5rem);
+}
+
+.invite-confirmation__tickets {
+  margin-bottom: 1.5rem;
+  border-top: 1px solid #000;
+}
+
+.invite-confirmation__tickets > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid #000;
+  font-size: 0.85rem;
+}
+
+.invite-button--small {
+  padding: 0.5rem 0.65rem;
+  font-size: 0.7rem;
+}
+
+@media (max-width: 640px) {
+  .tz-page .wrapper {
+    width: 100%;
+  }
+
+  .invite-ticket-app {
+    padding-top: 0;
+  }
+
+  .invite-ticket-event-header {
+    display: flex;
+    flex-direction: column;
+    border-right: 0;
+    border-left: 0;
+  }
+
+  .invite-ticket-event-header__image {
+    order: 1;
+    min-height: 55vw;
+    border-right: 0;
+    border-bottom: 2px solid #000;
+    border-left: 0;
+  }
+
+  .invite-ticket-event-header__copy {
+    order: 2;
+    min-height: 65vw;
+  }
+
+  .invite-ticket-steps,
+  .invite-ticket-footer {
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+  }
+
+  .invite-selection-row,
+  .invite-confirmation__tickets > div {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .invite-selection-row__side {
+    width: 100%;
+    align-items: flex-start;
+    flex-direction: row;
+    justify-content: space-between;
+  }
 }
