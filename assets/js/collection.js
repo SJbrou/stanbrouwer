@@ -1192,21 +1192,71 @@
         empty.textContent = "NO INVITES";
         target.append(empty);
       } else {
+        const links = document.createElement("div");
+        const media = document.createElement("div");
+        const image = document.createElement("img");
+        let firstImageEvent = null;
+
+        links.className = "collection-invites__links";
+        links.setAttribute("role", "list");
+        target.removeAttribute("role");
+        media.className = "collection-invites__media";
+        image.className = "collection-invites__image";
+        image.loading = "lazy";
+        image.decoding = "async";
+        image.referrerPolicy = "no-referrer";
+        image.addEventListener("error", () => {
+          media.hidden = true;
+        });
+        media.append(image);
+
+        const showInviteImage = (event) => {
+          const source = toHttpUrl(event.heroImage);
+          if (!source) {
+            return;
+          }
+
+          if (image.src !== source) {
+            image.src = source;
+          }
+          image.alt = `Hero image for ${event.title || event.id}`;
+          media.hidden = false;
+        };
+
         const fragment = document.createDocumentFragment();
         events.forEach((event) => {
           const link = document.createElement("a");
           const item = document.createElement("div");
           const past = window.TZInvites.isPast(event);
+          const label = document.createElement("span");
 
           link.className = `collection-invite${past ? " is-past" : ""}`;
           link.href = `/invites/?event=${encodeURIComponent(event.id)}`;
           link.setAttribute("role", "listitem");
           link.setAttribute("aria-label", `${event.title}${past ? " (past event)" : ""}`);
-          link.textContent = event.title || event.id;
+          label.textContent = event.title || event.id;
+          link.append(label);
+          link.addEventListener("mouseenter", () => showInviteImage(event));
+          link.addEventListener("focus", () => showInviteImage(event));
+          if (!firstImageEvent && toHttpUrl(event.heroImage)) {
+            firstImageEvent = event;
+          }
           item.append(link);
           fragment.append(item);
         });
-        target.append(fragment);
+
+        links.append(fragment);
+        if (firstImageEvent) {
+          showInviteImage(firstImageEvent);
+        } else {
+          media.hidden = true;
+        }
+        links.addEventListener("mouseleave", () => {
+          if (firstImageEvent) {
+            showInviteImage(firstImageEvent);
+          }
+        });
+        target.append(links, media);
       }
 
       target.setAttribute("aria-busy", "false");

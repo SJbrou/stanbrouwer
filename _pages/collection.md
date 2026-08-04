@@ -5,20 +5,22 @@ permalink: /
 ---
 
 <main class="collection-page">
-  <article class="collection-poster" aria-labelledby="collection-page-title">
-    <header class="collection-intro">
-      <h1 id="collection-page-title" class="collection-visually-hidden">Stan Brouwer, volume 001: a carefully curated collection of experiences</h1>
-      <img class="collection-intro__image" src="{{ '/assets/img/header-image.jpg' | relative_url }}" alt="Black-and-white perspective grid artwork">
-      <div class="collection-captions collection-captions--intro">
-        <p>a carefully curated<br>collection of experiences</p>
-        <p>Stan Brouwer<br>vol. 001</p>
-      </div>
-    </header>
+  <header class="collection-intro">
+    <h1 id="collection-page-title" class="collection-visually-hidden">Stan Brouwer, volume 001: a carefully curated collection of experiences</h1>
+    <img class="collection-intro__image" src="{{ '/assets/img/header-image.jpg' | relative_url }}" alt="Black-and-white perspective grid artwork">
+    <div class="collection-captions collection-captions--intro">
+      <p>a carefully curated<br>collection of experiences</p>
+      <p>Stan Brouwer<br>vol. 001</p>
+    </div>
+  </header>
+
+  <article class="collection-poster collection-poster--content" aria-labelledby="collection-page-title">
 
     <section class="collection-section collection-section--invites" aria-labelledby="invites-title">
       <header class="collection-section__heading">
         <h2 id="invites-title">INVITES</h2>
       </header>
+      <div class="collection-subsection__rule"></div>
       <div class="collection-section__body">
         <div id="collection-invites" class="collection-invites" role="list" aria-live="polite" aria-busy="true">
           <p class="collection-load-error">LOADING</p>
