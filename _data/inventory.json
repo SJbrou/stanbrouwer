@@ -1,0 +1,28 @@
+{
+  "containers": ["KC1", "KC2", "KC3", "KC4", "KC5"],
+  "items": [
+    { "articleNumber": "INV-001", "name": "Sourcy blauw reine petfles", "description": "Tray (6x50 cl)", "image": "https://goedkoopdrank.nl/wp-content/uploads/2023/01/sourcy_blauw_plastic_pet_flesjes_50cl_tray.jpeg" },
+    { "articleNumber": "INV-002", "name": "Sourcy rood petfles", "description": "Tray (6x50 cl)", "image": "https://goedkoopdrank.nl/wp-content/uploads/2023/01/sourcy_rood_plastic_pet_flesjes_50cl_tray.jpeg" },
+    { "articleNumber": "INV-003", "name": "Pepsi Cola regular refpet", "description": "Krat (12x1,1 liter)", "image": "https://www.kelemidis.de/media/imported/350440_sydUJZG.jpg" },
+    { "articleNumber": "INV-004", "name": "Red Bull energy drink blik", "description": "Tray (24x25 cl)", "image": "https://www.dropwinkel.eu/media/cache/gallery_zoom/product/587/sisi-sinas-zero-petfles-12-x-11-liter.jpg" },
+    { "articleNumber": "INV-005", "name": "Sisi sinas zero sugar refpet", "description": "Krat (12x1,1 liter)", "image": "https://www.dropwinkel.eu/media/cache/gallery_zoom/product/587/sisi-sinas-zero-petfles-12-x-11-liter.jpg" },
+    { "articleNumber": "INV-006", "name": "Ice tea green refpet", "description": "Krat (12x1,1 liter)", "image": "https://www.zelst.nl/media/catalog/product/cache/4f77cdb94af56139e35dd76361454d8d/8/7/8711327507593_unilever_netherlands_rpet_lit_green_12x1100ml.png" },
+    { "articleNumber": "INV-007", "name": "Red Bull blik sugar free", "description": "Tray (24x25 cl)", "image": "https://static.discountoffice.cloud/discount-website/productImages/e0/2/SP-53955-1.jpg" },
+    { "articleNumber": "INV-008", "name": "Seven Up zero refpet", "description": "Krat (12x1,1 liter)", "image": "https://cdn.mafrservices.com/sys-master-root/ha9/h4e/61617753391134/722933_main.jpg" },
+    { "articleNumber": "INV-009", "name": "Ice tea sparkling refpet", "description": "Krat (12x1,1 liter)", "image": "https://static.ah.nl/dam/product/AHI_38364c4a63373965526653705367764a47316c575967?fileType=binary&rendition=400x400_JPG_Q85&revLabel=1" },
+    { "articleNumber": "INV-010", "name": "Red Bull watermeloen", "description": "Tray (12x25 cl)", "image": "https://www.compliment.nl/wp-content/uploads/2018/12/Red-Bull-The-Red-Edition-Watermeloensmaak-blik-12x-25cl-1_png.webp" },
+    { "articleNumber": "INV-011", "name": "Pepsi Cola zero refpet", "description": "Krat (12x1,1 liter)", "image": "https://shop.klauss.de/cdn/shop/files/pepsi-cola-zero-zucker-1-0-liter-kasten.jpg?v=1747734081&width=1000" },
+    { "articleNumber": "INV-012", "name": "Koolzuur 10 kg", "description": "Cylinder (10 kilo)", "image": "https://www.horecagoedkoop.nl/media/catalog/product/cache/922db6b4267e99c43cb378abc26fefba/j/e/jewa-gas_koolzuur_fles_10kg.jpg" },
+    { "articleNumber": "INV-013", "name": "Small bag + sluitstr", "description": "Rol (5 stuks)", "image": "" },
+    { "articleNumber": "INV-014", "name": "Bacardi cola mix in blik", "description": "Tray (24x25 cl)", "image": "https://www.sligro.nl/image-service/_jcr_content.product.05449000336613.image/1/large.jpeg" },
+    { "articleNumber": "INV-015", "name": "Bacardi Razz & Up mix in blik", "description": "Tray (12x25 cl)", "image": "https://a.storyblok.com/f/278136/1600x1600/1489746b76/bacardi-razz-12x25cl.png" },
+    { "articleNumber": "INV-016", "name": "Hard seltzer framboos", "description": "Tray (12x25 cl)", "image": "https://www.sligro.nl/image-service/_jcr_content.product.08719327682395.image/1/large.jpeg" },
+    { "articleNumber": "INV-017", "name": "Hard seltzer mango", "description": "Tray (12x25 cl)", "image": "https://cdn11.bigcommerce.com/s-54jmfzthvf/images/stencil/original/products/829/10232/STLZ_Mango_tray_blik_12_x_25cl__63552.1776092251.png" },
+    { "articleNumber": "INV-018", "name": "Hard seltzer iced tea perzik", "description": "Tray (12x25 cl)", "image": "https://www.sligro.nl/image-service/_jcr_content.product.08720865027517.image/1/large.jpeg" },
+    { "articleNumber": "INV-019", "name": "Hard seltzer iced tea limoen", "description": "Tray (12x25 cl)", "image": "https://www.dirckiii.nl/media/catalog/product/cache/a855c69ba9601e9f3c6eb571ed129cc7/5/6/56bb97fbb135e62d05aadb5de88d650743e79d09_STELZ_HARD_ICE_TEA_LEMON_0_25.jpg" },
+    { "articleNumber": "INV-020", "name": "Vodka Sprite mix blik", "description": "Tray (12x25 cl)", "image": "https://www.sligro.nl/image-service/_jcr_content.product.05449000323682.image/1/large.jpeg" },
+    { "articleNumber": "INV-021", "name": "Almorano pinot grigio rosé", "description": "Doos (6x75 cl)", "image": "https://www.bmwine.co.uk/user/products/large/Amorani%20PG%20Blush.png" },
+    { "articleNumber": "INV-022", "name": "Almorano pinot grigio", "description": "Doos (6x75 cl)", "image": "https://www.amathusdrinks.com/media/catalog/product/cache/af886fa68eb5121618ef1bc6359cf7da/a/l/almorano-pinot-grigio-2016.jpg" },
+    { "articleNumber": "INV-023", "name": "Kaiserschoppen", "description": "Doos (6x1 liter)", "image": "https://cdn.webshopapp.com/shops/317064/files/372079757/600x600x2/gebrueder-steffen-kaiserschoppen-romanuskellerei-a.jpg" }
+  ]
+}

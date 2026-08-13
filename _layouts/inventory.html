@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>{{ page.title | default: 'Inventory' | escape }} - {{ site.title | escape }}</title>
+    <meta name="description" content="Festival inventoryregistratie.">
+    <link rel="canonical" href="{{ page.url | replace:'index.html','' | absolute_url }}">
+    <link rel="stylesheet" href="{{ '/assets/styles/inventory.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+    <script>
+      window.STAN_INVENTORY_CONFIG = {
+        sheetId: {{ site.inventory_sheet_id | jsonify }},
+        apiUrl: {{ site.inventory_webapp_url | default: '' | jsonify }},
+        baseUrl: {{ site.baseurl | default: '' | jsonify }},
+        bootstrap: {{ site.data.inventory | jsonify }},
+        localMode: {{ site.inventory_local_mode | default: false | jsonify }},
+        localData: {{ site.inventory_local_data | jsonify }}
+      };
+    </script>
+    <script src="{{ '/assets/js/inventory.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+  </head>
+  <body class="inventory-body">
+    {{ content }}
+  </body>
+</html>

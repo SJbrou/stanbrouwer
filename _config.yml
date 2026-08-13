@@ -19,6 +19,14 @@ invites_sheet_name:     "INVITES"
 ticketing_webhook_url:   "https://script.google.com/macros/s/AKfycbwvo-g5D2TozK5mSZrpzsXBjxM63FTPIfW8OcYCJR5cXVVE35mwKHeMK21NujTvfPBs1w/exec"
 ticketing_webhook_token: "TokenWetiknietmeer2000"
 
+# Inventory prototype - public read/write Apps Script endpoint.
+# Deploy inventory_app_script.txt as a Google Apps Script web app and paste
+# the deployment URL here. This configuration is intentionally public only
+# for the prototype phase.
+inventory_sheet_id:       "1Mj4bTKrL3c3SZTG11lMLVYtY1JqzuesiqzIivASQvzY"
+inventory_webapp_url:     "https://script.google.com/macros/s/AKfycbzbPAvUIezSETQqsyTCzSNdLdWhhqTeJmFaxiUPWcCSqMpfa8JJWrb59cF6GXV-f7J9Bw/exec"
+id_scripts:               "AKfycbzbPAvUIezSETQqsyTCzSNdLdWhhqTeJmFaxiUPWcCSqMpfa8JJWrb59cF6GXV-f7J9Bw"
+
 # Build settings
 markdown: kramdown
 kramdown:
@@ -62,6 +70,7 @@ exclude:
   - _site
   - node_modules
   - app_script.txt
+  - inventory_app_script.txt
   - Gemfile
   - Gemfile.lock
   - README.md

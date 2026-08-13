@@ -36,7 +36,7 @@ body.collection-body {
   --collection-ink: #000000;
   --collection-paper: #ffffff;
   --collection-surround: #f5f6f1;
-  --collection-line: 2px;
+  --collection-line: 1px;
   --collection-inset: clamp(0.55rem, 1.7vw, 1.5rem);
   min-height: 100vh;
   background: var(--collection-surround);
@@ -51,14 +51,7 @@ body.collection-body {
   background: var(--collection-paper);
 }
 
-.collection-poster--content {
-  margin-top: 0;
-  border-top: 0;
-}
-
 .collection-intro {
-  margin: clamp(0.75rem, 2vw, 1.5rem) 0.5rem 0;
-  background: var(--collection-surround);
   padding-bottom: clamp(12rem, 28vw, 25rem);
 }
 
@@ -999,7 +992,6 @@ a.invite-button:focus-visible::after {
 }
 
 @media (min-width: 40rem) {
-  .collection-intro,
   .collection-poster {
     margin-right: 5vw;
     margin-left: 5vw;
@@ -1012,7 +1004,6 @@ a.invite-button:focus-visible::after {
 }
 
 @media (min-width: 48rem) {
-  .collection-intro,
   .collection-poster {
     width: 66.6667vw;
     margin-right: auto;

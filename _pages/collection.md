@@ -5,16 +5,15 @@ permalink: /
 ---
 
 <main class="collection-page">
-  <header class="collection-intro">
-    <h1 id="collection-page-title" class="collection-visually-hidden">Stan Brouwer, volume 001: a carefully curated collection of experiences</h1>
-    <img class="collection-intro__image" src="{{ '/assets/img/header-image.jpg' | relative_url }}" alt="Black-and-white perspective grid artwork">
-    <div class="collection-captions collection-captions--intro">
-      <p>a carefully curated<br>collection of experiences</p>
-      <p>Stan Brouwer<br>vol. 001</p>
-    </div>
-  </header>
-
-  <article class="collection-poster collection-poster--content" aria-labelledby="collection-page-title">
+  <article class="collection-poster" aria-labelledby="collection-page-title">
+    <header class="collection-intro">
+      <h1 id="collection-page-title" class="collection-visually-hidden">Stan Brouwer, volume 001: a carefully curated collection of experiences</h1>
+      <img class="collection-intro__image" src="{{ '/assets/img/header-image.jpg' | relative_url }}" alt="Black-and-white perspective grid artwork">
+      <div class="collection-captions collection-captions--intro">
+        <p>a carefully curated<br>collection of experiences</p>
+        <p>Stan Brouwer<br>vol. 001</p>
+      </div>
+    </header>
 
     <section class="collection-section collection-section--invites" aria-labelledby="invites-title">
       <header class="collection-section__heading">

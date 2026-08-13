@@ -1,0 +1,1190 @@
+/**
+ * @OnlyCurrentDoc
+ *
+ * FESTIVAL INVENTORY - PUBLIC PROTOTYPE ONLY
+ *
+ * This Apps Script web app is intentionally public and has no user
+ * authentication. It is suitable for the prototype phase only. Add proper
+ * authentication, authorization, validation and audit controls before using
+ * this system for a production festival.
+ *
+ * This version intentionally uses the Google Sheets REST API through
+ * UrlFetchApp with the `drive.file` OAuth scope. It does not use the broad
+ * account-wide spreadsheet scope. The script must be created from the target
+ * spreadsheet (Extensies > Apps Script), so Google can associate this app
+ * with that one file. Run setupInventorySheets() once before deployment.
+ */
+
+var INVENTORY_SPREADSHEET_ID = '1Mj4bTKrL3c3SZTG11lMLVYtY1JqzuesiqzIivASQvzY';
+var INVENTORY_TIME_ZONE = 'Europe/Amsterdam';
+var INVENTORY_CACHE_TTL = 21600;
+var INVENTORY_CONTAINERS = ['KC1', 'KC2', 'KC3', 'KC4', 'KC5'];
+var INVENTORY_ITEMS = [
+  { articleNumber: 'INV-001', name: 'Sourcy blauw reine petfles', description: 'Tray (6x50 cl)', image: 'https://goedkoopdrank.nl/wp-content/uploads/2023/01/sourcy_blauw_plastic_pet_flesjes_50cl_tray.jpeg' },
+  { articleNumber: 'INV-002', name: 'Sourcy rood petfles', description: 'Tray (6x50 cl)', image: 'https://goedkoopdrank.nl/wp-content/uploads/2023/01/sourcy_rood_plastic_pet_flesjes_50cl_tray.jpeg' },
+  { articleNumber: 'INV-003', name: 'Pepsi Cola regular refpet', description: 'Krat (12x1,1 liter)', image: 'https://www.kelemidis.de/media/imported/350440_sydUJZG.jpg' },
+  { articleNumber: 'INV-004', name: 'Red Bull energy drink blik', description: 'Tray (24x25 cl)', image: 'https://www.dropwinkel.eu/media/cache/gallery_zoom/product/587/sisi-sinas-zero-petfles-12-x-11-liter.jpg' },
+  { articleNumber: 'INV-005', name: 'Sisi sinas zero sugar refpet', description: 'Krat (12x1,1 liter)', image: 'https://www.dropwinkel.eu/media/cache/gallery_zoom/product/587/sisi-sinas-zero-petfles-12-x-11-liter.jpg' },
+  { articleNumber: 'INV-006', name: 'Ice tea green refpet', description: 'Krat (12x1,1 liter)', image: 'https://www.zelst.nl/media/catalog/product/cache/4f77cdb94af56139e35dd76361454d8d/8/7/8711327507593_unilever_netherlands_rpet_lit_green_12x1100ml.png' },
+  { articleNumber: 'INV-007', name: 'Red Bull blik sugar free', description: 'Tray (24x25 cl)', image: 'https://static.discountoffice.cloud/discount-website/productImages/e0/2/SP-53955-1.jpg' },
+  { articleNumber: 'INV-008', name: 'Seven Up zero refpet', description: 'Krat (12x1,1 liter)', image: 'https://cdn.mafrservices.com/sys-master-root/ha9/h4e/61617753391134/722933_main.jpg' },
+  { articleNumber: 'INV-009', name: 'Ice tea sparkling refpet', description: 'Krat (12x1,1 liter)', image: 'https://static.ah.nl/dam/product/AHI_38364c4a63373965526653705367764a47316c575967?fileType=binary&rendition=400x400_JPG_Q85&revLabel=1' },
+  { articleNumber: 'INV-010', name: 'Red Bull watermeloen', description: 'Tray (12x25 cl)', image: 'https://www.compliment.nl/wp-content/uploads/2018/12/Red-Bull-The-Red-Edition-Watermeloensmaak-blik-12x-25cl-1_png.webp' },
+  { articleNumber: 'INV-011', name: 'Pepsi Cola zero refpet', description: 'Krat (12x1,1 liter)', image: 'https://shop.klauss.de/cdn/shop/files/pepsi-cola-zero-zucker-1-0-liter-kasten.jpg?v=1747734081&width=1000' },
+  { articleNumber: 'INV-012', name: 'Koolzuur 10 kg', description: 'Cylinder (10 kilo)', image: 'https://www.horecagoedkoop.nl/media/catalog/product/cache/922db6b4267e99c43cb378abc26fefba/j/e/jewa-gas_koolzuur_fles_10kg.jpg' },
+  { articleNumber: 'INV-013', name: 'Small bag + sluitstr', description: 'Rol (5 stuks)', image: '' },
+  { articleNumber: 'INV-014', name: 'Bacardi cola mix in blik', description: 'Tray (24x25 cl)', image: 'https://www.sligro.nl/image-service/_jcr_content.product.05449000336613.image/1/large.jpeg' },
+  { articleNumber: 'INV-015', name: 'Bacardi Razz & Up mix in blik', description: 'Tray (12x25 cl)', image: 'https://a.storyblok.com/f/278136/1600x1600/1489746b76/bacardi-razz-12x25cl.png' },
+  { articleNumber: 'INV-016', name: 'Hard seltzer framboos', description: 'Tray (12x25 cl)', image: 'https://www.sligro.nl/image-service/_jcr_content.product.08719327682395.image/1/large.jpeg' },
+  { articleNumber: 'INV-017', name: 'Hard seltzer mango', description: 'Tray (12x25 cl)', image: 'https://cdn11.bigcommerce.com/s-54jmfzthvf/images/stencil/original/products/829/10232/STLZ_Mango_tray_blik_12_x_25cl__63552.1776092251.png' },
+  { articleNumber: 'INV-018', name: 'Hard seltzer iced tea perzik', description: 'Tray (12x25 cl)', image: 'https://www.sligro.nl/image-service/_jcr_content.product.08720865027517.image/1/large.jpeg' },
+  { articleNumber: 'INV-019', name: 'Hard seltzer iced tea limoen', description: 'Tray (12x25 cl)', image: 'https://www.dirckiii.nl/media/catalog/product/cache/a855c69ba9601e9f3c6eb571ed129cc7/5/6/56bb97fbb135e62d05aadb5de88d650743e79d09_STELZ_HARD_ICE_TEA_LEMON_0_25.jpg' },
+  { articleNumber: 'INV-020', name: 'Vodka Sprite mix blik', description: 'Tray (12x25 cl)', image: 'https://www.sligro.nl/image-service/_jcr_content.product.05449000323682.image/1/large.jpeg' },
+  { articleNumber: 'INV-021', name: 'Almorano pinot grigio rosé', description: 'Doos (6x75 cl)', image: 'https://www.bmwine.co.uk/user/products/large/Amorani%20PG%20Blush.png' },
+  { articleNumber: 'INV-022', name: 'Almorano pinot grigio', description: 'Doos (6x75 cl)', image: 'https://www.amathusdrinks.com/media/catalog/product/cache/af886fa68eb5121618ef1bc6359cf7da/a/l/almorano-pinot-grigio-2016.jpg' },
+  { articleNumber: 'INV-023', name: 'Kaiserschoppen', description: 'Doos (6x1 liter)', image: 'https://cdn.webshopapp.com/shops/317064/files/372079757/600x600x2/gebrueder-steffen-kaiserschoppen-romanuskellerei-a.jpg' }
+];
+
+var SHEET_ITEMS = 'Items';
+var SHEET_BEGIN = 'Beginsituatie';
+var SHEET_MUTATIONS = 'Mutaties';
+var SHEET_END = 'Eindtelling';
+var END_COUNT_PREFIX = 'Eindtelling ';
+
+var ITEMS_HEADERS = ['Artikelnummer', 'Naam', 'Omschrijving', 'Afbeelding'];
+var BEGIN_HEADERS = ['Artikelnummer', 'Naam', 'Omschrijving'];
+var MUTATION_HEADERS = ['Datum en tijd', 'Koelcontainer', 'Artikelnummer', 'Naam', 'Aantal', 'Bestemming', 'Runner'];
+var END_LOG_HEADERS = ['Telling ID', 'Datum en tijd', 'Koelcontainer', 'Teller', 'Aantal ingevuld'];
+var MANAGEMENT_HEADERS = ['Artikelnummer', 'Product', 'Beginsituatie', 'Eruit gehaald', 'Nog over', 'Eindtelling', 'Verschil'];
+var MANAGEMENT_MARKER = '__INVENTORY_MANAGEMENTOVERZICHT__';
+var LOG_MARKER = '__INVENTORY_TELLINGENLOG__';
+
+function doGet(e) {
+  var parameters = (e && e.parameter) || {};
+  var action = String(parameters.action || 'bootstrap');
+  var callback = parameters.callback || '';
+  var result;
+
+  try {
+    if (action === 'bootstrap') {
+      result = bootstrap_(parameters.container);
+    } else if (action === 'lastMutation') {
+      result = getLastMutation_(getSpreadsheet_());
+    } else if (action === 'mutationStatus') {
+      result = getMutationStatus_(getSpreadsheet_(), parameters);
+    } else if (action === 'countStatus') {
+      result = getCountStatus_(getSpreadsheet_(), parameters);
+    } else if (action === 'health') {
+      result = { ok: true, status: 'live' };
+    } else {
+      throw inventoryError_('invalid_action', 'Deze inventoryactie bestaat niet.');
+    }
+  } catch (error) {
+    result = publicError_(error);
+  }
+
+  return output_(result, callback);
+}
+
+function doPost(e) {
+  var result;
+
+  try {
+    if (!e || !e.postData || !e.postData.contents) {
+      throw inventoryError_('invalid_payload', 'De registratie bevat geen gegevens.');
+    }
+
+    var data = JSON.parse(e.postData.contents);
+    result = withLock_(function () {
+      var spreadsheet = getSpreadsheet_();
+      if (data.type === 'runner') return writeRunnerMutation_(spreadsheet, data);
+      if (data.type === 'endCount') return writeEndCount_(spreadsheet, data);
+      throw inventoryError_('invalid_payload', 'Onbekend registratietype.');
+    });
+  } catch (error) {
+    result = publicError_(error);
+  }
+
+  return output_(result, '');
+}
+
+/** Run once to migrate the current product/start-stock tabs and create the four-tab model. */
+function setupInventorySheets() {
+  return withLock_(function () {
+    var spreadsheet = getSpreadsheet_();
+    var itemSheet = findOrCreateItemsSheet_(spreadsheet);
+    var itemRecords = normalizeItemsSheet_(itemSheet);
+    var beginSheet = findOrCreateBeginningSheet_(spreadsheet);
+    normalizeBeginningSheet_(beginSheet, itemRecords);
+    ensureMutationSheet_(spreadsheet);
+    var endSheet = getOrCreateSheet_(spreadsheet, SHEET_END);
+    ensureEndingBase_(endSheet, itemRecords);
+    syncEndingContainerColumns_(spreadsheet);
+    ensureBeginningRows_(spreadsheet);
+    ensureEndingRows_(spreadsheet);
+    ensureManagementOverview_(spreadsheet);
+    return { ok: true, message: 'Inventorytabbladen zijn ingericht met de vaste artikelcatalogus.' };
+  });
+}
+
+/** Diagnostic: confirms that this project is bound to the intended spreadsheet. */
+function testInventoryBinding() {
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  if (!spreadsheet) {
+    throw new Error('Dit Apps Script-project is niet aan een spreadsheet gebonden. Open de doelspreadsheet en kies Extensies > Apps Script.');
+  }
+  Logger.log('Gebonden spreadsheet: ' + spreadsheet.getName() + ' (' + spreadsheet.getId() + ')');
+  return { ok: true, name: spreadsheet.getName(), id: spreadsheet.getId() };
+}
+
+function bootstrap_(requestedContainer) {
+  var container;
+  container = findContainer_(INVENTORY_CONTAINERS.map(function (name, index) { return { name: name, column: index + 4 }; }), requestedContainer);
+
+  if (!container) {
+    throw inventoryError_('container_not_found', 'Deze koelcontainer bestaat niet in Beginsituatie.');
+  }
+
+  return {
+    ok: true,
+    container: container.name,
+    containers: INVENTORY_CONTAINERS,
+    items: readItems_()
+  };
+}
+
+function writeRunnerMutation_(spreadsheet, data) {
+  var requestId = requireText_(data.requestId, 'invalid_payload', 'Registratie-ID ontbreekt.');
+  var containerName = requireText_(data.container, 'container_not_found', 'Koelcontainer ontbreekt.');
+  var articleNumber = requireText_(data.articleNumber, 'article_not_found', 'Artikelnummer ontbreekt.');
+  // Accept the former field name as a migration fallback for an older cached
+  // frontend, but store every new registration as an optional bestemming.
+  var destination = optionalText_(data.destination != null ? data.destination : data.destinationBar);
+  var runner = optionalText_(data.runner);
+  var amount = parseWholeNumber_(data.amount, 1, 'validation', 'Het aantal moet een geheel getal van minimaal 1 zijn.');
+  var cache = CacheService.getScriptCache();
+  var cacheKey = 'runner:' + requestId;
+  var cached = cache.get(cacheKey);
+  var items;
+  var item;
+  var containers;
+  var container;
+  var sheet;
+  var timestamp;
+  var rowNumber;
+
+  if (cached) {
+    var previous = JSON.parse(cached);
+    return { ok: true, duplicate: true, rowNumber: previous.rowNumber };
+  }
+
+  items = readItems_(spreadsheet);
+  item = items.filter(function (entry) { return entry.articleNumber === articleNumber; })[0];
+  if (!item) throw inventoryError_('article_not_found', 'Dit artikelnummer bestaat niet.');
+
+  containers = readContainers_(getRequiredSheet_(spreadsheet, SHEET_BEGIN));
+  container = findContainer_(containers, containerName);
+  if (!container) throw inventoryError_('container_not_found', 'Deze koelcontainer bestaat niet in Beginsituatie.');
+
+  sheet = getRequiredSheet_(spreadsheet, SHEET_MUTATIONS);
+  ensureHeaderRow_(sheet, MUTATION_HEADERS);
+  timestamp = formatTimestamp_(new Date());
+  sheet.appendRow([timestamp, container.name, item.articleNumber, item.name, amount, destination, runner]);
+  rowNumber = sheet.getLastRow();
+  // The voorraad- and managementtables use sheet formulas, so they update
+  // from this new Mutaties row without rebuilding the entire workbook.
+  cache.put(cacheKey, JSON.stringify({ rowNumber: rowNumber }), INVENTORY_CACHE_TTL);
+
+  return { ok: true, duplicate: false, rowNumber: rowNumber };
+}
+
+function writeEndCount_(spreadsheet, data) {
+  var requestId = requireText_(data.requestId, 'invalid_payload', 'Telling-ID ontbreekt.');
+  var containerName = requireText_(data.container, 'container_not_found', 'Koelcontainer ontbreekt.');
+  var teller = requireText_(data.teller, 'validation', 'De naam van de teller ontbreekt.');
+  var containers = readContainers_(getRequiredSheet_(spreadsheet, SHEET_BEGIN));
+  var container = findContainer_(containers, containerName);
+  var items;
+  var itemByNumber;
+  var counts;
+  var endSheet;
+  var endRows;
+  var rowByArticle;
+  var endColumn;
+  var timestamp;
+  var writtenCount = 0;
+  var seen = {};
+  var cache;
+  var cacheKey;
+  var cached;
+
+  if (!container) throw inventoryError_('container_not_found', 'Deze koelcontainer bestaat niet in Beginsituatie.');
+  if (!Array.isArray(data.counts)) throw inventoryError_('validation', 'De eindtelling heeft geen geldige artikellijst.');
+
+  cache = CacheService.getScriptCache();
+  cacheKey = 'count:' + requestId;
+  cached = cache.get(cacheKey);
+  if (cached) {
+    return JSON.parse(cached);
+  }
+
+  items = readItems_(spreadsheet);
+  itemByNumber = {};
+  items.forEach(function (item) { itemByNumber[item.articleNumber] = item; });
+  counts = data.counts;
+  counts.forEach(function (entry) {
+    var articleNumber = requireText_(entry && entry.articleNumber, 'article_not_found', 'Een artikelnummer ontbreekt.');
+    if (seen[articleNumber]) throw inventoryError_('validation', 'Een artikel komt dubbel voor in de eindtelling.');
+    seen[articleNumber] = true;
+    if (!itemByNumber[articleNumber]) throw inventoryError_('article_not_found', 'Dit artikelnummer bestaat niet.');
+    if (entry.amount !== null && entry.amount !== '') {
+      parseWholeNumber_(entry.amount, 0, 'validation', 'Eindtellingen moeten gehele aantallen vanaf 0 zijn.');
+    }
+  });
+
+  endSheet = getRequiredSheet_(spreadsheet, SHEET_END);
+  endRows = readArticleRows_(endSheet);
+  rowByArticle = {};
+  endRows.forEach(function (entry) { rowByArticle[entry.articleNumber] = entry.rowNumber; });
+  endColumn = findEndCountColumn_(endSheet, container.name);
+  if (!endColumn) throw inventoryError_('not_configured', 'De eindtellingkolom is nog niet ingericht.');
+
+  counts.forEach(function (entry) {
+    if (entry.amount === null || entry.amount === '') return;
+    endSheet.getRange(rowByArticle[entry.articleNumber], endColumn).setValue(parseWholeNumber_(entry.amount, 0, 'validation', 'Ongeldige eindtelling.'));
+    writtenCount += 1;
+  });
+
+  timestamp = formatTimestamp_(new Date());
+  appendCountLog_(endSheet, [requestId, timestamp, container.name, teller, writtenCount]);
+  var result = { ok: true, found: true, writtenCount: writtenCount };
+  cache.put(cacheKey, JSON.stringify(result), INVENTORY_CACHE_TTL);
+  return result;
+}
+
+function getLastMutation_(spreadsheet) {
+  var sheet = getRequiredSheet_(spreadsheet, SHEET_MUTATIONS);
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return { ok: true, rowNumber: 1, lastRow: null };
+  return { ok: true, rowNumber: lastRow, lastRow: rowToMutation_(sheet.getRange(lastRow, 1, 1, 7).getValues()[0]) };
+}
+
+function getMutationStatus_(spreadsheet, parameters) {
+  var requestId = optionalText_(parameters.requestId);
+  var baselineRow = parseInt(parameters.baselineRow || '0', 10) || 0;
+  var cached;
+  var sheet;
+  var lastRow;
+  var row;
+  var matches;
+
+  if (requestId) {
+    cached = CacheService.getScriptCache().get('runner:' + requestId);
+    if (cached) return { ok: true, found: true, rowNumber: JSON.parse(cached).rowNumber };
+  }
+
+  sheet = getRequiredSheet_(spreadsheet, SHEET_MUTATIONS);
+  lastRow = sheet.getLastRow();
+  if (lastRow < 2) return { ok: true, found: false, rowNumber: lastRow };
+  row = rowToMutation_(sheet.getRange(lastRow, 1, 1, 7).getValues()[0]);
+  matches = mutationRowMatches_(row, parameters);
+  return { ok: true, found: Boolean(lastRow > baselineRow && matches), rowNumber: lastRow, matches: matches, lastRowChanged: lastRow > baselineRow };
+}
+
+function getCountStatus_(spreadsheet, parameters) {
+  var requestId = optionalText_(parameters.requestId);
+  var cached;
+  var endSheet;
+  var markerRow;
+  var lastRow;
+  var values;
+
+  if (requestId) {
+    cached = CacheService.getScriptCache().get('count:' + requestId);
+    if (cached) return JSON.parse(cached);
+  }
+
+  endSheet = getRequiredSheet_(spreadsheet, SHEET_END);
+  markerRow = findMarkerRow_(endSheet, LOG_MARKER);
+  if (!markerRow) return { ok: true, found: false, writtenCount: 0 };
+  lastRow = endSheet.getLastRow();
+  if (lastRow < markerRow + 2) return { ok: true, found: false, writtenCount: 0 };
+  values = endSheet.getRange(markerRow + 2, 1, lastRow - markerRow - 1, END_LOG_HEADERS.length).getValues();
+  for (var index = values.length - 1; index >= 0; index -= 1) {
+    if (String(values[index][0]) === requestId) {
+      return { ok: true, found: true, writtenCount: Number(values[index][4]) || 0 };
+    }
+  }
+  return { ok: true, found: false, writtenCount: 0 };
+}
+
+function readItems_() {
+  return INVENTORY_ITEMS.map(function (item) {
+    return { articleNumber: item.articleNumber, name: item.name, description: item.description, image: item.image };
+  });
+}
+
+function readContainers_(sheet) {
+  var lastColumn = Math.max(sheet.getLastColumn(), 3);
+  var headers = sheet.getRange(1, 1, 1, lastColumn).getValues()[0];
+  var containers = [];
+  for (var column = 3; column < headers.length; column += 1) {
+    var name = optionalText_(headers[column]);
+    if (!name) continue;
+    containers.push({ name: name, column: column + 1 });
+  }
+  return containers;
+}
+
+function findContainer_(containers, name) {
+  var requested = optionalText_(name);
+  var requestedKey = requested.toUpperCase();
+  return containers.filter(function (entry) { return entry.name.toUpperCase() === requestedKey; })[0] || null;
+}
+
+function readArticleRows_(sheet) {
+  var markerRow = findMarkerRow_(sheet, MANAGEMENT_MARKER);
+  var lastRow = markerRow ? markerRow - 1 : sheet.getLastRow();
+  var rows = [];
+  if (lastRow < 2) return rows;
+  var values = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+  values.forEach(function (row, index) {
+    var articleNumber = optionalText_(row[0]);
+    if (articleNumber && articleNumber.indexOf('__INVENTORY_') !== 0) rows.push({ articleNumber: articleNumber, rowNumber: index + 2 });
+  });
+  return rows;
+}
+
+function ensureEndingRows_(spreadsheet) {
+  var endSheet = getRequiredSheet_(spreadsheet, SHEET_END);
+  var items = readItems_(spreadsheet);
+  var existing = {};
+  var rows = readArticleRows_(endSheet);
+  var containers = readContainers_(getRequiredSheet_(spreadsheet, SHEET_BEGIN));
+  rows.forEach(function (entry) { existing[entry.articleNumber] = true; });
+  items.forEach(function (item) {
+    if (existing[item.articleNumber]) return;
+    var markerRow = findMarkerRow_(endSheet, MANAGEMENT_MARKER);
+    var values = [item.articleNumber, item.name, item.description];
+    for (var index = 0; index < containers.length; index += 1) values.push('');
+    if (markerRow) {
+      endSheet.insertRowBefore(markerRow);
+      endSheet.getRange(markerRow, 1, 1, values.length).setValues([values]);
+    } else {
+      endSheet.appendRow(values);
+    }
+    existing[item.articleNumber] = true;
+  });
+  syncRemainingStockFormulas_(spreadsheet);
+}
+
+function ensureBeginningRows_(spreadsheet) {
+  var beginSheet = getRequiredSheet_(spreadsheet, SHEET_BEGIN);
+  var items = readItems_(spreadsheet);
+  var containers = readContainers_(beginSheet);
+  var existing = {};
+  readArticleRows_(beginSheet).forEach(function (entry) { existing[entry.articleNumber] = true; });
+  items.forEach(function (item) {
+    if (existing[item.articleNumber]) return;
+    var values = [item.articleNumber, item.name, item.description];
+    containers.forEach(function () { values.push(''); });
+    beginSheet.appendRow(values);
+    existing[item.articleNumber] = true;
+  });
+}
+
+function syncEndingContainerColumns_(spreadsheet) {
+  var beginSheet = getRequiredSheet_(spreadsheet, SHEET_BEGIN);
+  var endSheet = getRequiredSheet_(spreadsheet, SHEET_END);
+  var beginContainers = readContainers_(beginSheet);
+  var lastDisplayColumn = 3;
+  var mainLastRow;
+
+  beginContainers.forEach(function (beginContainer) {
+    var existingColumn = findHeaderColumn_(endSheet, beginContainer.name, 4);
+    if (existingColumn) lastDisplayColumn = Math.max(lastDisplayColumn, existingColumn);
+  });
+
+  beginContainers.forEach(function (beginContainer) {
+    var displayColumn = findHeaderColumn_(endSheet, beginContainer.name, 4);
+    if (displayColumn) return;
+    endSheet.insertColumnAfter(lastDisplayColumn);
+    lastDisplayColumn += 1;
+    endSheet.getRange(1, lastDisplayColumn).setValue(beginContainer.name);
+  });
+
+  mainLastRow = findMainTableLastRow_(endSheet, findMarkerRow_(endSheet, MANAGEMENT_MARKER));
+  beginContainers.forEach(function (beginContainer) {
+    var countColumn = findEndCountColumn_(endSheet, beginContainer.name);
+    var sourceColumn;
+    var newColumn;
+    if (countColumn) return;
+    sourceColumn = findHeaderColumn_(endSheet, beginContainer.name, 4);
+    newColumn = Math.max(endSheet.getLastColumn(), lastDisplayColumn) + 1;
+    endSheet.insertColumnAfter(newColumn - 1);
+    endSheet.getRange(1, newColumn).setValue(endCountHeader_(beginContainer.name));
+
+    // Existing Eindtelling tabs stored physical counts directly in the KC
+    // columns. Preserve those values once before those columns become the
+    // calculated, live stock overview.
+    if (mainLastRow >= 2 && sourceColumn) {
+      endSheet.getRange(2, newColumn, mainLastRow - 1, 1).setValues(endSheet.getRange(2, sourceColumn, mainLastRow - 1, 1).getValues());
+    }
+  });
+}
+
+function syncRemainingStockFormulas_(spreadsheet) {
+  var beginSheet = getRequiredSheet_(spreadsheet, SHEET_BEGIN);
+  var endSheet = getRequiredSheet_(spreadsheet, SHEET_END);
+  var containers = readContainers_(beginSheet);
+  var mainLastRow = findMainTableLastRow_(endSheet, findMarkerRow_(endSheet, MANAGEMENT_MARKER));
+  var beginRowsByArticle = {};
+  var articleNumbers;
+
+  if (mainLastRow < 2) return;
+  readArticleRows_(beginSheet).forEach(function (entry) {
+    beginRowsByArticle[entry.articleNumber] = entry.rowNumber;
+  });
+  articleNumbers = endSheet.getRange(2, 1, mainLastRow - 1, 1).getValues();
+  containers.forEach(function (container) {
+    var displayColumn = findHeaderColumn_(endSheet, container.name, 4);
+    var formulas = [];
+    if (!displayColumn) return;
+    for (var row = 2; row <= mainLastRow; row += 1) {
+      var articleNumber = optionalText_(articleNumbers[row - 2][0]);
+      var beginRow = beginRowsByArticle[articleNumber];
+      var beginColumnLetter = columnLetter_(container.column);
+      if (!beginRow) {
+        formulas.push(['']);
+        continue;
+      }
+      formulas.push(['=IF(\'' + SHEET_BEGIN + '\'!' + beginColumnLetter + beginRow + '="","",\'' + SHEET_BEGIN + '\'!' + beginColumnLetter + beginRow + '-SUMIFS(\'' + SHEET_MUTATIONS + '\'!$E:$E,\'' + SHEET_MUTATIONS + '\'!$B:$B,"' + container.name + '",\'' + SHEET_MUTATIONS + '\'!$C:$C,$A' + row + '))']);
+    }
+    endSheet.getRange(2, displayColumn, formulas.length, 1).setFormulas(formulas);
+  });
+}
+
+function ensureManagementOverview_(spreadsheet) {
+  var endSheet = getRequiredSheet_(spreadsheet, SHEET_END);
+  var itemRecords = readItems_(spreadsheet);
+  var containers = readContainers_(getRequiredSheet_(spreadsheet, SHEET_BEGIN));
+  var oldManagementRow = findMarkerRow_(endSheet, MANAGEMENT_MARKER);
+  var oldLogRow = findMarkerRow_(endSheet, LOG_MARKER);
+  var preservedLog = readLogRows_(endSheet, oldLogRow);
+  var mainLastRow = findMainTableLastRow_(endSheet, oldManagementRow);
+  var summaryStart = mainLastRow + 3;
+  var beginRowsByArticle = {};
+  var summaryDataRanges = [];
+  var cursor = summaryStart;
+  var logStart;
+  var totalRows = Math.max(
+    endSheet.getMaxRows(),
+    endSheet.getLastRow(),
+    summaryStart + 1 + containers.length * (itemRecords.length + 4) + preservedLog.length + 10
+  );
+
+  if (endSheet.getMaxRows() < totalRows) endSheet.insertRowsAfter(endSheet.getMaxRows(), totalRows - endSheet.getMaxRows());
+  if (summaryStart <= endSheet.getLastRow()) {
+    endSheet.getRange(summaryStart, 1, endSheet.getMaxRows() - summaryStart + 1, Math.max(MANAGEMENT_HEADERS.length, endSheet.getMaxColumns())).clearContent();
+  }
+
+  // Keep the technical marker outside the visible summary table. Previously it
+  // was written into A and immediately overwritten by the first container
+  // heading, leaving stale duplicate overview blocks on later initialisations.
+  endSheet.getRange(summaryStart, 1, 1, MANAGEMENT_HEADERS.length).setValues([[
+    'Overzicht per koelcontainer', '', '', '', '', '', ''
+  ]]);
+  endSheet.getRange(summaryStart, MANAGEMENT_HEADERS.length + 1).setValue(MANAGEMENT_MARKER);
+  cursor = summaryStart + 2;
+  readArticleRows_(getRequiredSheet_(spreadsheet, SHEET_BEGIN)).forEach(function (entry) {
+    beginRowsByArticle[entry.articleNumber] = entry.rowNumber;
+  });
+
+  containers.forEach(function (container) {
+    var dataStart;
+    var values = [];
+    var formulas = [];
+
+    endSheet.getRange(cursor, 1, 1, MANAGEMENT_HEADERS.length).setValues([[container.name, '', '', '', '', '', '']]);
+    cursor += 1;
+    endSheet.getRange(cursor, 1, 1, MANAGEMENT_HEADERS.length).setValues([MANAGEMENT_HEADERS]);
+    dataStart = cursor + 1;
+
+    itemRecords.forEach(function (item, itemIndex) {
+      var summaryRow = dataStart + itemIndex;
+      var beginRow = beginRowsByArticle[item.articleNumber] || itemIndex + 2;
+      var beginColumnLetter = columnLetter_(container.column);
+        var countedFormula = '=IFERROR(IF(INDEX(\'' + SHEET_END + '\'!$D:$ZZ,MATCH($A' + summaryRow + ',\'' + SHEET_END + '\'!$A:$A,0),MATCH("' + endCountHeader_(container.name) + '",\'' + SHEET_END + '\'!$D$1:$ZZ$1,0))="","",INDEX(\'' + SHEET_END + '\'!$D:$ZZ,MATCH($A' + summaryRow + ',\'' + SHEET_END + '\'!$A:$A,0),MATCH("' + endCountHeader_(container.name) + '",\'' + SHEET_END + '\'!$D$1:$ZZ$1,0))),"")';
+      values.push([item.articleNumber, item.name, '', '', '', '', '']);
+      formulas.push([
+        '=\'' + SHEET_BEGIN + '\'!A' + beginRow,
+        '=\'' + SHEET_BEGIN + '\'!B' + beginRow,
+        '=IF(\'' + SHEET_BEGIN + '\'!' + beginColumnLetter + beginRow + '="","",\'' + SHEET_BEGIN + '\'!' + beginColumnLetter + beginRow + ')',
+        '=IF($C' + summaryRow + '="","",SUMIFS(\'' + SHEET_MUTATIONS + '\'!$E:$E,\'' + SHEET_MUTATIONS + '\'!$B:$B,"' + container.name + '",\'' + SHEET_MUTATIONS + '\'!$C:$C,$A' + summaryRow + '))',
+        '=IF($C' + summaryRow + '="","",$C' + summaryRow + '-$D' + summaryRow + ')',
+        countedFormula,
+        '=IF(OR($E' + summaryRow + '="",$F' + summaryRow + '=""),"",$F' + summaryRow + '-$E' + summaryRow + ')'
+      ]);
+    });
+
+    if (values.length) {
+      endSheet.getRange(dataStart, 1, values.length, MANAGEMENT_HEADERS.length).setValues(values);
+      endSheet.getRange(dataStart, 1, formulas.length, 2).setFormulas(formulas.map(function (row) { return row.slice(0, 2); }));
+      endSheet.getRange(dataStart, 3, formulas.length, MANAGEMENT_HEADERS.length - 2).setFormulas(formulas.map(function (row) { return row.slice(2); }));
+      summaryDataRanges.push({ startRow: dataStart, rowCount: values.length });
+    }
+    cursor = dataStart + values.length + 1;
+  });
+
+  logStart = cursor;
+  endSheet.getRange(logStart, 1).setValue(LOG_MARKER);
+  endSheet.getRange(logStart + 1, 1, 1, END_LOG_HEADERS.length).setValues([END_LOG_HEADERS]);
+  if (preservedLog.length) {
+    endSheet.getRange(logStart + 2, 1, preservedLog.length, END_LOG_HEADERS.length).setValues(preservedLog);
+  }
+  endSheet.setFrozenRows(1);
+  applyManagementFormatting_(endSheet, summaryDataRanges, MANAGEMENT_HEADERS.length);
+}
+
+function appendCountLog_(endSheet, row) {
+  var markerRow = findMarkerRow_(endSheet, LOG_MARKER);
+  if (!markerRow) throw inventoryError_('not_configured', 'Het tellingenlog is nog niet ingericht.');
+  endSheet.appendRow(row);
+}
+
+function readLogRows_(sheet, markerRow) {
+  var lastRow;
+  var values;
+  if (!markerRow) return [];
+  lastRow = sheet.getLastRow();
+  if (lastRow < markerRow + 2) return [];
+  values = sheet.getRange(markerRow + 2, 1, lastRow - markerRow - 1, END_LOG_HEADERS.length).getValues();
+  return values.filter(function (row) { return optionalText_(row[0]); });
+}
+
+function applyManagementFormatting_(sheet, dataRanges, columnCount) {
+  var differenceColumn = columnCount || MANAGEMENT_HEADERS.length;
+
+  if (typeof sheet.getConditionalFormatRules === 'function') {
+    var nativeDifferenceColumn = differenceColumn;
+    var nativeRules = sheet.getConditionalFormatRules().filter(function (rule) {
+      return !rule.getRanges().some(function (ruleRange) { return ruleRange.getColumn() === nativeDifferenceColumn; });
+    });
+    dataRanges.forEach(function (dataRange) {
+      var nativeRange = sheet.getRange(dataRange.startRow, nativeDifferenceColumn, dataRange.rowCount, 1);
+      nativeRules.push(SpreadsheetApp.newConditionalFormatRule().whenNumberEqualTo(0).setBackground('#e2f3e8').setRanges([nativeRange]).build());
+      nativeRules.push(SpreadsheetApp.newConditionalFormatRule().whenNumberLessThan(0).setBackground('#fae5e2').setRanges([nativeRange]).build());
+      nativeRules.push(SpreadsheetApp.newConditionalFormatRule().whenNumberGreaterThan(0).setBackground('#fff5d6').setRanges([nativeRange]).build());
+    });
+    sheet.setConditionalFormatRules(nativeRules);
+    return;
+  }
+
+  var rules = sheet.getConditionalFormatRules_();
+  var requests = [];
+  var targetRanges = dataRanges.map(function (dataRange) {
+    return {
+      sheetId: sheet.getSheetId(),
+      startRowIndex: Math.max(0, dataRange.startRow - 1),
+      endRowIndex: Math.max(0, dataRange.startRow - 1 + dataRange.rowCount),
+      startColumnIndex: differenceColumn - 1,
+      endColumnIndex: differenceColumn
+    };
+  });
+
+  for (var index = rules.length - 1; index >= 0; index -= 1) {
+    if ((rules[index].ranges || []).some(function (range) {
+      return range.sheetId === sheet.getSheetId() &&
+        (range.startColumnIndex == null || range.startColumnIndex <= differenceColumn - 1) &&
+        (range.endColumnIndex == null || range.endColumnIndex >= differenceColumn);
+    })) {
+      requests.push({ deleteConditionalFormatRule: { sheetId: sheet.getSheetId(), index: index } });
+    }
+  }
+
+  if (targetRanges.length) {
+    requests.push({ addConditionalFormatRule: {
+      index: 0,
+      rule: {
+        ranges: targetRanges,
+        booleanRule: {
+          condition: { type: 'NUMBER_EQ', values: [{ userEnteredValue: '0' }] },
+          format: { backgroundColor: { red: 226 / 255, green: 243 / 255, blue: 232 / 255 } }
+        }
+      }
+    }});
+    requests.push({ addConditionalFormatRule: {
+      index: 0,
+      rule: {
+        ranges: targetRanges,
+        booleanRule: {
+          condition: { type: 'NUMBER_LT', values: [{ userEnteredValue: '0' }] },
+          format: { backgroundColor: { red: 250 / 255, green: 229 / 255, blue: 226 / 255 } }
+        }
+      }
+    }});
+    requests.push({ addConditionalFormatRule: {
+      index: 0,
+      rule: {
+        ranges: targetRanges,
+        booleanRule: {
+          condition: { type: 'NUMBER_GT', values: [{ userEnteredValue: '0' }] },
+          format: { backgroundColor: { red: 255 / 255, green: 245 / 255, blue: 214 / 255 } }
+        }
+      }
+    }});
+  }
+
+  if (requests.length) sheetsBatchUpdate_(sheet.getSpreadsheetId(), requests);
+}
+
+function normalizeItemsSheet_(sheet) {
+  var output = [ITEMS_HEADERS];
+  var records = readItems_();
+  records.forEach(function (item) { output.push([item.articleNumber, item.name, item.description, item.image]); });
+  sheet.getDataRange().clearContent();
+  sheet.getRange(1, 1, output.length, ITEMS_HEADERS.length).setValues(output);
+  ensureHeaderRow_(sheet, ITEMS_HEADERS);
+  sheet.setFrozenRows(1);
+  return records;
+}
+
+function normalizeBeginningSheet_(sheet, itemRecords) {
+  var values = sheet.getDataRange().getValues();
+  var headers = values.length ? values[0] : [];
+  var nameColumn = findHeaderIndex_(headers, ['naam', 'item']);
+  var descriptionColumn = findHeaderIndex_(headers, ['omschrijving']);
+  var articleColumn = findHeaderIndex_(headers, ['artikelnummer']);
+  var nameMap = {};
+  var containers = [];
+  var output = [BEGIN_HEADERS.slice()];
+
+  itemRecords.forEach(function (item) { nameMap[item.name.toLowerCase()] = item.articleNumber; });
+  for (var column = 3; column < headers.length; column += 1) {
+    var original = optionalText_(headers[column]);
+    if (!original) continue;
+    containers.push({ column: column, name: normalizeContainerName_(original) });
+  }
+  containers.forEach(function (container) { output[0].push(container.name); });
+
+  for (var row = 1; row < values.length; row += 1) {
+    var name = nameColumn >= 0 ? optionalText_(values[row][nameColumn]) : '';
+    var description = descriptionColumn >= 0 ? optionalText_(values[row][descriptionColumn]) : '';
+    var articleNumber = articleColumn >= 0 ? optionalText_(values[row][articleColumn]) : '';
+    if (!name && !articleNumber) continue;
+    articleNumber = articleNumber || nameMap[name.toLowerCase()] || ('INV-' + ('000' + (row + 1)).slice(-3));
+    var outputRow = [articleNumber, name, description];
+    containers.forEach(function (container) { outputRow.push(values[row][container.column]); });
+    output.push(outputRow);
+  }
+
+  itemRecords.forEach(function (item) {
+    var exists = output.slice(1).some(function (row) { return String(row[0]) === String(item.articleNumber); });
+    if (!exists) output.push([item.articleNumber, item.name, item.description].concat(containers.map(function () { return ''; })));
+  });
+
+  sheet.getRange(1, 1, output.length, output[0].length).setValues(output);
+  ensureHeaderRow_(sheet, output[0]);
+  sheet.setFrozenRows(1);
+}
+
+function ensureEndingBase_(sheet, itemRecords) {
+  if (sheet.getLastRow() === 0) {
+    sheet.getRange(1, 1, 1, 3).setValues([BEGIN_HEADERS]);
+  } else {
+    sheet.getRange(1, 1, 1, 3).setValues([BEGIN_HEADERS]);
+  }
+  var rows = readArticleRows_(sheet);
+  var existing = {};
+  rows.forEach(function (entry) { existing[entry.articleNumber] = true; });
+  itemRecords.forEach(function (item) {
+    if (!existing[item.articleNumber]) sheet.appendRow([item.articleNumber, item.name, item.description]);
+  });
+  sheet.setFrozenRows(1);
+}
+
+function ensureMutationSheet_(spreadsheet) {
+  var sheet = getOrCreateSheet_(spreadsheet, SHEET_MUTATIONS);
+  ensureHeaderRow_(sheet, MUTATION_HEADERS);
+  sheet.setFrozenRows(1);
+}
+
+function findOrCreateItemsSheet_(spreadsheet) {
+  var exact = spreadsheet.getSheetByName(SHEET_ITEMS);
+  var legacy = spreadsheet.getSheets().filter(function (sheet) { return sheet.getName().toLowerCase() === SHEET_ITEMS.toLowerCase(); })[0];
+  if (exact) return exact;
+  if (legacy) {
+    legacy.setName(SHEET_ITEMS);
+    return legacy;
+  }
+  return getOrCreateSheet_(spreadsheet, SHEET_ITEMS);
+}
+
+function findOrCreateBeginningSheet_(spreadsheet) {
+  var exact = spreadsheet.getSheetByName(SHEET_BEGIN);
+  if (exact) return exact;
+  var legacy = spreadsheet.getSheets().filter(function (sheet) {
+    if (sheet.getName() === SHEET_ITEMS) return false;
+    var headers = sheet.getRange(1, 1, 1, Math.max(3, sheet.getLastColumn())).getValues()[0];
+    return headers.some(function (header) { return /koelcontainer/i.test(String(header)); });
+  })[0];
+  if (legacy) {
+    legacy.setName(SHEET_BEGIN);
+    return legacy;
+  }
+  return getOrCreateSheet_(spreadsheet, SHEET_BEGIN);
+}
+
+function getSpreadsheet_() {
+  try {
+    var activeSpreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+    if (activeSpreadsheet) return activeSpreadsheet;
+    return new InventorySpreadsheet_(sheetsApiRequest_('get', '/spreadsheets/' + encodeURIComponent(INVENTORY_SPREADSHEET_ID) + '?includeGridData=false'));
+  } catch (error) {
+    throw inventoryError_('not_configured', 'De inventoryspreadsheet kon niet worden geopend.');
+  }
+}
+
+/*
+ * Small Sheets API adapter.
+ *
+ * Keeping all Google Sheets calls here makes the backend replaceable and,
+ * more importantly, avoids the account-wide spreadsheet scope.
+ * The manifest must grant drive.file and script.external_request only.
+ */
+function sheetsApiRequest_(method, path, payload) {
+  var options = {
+    method: method.toLowerCase(),
+    headers: { Authorization: 'Bearer ' + ScriptApp.getOAuthToken() },
+    muteHttpExceptions: true
+  };
+  var response;
+  var status;
+  var text;
+
+  if (payload !== undefined) {
+    options.contentType = 'application/json';
+    options.payload = JSON.stringify(payload);
+  }
+
+  response = UrlFetchApp.fetch('https://sheets.googleapis.com/v4' + path, options);
+  status = response.getResponseCode();
+  text = response.getContentText() || '{}';
+  if (status < 200 || status >= 300) {
+    console.error('Sheets API error ' + status + ': ' + text.substring(0, 1000));
+    throw new Error('Sheets API request failed (' + status + ').');
+  }
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    return {};
+  }
+}
+
+function sheetsBatchUpdate_(spreadsheetId, requests) {
+  return sheetsApiRequest_('post', '/spreadsheets/' + encodeURIComponent(spreadsheetId) + ':batchUpdate', {
+    requests: requests
+  });
+}
+
+function sheetsValuesGet_(spreadsheetId, range) {
+  var result = sheetsApiRequest_('get', '/spreadsheets/' + encodeURIComponent(spreadsheetId) + '/values/' + encodeURIComponent(range) + '?valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=FORMATTED_STRING');
+  return result.values || [];
+}
+
+function sheetsValuesUpdate_(spreadsheetId, range, values) {
+  return sheetsApiRequest_('put', '/spreadsheets/' + encodeURIComponent(spreadsheetId) + '/values/' + encodeURIComponent(range) + '?valueInputOption=USER_ENTERED', {
+    range: range,
+    majorDimension: 'ROWS',
+    values: values
+  });
+}
+
+function sheetsValuesAppend_(spreadsheetId, range, values) {
+  return sheetsApiRequest_('post', '/spreadsheets/' + encodeURIComponent(spreadsheetId) + '/values/' + encodeURIComponent(range) + ':append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS', {
+    range: range,
+    majorDimension: 'ROWS',
+    values: [values]
+  });
+}
+
+function sheetsValuesClear_(spreadsheetId, range) {
+  return sheetsApiRequest_('post', '/spreadsheets/' + encodeURIComponent(spreadsheetId) + '/values/' + encodeURIComponent(range) + ':clear', {});
+}
+
+function quoteSheetName_(name) {
+  return "'" + String(name).replace(/'/g, "''") + "'";
+}
+
+function rangeA1_(sheetName, row, column, numRows, numColumns) {
+  var lastRow = row + Math.max(1, numRows) - 1;
+  var lastColumn = column + Math.max(1, numColumns) - 1;
+  var start = columnLetter_(column) + row;
+  var end = columnLetter_(lastColumn) + lastRow;
+  return quoteSheetName_(sheetName) + '!' + start + ':' + end;
+}
+
+function isPresentValue_(value) {
+  return value !== null && value !== undefined && String(value) !== '';
+}
+
+function maxValueColumn_(values) {
+  var maximum = 0;
+  values.forEach(function (row) { maximum = Math.max(maximum, row.length); });
+  return maximum;
+}
+
+function InventorySpreadsheet_(metadata) {
+  this.id = metadata.spreadsheetId || INVENTORY_SPREADSHEET_ID;
+  this.metadata = metadata;
+  this.syncSheets_();
+}
+
+InventorySpreadsheet_.prototype.syncSheets_ = function () {
+  var self = this;
+  this.sheets = (this.metadata.sheets || []).map(function (sheetMetadata) {
+    return new InventorySheet_(self, sheetMetadata);
+  });
+};
+
+InventorySpreadsheet_.prototype.refresh_ = function () {
+  this.metadata = sheetsApiRequest_('get', '/spreadsheets/' + encodeURIComponent(this.id) + '?includeGridData=false');
+  this.syncSheets_();
+};
+
+InventorySpreadsheet_.prototype.getSheets = function () {
+  return this.sheets;
+};
+
+InventorySpreadsheet_.prototype.getSheetByName = function (name) {
+  return this.sheets.filter(function (sheet) { return sheet.getName() === name; })[0] || null;
+};
+
+InventorySpreadsheet_.prototype.getSheetById_ = function (sheetId) {
+  var metadata = (this.metadata.sheets || []).filter(function (sheet) {
+    return sheet.properties && sheet.properties.sheetId === sheetId;
+  })[0];
+  return metadata || null;
+};
+
+InventorySpreadsheet_.prototype.insertSheet = function (name) {
+  sheetsBatchUpdate_(this.id, [{ addSheet: { properties: { title: name } } }]);
+  this.refresh_();
+  return this.getSheetByName(name);
+};
+
+function InventorySheet_(spreadsheet, metadata) {
+  this.spreadsheet = spreadsheet;
+  this.metadata = metadata;
+}
+
+InventorySheet_.prototype.currentMetadata_ = function () {
+  return this.spreadsheet.getSheetById_(this.getSheetId()) || this.metadata;
+};
+
+InventorySheet_.prototype.getName = function () {
+  return (this.currentMetadata_().properties || {}).title || '';
+};
+
+InventorySheet_.prototype.getSheetId = function () {
+  return (this.metadata.properties || {}).sheetId;
+};
+
+InventorySheet_.prototype.getSpreadsheetId = function () {
+  return this.spreadsheet.id;
+};
+
+InventorySheet_.prototype.getMaxRows = function () {
+  return ((this.currentMetadata_().properties || {}).gridProperties || {}).rowCount || 1000;
+};
+
+InventorySheet_.prototype.getMaxColumns = function () {
+  return ((this.currentMetadata_().properties || {}).gridProperties || {}).columnCount || 26;
+};
+
+InventorySheet_.prototype.getRange = function (row, column, numRows, numColumns) {
+  return new InventoryRange_(this, row, column, numRows || 1, numColumns || 1);
+};
+
+InventorySheet_.prototype.getDataRange = function () {
+  var values = sheetsValuesGet_(this.getSpreadsheetId(), quoteSheetName_(this.getName()));
+  return new InventoryRange_(this, 1, 1, Math.max(1, values.length), Math.max(1, maxValueColumn_(values)));
+};
+
+InventorySheet_.prototype.getLastRow = function () {
+  var values = this.getDataRange().getValues();
+  var last = 0;
+  values.forEach(function (row, rowIndex) {
+    if (row.some(isPresentValue_)) last = rowIndex + 1;
+  });
+  return last;
+};
+
+InventorySheet_.prototype.getLastColumn = function () {
+  var values = this.getDataRange().getValues();
+  return maxValueColumn_(values.filter(function (row) {
+    return row.some(isPresentValue_);
+  }));
+};
+
+InventorySheet_.prototype.appendRow = function (values) {
+  sheetsValuesAppend_(this.getSpreadsheetId(), quoteSheetName_(this.getName()) + '!A1', values);
+};
+
+InventorySheet_.prototype.insertRowBefore = function (row) {
+  sheetsBatchUpdate_(this.getSpreadsheetId(), [{ insertDimension: {
+    range: { sheetId: this.getSheetId(), dimension: 'ROWS', startIndex: row - 1, endIndex: row },
+    inheritFromBefore: false
+  } }]);
+  this.spreadsheet.refresh_();
+};
+
+InventorySheet_.prototype.insertColumnAfter = function (column) {
+  sheetsBatchUpdate_(this.getSpreadsheetId(), [{ insertDimension: {
+    range: { sheetId: this.getSheetId(), dimension: 'COLUMNS', startIndex: column, endIndex: column + 1 },
+    inheritFromBefore: true
+  } }]);
+  this.spreadsheet.refresh_();
+};
+
+InventorySheet_.prototype.insertRowsAfter = function (row, count) {
+  if (count <= 0) return;
+  sheetsBatchUpdate_(this.getSpreadsheetId(), [{ insertDimension: {
+    range: { sheetId: this.getSheetId(), dimension: 'ROWS', startIndex: row, endIndex: row + count },
+    inheritFromBefore: false
+  } }]);
+  this.spreadsheet.refresh_();
+};
+
+InventorySheet_.prototype.setName = function (name) {
+  sheetsBatchUpdate_(this.getSpreadsheetId(), [{ updateSheetProperties: {
+    properties: { sheetId: this.getSheetId(), title: name },
+    fields: 'title'
+  } }]);
+  this.spreadsheet.refresh_();
+};
+
+InventorySheet_.prototype.setFrozenRows = function (rows) {
+  sheetsBatchUpdate_(this.getSpreadsheetId(), [{ updateSheetProperties: {
+    properties: { sheetId: this.getSheetId(), gridProperties: { frozenRowCount: rows } },
+    fields: 'gridProperties.frozenRowCount'
+  } }]);
+};
+
+InventorySheet_.prototype.getConditionalFormatRules_ = function () {
+  var metadata = this.currentMetadata_();
+  return metadata.conditionalFormats || [];
+};
+
+function InventoryRange_(sheet, row, column, numRows, numColumns) {
+  this.sheet = sheet;
+  this.row = row;
+  this.column = column;
+  this.numRows = numRows;
+  this.numColumns = numColumns;
+}
+
+InventoryRange_.prototype.getA1Range_ = function () {
+  return rangeA1_(this.sheet.getName(), this.row, this.column, this.numRows, this.numColumns);
+};
+
+InventoryRange_.prototype.getValues = function () {
+  var raw = sheetsValuesGet_(this.sheet.getSpreadsheetId(), this.getA1Range_());
+  var values = [];
+  for (var row = 0; row < this.numRows; row += 1) {
+    values[row] = [];
+    for (var column = 0; column < this.numColumns; column += 1) {
+      values[row][column] = raw[row] && raw[row][column] !== undefined ? raw[row][column] : '';
+    }
+  }
+  return values;
+};
+
+InventoryRange_.prototype.setValue = function (value) {
+  return this.setValues([[value]]);
+};
+
+InventoryRange_.prototype.setValues = function (values) {
+  sheetsValuesUpdate_(this.sheet.getSpreadsheetId(), this.getA1Range_(), values);
+};
+
+InventoryRange_.prototype.setFormulas = function (formulas) {
+  sheetsValuesUpdate_(this.sheet.getSpreadsheetId(), this.getA1Range_(), formulas);
+};
+
+InventoryRange_.prototype.clearContent = function () {
+  sheetsValuesClear_(this.sheet.getSpreadsheetId(), this.getA1Range_());
+};
+
+function getRequiredSheet_(spreadsheet, name) {
+  var sheet = spreadsheet.getSheetByName(name);
+  if (!sheet) throw inventoryError_('not_configured', 'De inventorytabbladen zijn nog niet ingericht.');
+  return sheet;
+}
+
+function getOrCreateSheet_(spreadsheet, name) {
+  return spreadsheet.getSheetByName(name) || spreadsheet.insertSheet(name);
+}
+
+function ensureHeaderRow_(sheet, headers) {
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+}
+
+function findHeaderIndex_(headers, candidates) {
+  var normalized = headers.map(headerKey_);
+  for (var candidate = 0; candidate < candidates.length; candidate += 1) {
+    var wanted = headerKey_(candidates[candidate]);
+    var index = normalized.indexOf(wanted);
+    if (index >= 0) return index;
+  }
+  return -1;
+}
+
+function findHeaderColumn_(sheet, header, minimumColumn) {
+  var lastColumn = Math.max(sheet.getLastColumn(), minimumColumn || 1);
+  var headers = sheet.getRange(1, 1, 1, lastColumn).getValues()[0];
+  for (var index = Math.max(0, (minimumColumn || 1) - 1); index < headers.length; index += 1) {
+    if (optionalText_(headers[index]) === optionalText_(header)) return index + 1;
+  }
+  return 0;
+}
+
+function endCountHeader_(containerName) {
+  return END_COUNT_PREFIX + optionalText_(containerName);
+}
+
+function findEndCountColumn_(sheet, containerName) {
+  return findHeaderColumn_(sheet, endCountHeader_(containerName), 4);
+}
+
+function findMarkerRow_(sheet, marker) {
+  var lastRow = sheet.getLastRow();
+  var lastColumn;
+  if (!lastRow) return 0;
+  lastColumn = Math.max(sheet.getLastColumn(), 1);
+  var values = sheet.getRange(1, 1, lastRow, lastColumn).getValues();
+  for (var row = 0; row < values.length; row += 1) {
+    for (var column = 0; column < values[row].length; column += 1) {
+      if (String(values[row][column]) === marker) return row + 1;
+    }
+  }
+  return 0;
+}
+
+function findMainTableLastRow_(sheet, managementRow) {
+  var logRow = findMarkerRow_(sheet, LOG_MARKER);
+  var limit = managementRow ? managementRow - 1 : (logRow ? logRow - 1 : sheet.getLastRow());
+  if (limit < 2) return 1;
+  var values = sheet.getRange(2, 1, limit - 1, 1).getValues();
+  var last = 1;
+  values.forEach(function (row, index) {
+    // The input table is deliberately contiguous. Stop at its first empty
+    // row, so a legacy/generated overview below it is never mistaken for
+    // physical end-count rows during a rebuild.
+    if (!optionalText_(row[0]) || String(row[0]).indexOf('__INVENTORY_') === 0) return;
+    if (last === index + 1) last = index + 2;
+  });
+  return last;
+}
+
+function rowToMutation_(row) {
+  return {
+    timestamp: optionalText_(row[0]),
+    container: optionalText_(row[1]),
+    articleNumber: optionalText_(row[2]),
+    name: optionalText_(row[3]),
+    amount: row[4],
+    destination: optionalText_(row[5]),
+    runner: optionalText_(row[6])
+  };
+}
+
+function mutationRowMatches_(row, parameters) {
+  return row.container === optionalText_(parameters.container) &&
+    row.articleNumber === optionalText_(parameters.articleNumber) &&
+    Number(row.amount) === Number(parameters.amount) &&
+    row.destination === optionalText_(parameters.destination != null ? parameters.destination : parameters.destinationBar) &&
+    row.runner === optionalText_(parameters.runner);
+}
+
+function normalizeContainerName_(value) {
+  var text = optionalText_(value);
+  var match = text.match(/^koelcontainer[ _-]*(.+)$/i);
+  if (match) return 'KC' + match[1].replace(/[^A-Za-z0-9_-]/g, '').toUpperCase();
+  return text.replace(/\s+/g, '').toUpperCase();
+}
+
+function headerKey_(value) {
+  return optionalText_(value).toLowerCase().replace(/[éèêë]/g, 'e').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+}
+
+function columnLetter_(column) {
+  var result = '';
+  var current = column;
+  while (current > 0) {
+    var remainder = (current - 1) % 26;
+    result = String.fromCharCode(65 + remainder) + result;
+    current = Math.floor((current - 1) / 26);
+  }
+  return result;
+}
+
+function formatTimestamp_(date) {
+  return Utilities.formatDate(date, INVENTORY_TIME_ZONE, 'dd-MM-yyyy HH:mm');
+}
+
+function optionalText_(value) {
+  return value == null ? '' : String(value).trim();
+}
+
+function requireText_(value, code, message) {
+  var text = optionalText_(value);
+  if (!text) throw inventoryError_(code, message);
+  return text;
+}
+
+function parseWholeNumber_(value, minimum, code, message) {
+  var text = optionalText_(value);
+  if (!/^\d+$/.test(text)) throw inventoryError_(code, message);
+  var number = Number(text);
+  if (!isFinite(number) || Math.floor(number) !== number || number < minimum) throw inventoryError_(code, message);
+  return number;
+}
+
+function inventoryError_(code, message) {
+  var error = new Error(message);
+  error.inventoryCode = code;
+  return error;
+}
+
+function publicError_(error) {
+  var knownCodes = ['invalid_action', 'invalid_payload', 'not_configured', 'container_not_found', 'article_not_found', 'validation'];
+  var code = error && error.inventoryCode && knownCodes.indexOf(error.inventoryCode) >= 0 ? error.inventoryCode : 'technical_error';
+  var messages = {
+    invalid_action: 'Deze inventoryactie bestaat niet.',
+    invalid_payload: 'De registratie bevat ongeldige gegevens.',
+    not_configured: 'De inventorykoppeling is nog niet ingericht.',
+    container_not_found: 'Deze koelcontainer bestaat niet in Beginsituatie.',
+    article_not_found: 'Dit artikelnummer bestaat niet.',
+    validation: 'Controleer de ingevoerde waarden.'
+  };
+  return { ok: false, code: code, message: messages[code] || 'Er is een technische fout opgetreden.' };
+}
+
+function output_(data, callback) {
+  var json = JSON.stringify(data);
+  if (callback && /^[A-Za-z_$][0-9A-Za-z_$]*$/.test(callback)) {
+    return ContentService.createTextOutput(callback + '(' + json + ');').setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
+}
+
+function withLock_(callback) {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    return callback();
+  } finally {
+    lock.releaseLock();
+  }
+}
