@@ -3,6 +3,7 @@
 
   var CONFIG = window.STAN_INVENTORY_CONFIG || {};
   var CALLBACK_COUNTER = 0;
+  var RUNNER_SUCCESS_DELAY_MS = 500;
   var RUNNER_STORAGE_KEY = 'stan-inventory-runner-name';
   var INVENTORY_NAME_STORAGE_KEY = 'stan-inventory-name';
   var LOCAL_STATE_KEY = 'stan-inventory-local-state-v1';
@@ -329,6 +330,16 @@
       body: JSON.stringify(payload)
     }).catch(function () {
       throw apiError('De registratie kon niet naar de Sheets-server worden gestuurd.', 'network');
+    });
+  }
+
+  function keepSendingInBackground(request) {
+    Promise.resolve(request).catch(function (error) {
+      // The runner can continue immediately for the demo. Keep delivery errors
+      // available for troubleshooting without replacing the success screen.
+      if (window.console && typeof window.console.warn === 'function') {
+        window.console.warn('Inventory runner-registratie kon niet worden afgeleverd.', error);
+      }
     });
   }
 
@@ -756,16 +767,19 @@
         return;
       }
       if (action.getAttribute('data-action') === 'runner-confirm') {
+        var delivery;
         action.disabled = true;
-        sendRunner(state).then(function () {
+        wait(RUNNER_SUCCESS_DELAY_MS).then(function () {
           state.sending = false;
           state.pendingPayload = null;
           runnerSuccess(state);
-        }).catch(function (error) {
-          state.sending = false;
-          action.disabled = false;
-          setStatus(root, error.message || 'De registratie kon niet worden bevestigd.', 'error');
         });
+        try {
+          delivery = sendRunner(state);
+          keepSendingInBackground(delivery);
+        } catch (error) {
+          keepSendingInBackground(Promise.reject(error));
+        }
       }
     });
 
@@ -1025,27 +1039,25 @@
   }
 
   function sendMobileRunner(state) {
+    var payloads = state.entries.map(function (entry) {
+      return {
+        type: 'runner',
+        requestId: makeRequestId('runner'),
+        container: state.container,
+        articleNumber: entry.articleNumber,
+        amount: entry.amount,
+        destination: state.destination,
+        destinationBar: state.destination || '-',
+        runner: state.name
+      };
+    });
     state.sending = true;
     setStatus(state.root, 'Registratie verzendenâ€¦');
-    return state.entries.reduce(function (chain, entry) {
+    return payloads.reduce(function (chain, payload) {
       return chain.then(function () {
-        var payload = {
-          type: 'runner',
-          requestId: makeRequestId('runner'),
-          container: state.container,
-          articleNumber: entry.articleNumber,
-          amount: entry.amount,
-          destination: state.destination,
-          destinationBar: state.destination || '-',
-          runner: state.name
-        };
-        state.pendingPayload = payload;
         return apiPost(payload);
       });
-    }, Promise.resolve()).then(function () {
-      state.pendingPayload = null;
-      state.sending = false;
-    });
+    }, Promise.resolve());
   }
 
   function mobileRunnerSuccess(state) {
@@ -1093,13 +1105,16 @@
       }
       state.destination = destination;
       root.querySelector('#runner-form button[type="submit"]').disabled = true;
-      sendMobileRunner(state).then(function () {
-        mobileRunnerSuccess(state);
-      }).catch(function (error) {
+      wait(RUNNER_SUCCESS_DELAY_MS).then(function () {
         state.sending = false;
-        root.querySelector('#runner-form button[type="submit"]').disabled = false;
-        setStatus(root, error.message || 'De registratie kon niet worden opgeslagen.', 'error');
+        state.pendingPayload = null;
+        mobileRunnerSuccess(state);
       });
+      try {
+        keepSendingInBackground(sendMobileRunner(state));
+      } catch (error) {
+        keepSendingInBackground(Promise.reject(error));
+      }
     };
     root.querySelector('#runner-form').addEventListener('submit', function (event) {
       event.preventDefault();
