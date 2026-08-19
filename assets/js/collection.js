@@ -32,7 +32,8 @@
     { tab: "SOUNDS", targetId: "collection-sounds", mediaKind: "soundcloud" },
     { tab: "VISUALS", targetId: "collection-visuals", mediaKind: "image" },
     { tab: "PEOPLE", targetId: "collection-people", mediaKind: "image" },
-    { tab: "PLACES", targetId: "collection-places", mediaKind: "image" }
+    { tab: "PLACES", targetId: "collection-places", mediaKind: "image" },
+    { tab: "PROJECTS", targetId: "collection-projects", mediaKind: "image" }
   ];
 
   const isDesktopMedia = () => desktopMediaQuery.matches;

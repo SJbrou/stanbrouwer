@@ -78,29 +78,8 @@ permalink: /
         <section class="collection-subsection collection-subsection--projects" aria-labelledby="projects-title">
           <div class="collection-subsection__rule"></div>
           <h3 id="projects-title">PROJECTS</h3>
-          {% assign published_projects = site.projects | where_exp: "project", "project.published != false" | sort: "date" | reverse %}
-          <div id="collection-projects" class="collection-rows" role="list" aria-live="polite" aria-busy="false">
-            {% if published_projects.size > 0 %}
-              {% for project in published_projects %}
-                <div class="collection-row-item" role="listitem">
-                  <a class="collection-row" href="{{ project.url | relative_url }}">
-                    <div class="collection-row__columns" style="--collection-grid-template: repeat({{ site.project_columns.size }}, minmax(0, 1fr));">
-                      {% for column in site.project_columns %}
-                        {% if column.key == "date" %}
-                          {% assign project_value = project.date | date: column.format %}
-                        {% else %}
-                          {% assign project_value = project[column.key] %}
-                        {% endif %}
-                        <span class="collection-cell" data-full-value="{{ project_value | escape }}">{{ project_value | escape }}</span>
-                      {% endfor %}
-                    </div>
-                  </a>
-                </div>
-              {% endfor %}
-            {% else %}
-              <p class="collection-load-error">NO PROJECTS</p>
-            {% endif %}
-          </div>
+          <div id="collection-projects" class="collection-rows" role="list" aria-live="polite" aria-busy="true"></div>
+          <div class="collection-media-slot" data-collection-media-slot hidden aria-live="polite"></div>
         </section>
       </div>
     </section>
