@@ -20,8 +20,18 @@
     <script src="{{ '/assets/js/invite-ticketing.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
   </head>
   <body class="collection-body tz-page">
-    <main class="collection collection--ticketing">
-      {{ content }}
+    <main class="collection-page ticket-page">
+      <article class="collection-poster ticket-poster" aria-label="Ticket reservation">
+        {{ content }}
+      </article>
+
+      <footer class="collection-outro ticket-outro">
+        <img class="collection-outro__image" src="{{ '/assets/img/black-white-perspective-grid-background-vector.jpg' | relative_url }}" alt="" aria-hidden="true">
+        <div class="collection-captions collection-captions--outro">
+          <p>a carefully curated<br>collection of experiences</p>
+          <p>Stan Brouwer<br>vol. 001</p>
+        </div>
+      </footer>
     </main>
   </body>
 </html>

@@ -35,6 +35,23 @@ jobs:
         with:
           source: ./
           destination: ./_site
+
+      - name: Build legacy site
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./archive
+          destination: ./_legacy_site
+
+      - name: Add legacy site to deployment
+        run: |
+          mkdir -p ./_site/old
+          cp -R ./_legacy_site/old/. ./_site/old/
+          cp -R ./_legacy_site/assets ./_site/old/assets
+          find ./_site/old -type f \( -name '*.html' -o -name '*.css' \) -exec sed -i \
+            -e 's#="/assets/#="/old/assets/#g' \
+            -e "s#='/assets/#='/old/assets/#g" \
+            -e "s#url('/assets/#url('/old/assets/#g" \
+            {} +
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 

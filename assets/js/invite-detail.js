@@ -46,18 +46,8 @@
       return value ? '<div class="invite-markdown">' + window.TZInvites.renderMarkdown(value) + '</div>' : '<span class="invite-empty">—</span>';
     }
 
-    function infoRow(label, value) {
-      if (!value) return '';
-      return '<div class="invite-table__row"><strong>' + window.TZInvites.escapeHtml(label) + '</strong><div>' + window.TZInvites.escapeHtml(value) + '</div></div>';
-    }
-
-    function markdownRow(label, value) {
-      if (!value) return '';
-      return '<div class="invite-table__row invite-table__row--markdown"><strong>' + window.TZInvites.escapeHtml(label) + '</strong><div>' + markdown(value) + '</div></div>';
-    }
-
-    function formField(label, name, value, required, placeholder, type) {
-      return '<label class="invite-form-field"><span>' + window.TZInvites.escapeHtml(label) + ' ' + (required ? '<b>*</b>' : '<small>OPTIONAL</small>') + '</span><input name="' + window.TZInvites.escapeAttribute(name) + '" type="' + window.TZInvites.escapeAttribute(type || 'text') + '" value="' + window.TZInvites.escapeAttribute(value || '') + '" placeholder="' + window.TZInvites.escapeAttribute(placeholder || '') + '"><em data-error="' + window.TZInvites.escapeAttribute(name) + '"></em></label>';
+    function formField(label, name, value, placeholder, type, autocomplete) {
+      return '<label class="invite-form-field"><span>' + window.TZInvites.escapeHtml(label) + ' *</span><input name="' + window.TZInvites.escapeAttribute(name) + '" type="' + window.TZInvites.escapeAttribute(type || 'text') + '" value="' + window.TZInvites.escapeAttribute(value || '') + '" placeholder="' + window.TZInvites.escapeAttribute(placeholder || '') + '" autocomplete="' + window.TZInvites.escapeAttribute(autocomplete || '') + '" aria-required="true"><em data-error="' + window.TZInvites.escapeAttribute(name) + '"></em></label>';
     }
 
     function ticketRows(event) {
@@ -67,8 +57,9 @@
 
       return event.ticketTypes.map(function (ticket) {
         return '<div class="invite-ticket-row" data-ticket-id="' + window.TZInvites.escapeAttribute(ticket.id) + '">' +
-          '<div><strong>' + window.TZInvites.escapeHtml(ticket.name) + '</strong>' + (ticket.descriptionMarkdown ? '<div class="invite-markdown">' + window.TZInvites.renderMarkdown(ticket.descriptionMarkdown) + '</div>' : '') + '</div>' +
-          '<div class="invite-ticket-row__side"><span>' + window.TZInvites.escapeHtml(ticket.price) + '</span><div class="invite-counter"><button type="button" data-action="minus" data-id="' + window.TZInvites.escapeAttribute(ticket.id) + '" aria-label="Remove ' + window.TZInvites.escapeAttribute(ticket.name) + '" disabled>−</button><output data-count="' + window.TZInvites.escapeAttribute(ticket.id) + '">0</output><button type="button" data-action="plus" data-id="' + window.TZInvites.escapeAttribute(ticket.id) + '" aria-label="Add ' + window.TZInvites.escapeAttribute(ticket.name) + '"' + (ticket.max < 1 ? ' disabled' : '') + '>+</button></div><small>MAX ' + ticket.max + '</small></div>' +
+          '<div class="invite-ticket-row__type"><strong>' + window.TZInvites.escapeHtml(ticket.name) + '</strong>' + (ticket.descriptionMarkdown ? '<div class="invite-markdown">' + window.TZInvites.renderMarkdown(ticket.descriptionMarkdown) + '</div>' : '') + '<small>UP TO ' + ticket.max + ' PER RESERVATION</small></div>' +
+          '<span class="invite-ticket-row__price">' + window.TZInvites.escapeHtml(ticket.price) + '</span>' +
+          '<div class="invite-counter"><button type="button" data-action="minus" data-id="' + window.TZInvites.escapeAttribute(ticket.id) + '" aria-label="Remove ' + window.TZInvites.escapeAttribute(ticket.name) + '" disabled>&minus;</button><output data-count="' + window.TZInvites.escapeAttribute(ticket.id) + '">0</output><button type="button" data-action="plus" data-id="' + window.TZInvites.escapeAttribute(ticket.id) + '" aria-label="Add ' + window.TZInvites.escapeAttribute(ticket.name) + '"' + (ticket.max < 1 ? ' disabled' : '') + '>+</button></div>' +
         '</div>';
       }).join('');
     }
@@ -78,6 +69,20 @@
       var hero = event.heroImage
         ? '<img class="invite-hero__image" src="' + window.TZInvites.escapeAttribute(event.heroImage) + '" alt="" loading="eager">'
         : '<div class="invite-hero__placeholder">INVITE</div>';
+      var eventTime = event.startTime + (event.endTime ? ' — ' + event.endTime : '');
+      var summary = [event.introMarkdown, event.detailsMarkdown].filter(Boolean).join('\n\n');
+      var reservation = isOpen && event.ticketTypes.length
+        ? '<div class="invite-ticket-table"><div class="invite-ticket-table__head" aria-hidden="true"><span>ACCESS</span><span>PRICE</span><span>QUANTITY</span></div>' + ticketRows(event) + '</div>' +
+          '<form class="invite-details-form" novalidate>' +
+            '<div class="invite-form-heading"><p class="invite-kicker">YOUR DETAILS</p><p>Only what we need to hold your spot.</p></div>' +
+            '<div class="invite-form-grid">' +
+              formField('First name', 'firstName', '', 'Jana', 'text', 'given-name') +
+              formField('Last name', 'lastName', '', 'Franck', 'text', 'family-name') +
+              formField('Email', 'email', '', 'jana@example.com', 'email', 'email') +
+            '</div>' +
+            '<div class="invite-reservation-footer"><span><small>TOTAL</small><b data-total>0 tickets</b></span><button class="invite-button" type="submit" disabled>Review reservation →</button></div>' +
+          '</form>'
+        : '<p class="invite-reservation__closed">' + (isOpen ? 'Tickets are not available yet.' : 'Reservations are closed.') + '</p>';
       var counts = {};
 
       event.ticketTypes.forEach(function (ticket) { counts[ticket.id] = 0; });
@@ -85,38 +90,19 @@
       container.innerHTML =
         '<div class="invite-combined">' +
           '<header class="invite-hero">' +
-            '<div class="invite-hero__copy"><p class="invite-kicker">INVITE</p><h1>' + window.TZInvites.escapeHtml(event.title) + '</h1><p class="invite-hero__date">' + window.TZInvites.escapeHtml(event.dateLabel || event.dateIso) + '</p></div>' +
+            '<div class="invite-hero__copy"><p class="invite-kicker">INVITE</p><h1 id="invite-title">' + window.TZInvites.escapeHtml(event.title) + '</h1>' +
+              '<dl class="invite-essentials">' +
+                '<div><dt>WHEN</dt><dd>' + window.TZInvites.escapeHtml(event.dateLabel || event.dateIso) + '<br><span>' + window.TZInvites.escapeHtml(eventTime) + '</span></dd></div>' +
+                '<div><dt>WHERE</dt><dd>' + window.TZInvites.escapeHtml(event.location) + (event.address && event.address !== event.location ? '<br><span>' + window.TZInvites.escapeHtml(event.address) + '</span>' : '') + '</dd></div>' +
+              '</dl>' + (event.inviteOnly ? '<p class="invite-access">INVITE ONLY</p>' : '') + '</div>' +
             '<div class="invite-hero__media">' + hero + '</div>' +
           '</header>' +
-          '<section class="invite-info-block" aria-labelledby="invite-general-information"><p class="invite-kicker">GENERAL INFORMATION</p><div class="invite-table" id="invite-general-information">' +
-            infoRow('Date', event.dateLabel || event.dateIso) +
-            infoRow('Time', event.startTime + (event.endTime ? ' — ' + event.endTime : '')) +
-            infoRow('Location', event.location) +
-            infoRow('Address', event.address) +
-            infoRow('Invite', event.inviteOnly ? 'Invite only' : 'Open invitation') +
-          '</div></section>' +
-          '<section class="invite-info-block" aria-labelledby="invite-description"><p class="invite-kicker">INFORMATION</p><div class="invite-table" id="invite-description">' +
-            markdownRow('Brief', event.introMarkdown) +
-            markdownRow('Details', event.detailsMarkdown) +
-            markdownRow('Programme', event.programmeMarkdown) +
-            markdownRow('Practical', event.practicalMarkdown) +
-          '</div></section>' +
-          '<section class="invite-info-block invite-reservation" aria-labelledby="invite-reservation-title"><p class="invite-kicker">RESERVATION</p><h2 id="invite-reservation-title">Reserve your place</h2>' +
-            '<div class="invite-table invite-ticket-table">' + ticketRows(event) + '</div>' +
-            '<form class="invite-details-form" novalidate>' +
-              formField('First name', 'firstName', '', true, 'Jana') +
-              formField('Last name', 'lastName', '', true, 'Franck') +
-              formField('Email address', 'email', '', false, 'jana@example.com', 'email') +
-              formField('City', 'city', '', false, 'Amsterdam') +
-              formField('Date of birth', 'dateOfBirth', '', false, '', 'date') +
-              '<label class="invite-form-field"><span>Notes <small>OPTIONAL</small></span><textarea name="notes" rows="4" placeholder="Anything we should know?"></textarea><em data-error="notes"></em></label>' +
-              '<div class="invite-reservation-footer"><span><small>TOTAL</small><b data-total>0 tickets</b></span><button class="invite-button" type="submit"' + (!isOpen || !event.ticketTypes.length ? ' disabled' : '') + '>' + (isOpen ? 'Continue / reserve →' : 'Reservations closed') + '</button></div>' +
-            '</form>' +
+          (summary ? '<section class="invite-brief" aria-labelledby="invite-about"><p class="invite-kicker" id="invite-about">ABOUT</p><div class="invite-brief__copy">' + markdown(summary) + '</div></section>' : '') +
+          '<section class="invite-reservation" aria-labelledby="invite-reservation-title"><header class="invite-reservation__heading"><p class="invite-kicker">TICKETS</p><h2 id="invite-reservation-title">Reserve your place.</h2></header>' + reservation +
           '</section>' +
-        '</div>' +
-        '<footer class="invite-outro"><img src="/assets/img/black-white-perspective-grid-background-vector.jpg" alt="Black-and-white perspective grid artwork"><div class="collection-captions"><p>a carefully curated<br>collection of experiences</p><p>Stan Brouwer<br>vol. 001</p></div></footer>';
+        '</div>';
 
-      if (!event.ticketTypes.length) return;
+      if (!isOpen || !event.ticketTypes.length) return;
 
       var ticketTable = container.querySelector('.invite-ticket-table');
       ticketTable.addEventListener('click', function (clickEvent) {
@@ -137,7 +123,7 @@
         var details = Object.fromEntries(new FormData(form).entries());
         var valid = total > 0;
 
-        ['firstName', 'lastName'].forEach(function (name) {
+        ['firstName', 'lastName', 'email'].forEach(function (name) {
           var field = form.elements[name];
           var error = form.querySelector('[data-error="' + name + '"]');
           if (!field.value.trim()) {
@@ -159,11 +145,11 @@
 
         sessionStorage.setItem('tz_event', JSON.stringify(event));
         sessionStorage.setItem('tz_selection', JSON.stringify(event.ticketTypes.filter(function (ticket) { return counts[ticket.id] > 0; }).map(function (ticket) {
-          return { id: ticket.id, name: ticket.name, price: ticket.price, count: counts[ticket.id] };
+          return { id: ticket.id, name: ticket.name, descriptionMarkdown: ticket.descriptionMarkdown, price: ticket.price, max: ticket.max, count: counts[ticket.id] };
         })));
         sessionStorage.setItem('tz_details', JSON.stringify(details));
-        sessionStorage.setItem('tz_confirmed', JSON.stringify({ event: event, selection: JSON.parse(sessionStorage.getItem('tz_selection')), details: details, orderId: 'ORD-' + Date.now().toString(36).toUpperCase(), timestamp: new Date().toISOString() }));
-        window.location.href = '/tickets/confirmation/';
+        sessionStorage.removeItem('tz_confirmed');
+        window.location.href = '/tickets/overview/';
       });
     }
 
@@ -181,6 +167,7 @@
     function updateTotal(container, counts) {
       var total = Object.keys(counts).reduce(function (sum, id) { return sum + counts[id]; }, 0);
       container.querySelector('[data-total]').textContent = total + (total === 1 ? ' ticket' : ' tickets');
+      container.querySelector('.invite-reservation-footer .invite-button').disabled = total < 1;
     }
   });
 })();

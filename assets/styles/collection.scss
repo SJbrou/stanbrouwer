@@ -1440,3 +1440,457 @@ main.collection.collection--ticketing .invite-ticket-status {
     grid-template-columns: 6.5rem minmax(0, 1fr);
   }
 }
+
+/* Editorial invite and reservation flow */
+.invite-page {
+  width: 100%;
+  padding: 0.01px 0 0;
+}
+
+.invite-poster {
+  position: relative;
+  z-index: 1;
+  width: 66.6667vw;
+  margin: clamp(0.75rem, 2vw, 1.5rem) auto -9.5rem;
+  overflow: hidden;
+}
+
+.invite-poster > .invite-back-link {
+  min-height: 2.5rem;
+  padding: 0.7rem var(--collection-inset) 0.55rem;
+}
+
+.invite-button {
+  font-family: inherit;
+  letter-spacing: -0.04em;
+}
+
+.invite-button:disabled,
+.invite-button:disabled:hover {
+  cursor: not-allowed;
+  background: var(--collection-ink);
+  color: var(--collection-paper);
+  opacity: 0.35;
+}
+
+.invite-content {
+  border: 0;
+}
+
+.invite-combined .invite-hero {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  min-height: clamp(28rem, 48vw, 46rem);
+}
+
+.invite-combined .invite-hero__copy {
+  justify-content: flex-start;
+  padding: clamp(1.25rem, 3vw, 2.6rem);
+}
+
+.invite-combined .invite-hero h1 {
+  max-width: 9ch;
+  margin: auto 0;
+  font-size: clamp(3rem, 6vw, 6.6rem);
+  line-height: 0.85;
+}
+
+.invite-essentials {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 2rem 0 0;
+  padding: 0.65rem 0 0;
+  border-top: var(--collection-line) solid var(--collection-ink);
+}
+
+.invite-essentials div {
+  min-width: 0;
+}
+
+.invite-essentials dt,
+.invite-essentials dd {
+  margin: 0;
+  font-size: clamp(0.66rem, 0.9vw, 0.82rem);
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+}
+
+.invite-essentials dt {
+  margin-bottom: 0.45rem;
+  opacity: 0.5;
+}
+
+.invite-essentials dd span {
+  opacity: 0.58;
+}
+
+.invite-access {
+  align-self: flex-start;
+  margin: 0.9rem 0 0;
+  padding: 0.25rem 0.35rem;
+  border: var(--collection-line) solid var(--collection-ink);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+}
+
+.invite-brief {
+  display: grid;
+  grid-template-columns: minmax(7rem, 0.55fr) minmax(0, 1.45fr);
+  gap: clamp(2rem, 6vw, 7rem);
+  padding: clamp(3rem, 7vw, 7rem) clamp(1.25rem, 3vw, 2.6rem);
+  border-bottom: var(--collection-line) solid var(--collection-ink);
+}
+
+.invite-brief__copy .invite-markdown {
+  max-width: 34rem;
+}
+
+.invite-brief__copy .invite-markdown p {
+  margin: 0 0 1rem;
+  font-size: clamp(1.05rem, 1.7vw, 1.55rem);
+  line-height: 1.12;
+  letter-spacing: -0.055em;
+}
+
+.invite-brief__copy .invite-markdown p:last-child {
+  margin-bottom: 0;
+}
+
+.invite-reservation {
+  padding: 0;
+}
+
+.invite-reservation__heading {
+  padding: clamp(2.5rem, 6vw, 5.5rem) clamp(1.25rem, 3vw, 2.6rem) clamp(2rem, 4vw, 3.5rem);
+}
+
+.invite-reservation__heading h2 {
+  max-width: 11ch;
+  margin: clamp(2rem, 5vw, 5rem) 0 0;
+  font-size: clamp(2.6rem, 5.5vw, 6rem);
+  font-weight: 500;
+  line-height: 0.88;
+  letter-spacing: -0.09em;
+}
+
+.invite-ticket-table {
+  border-top: var(--collection-line) solid var(--collection-ink);
+}
+
+.invite-ticket-row {
+  min-height: 5.5rem;
+  align-items: center;
+  padding: 1rem clamp(1.25rem, 3vw, 2.6rem);
+}
+
+.invite-ticket-row > div:first-child > small {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.62rem;
+  opacity: 0.5;
+}
+
+.invite-ticket-row__side {
+  flex-direction: row;
+  align-items: center;
+  gap: clamp(0.8rem, 2vw, 1.5rem);
+  min-width: 0;
+}
+
+.invite-ticket-row__side > span {
+  font-size: clamp(0.75rem, 1vw, 0.9rem);
+}
+
+.invite-counter button,
+.invite-counter output {
+  width: 2rem;
+  height: 2rem;
+}
+
+.invite-details-form {
+  margin-top: 0;
+}
+
+.invite-form-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem clamp(1.25rem, 3vw, 2.6rem);
+}
+
+.invite-form-heading > p:last-child {
+  margin: 0;
+  font-size: clamp(0.66rem, 0.9vw, 0.82rem);
+  letter-spacing: -0.035em;
+  opacity: 0.55;
+}
+
+.invite-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: var(--collection-line) solid var(--collection-ink);
+}
+
+.invite-details-form .invite-form-field {
+  display: block;
+  min-width: 0;
+  padding: 1rem clamp(1.25rem, 3vw, 2.6rem);
+  border-right: var(--collection-line) solid var(--collection-ink);
+  border-bottom: var(--collection-line) solid var(--collection-ink);
+}
+
+.invite-details-form .invite-form-field:nth-child(2) {
+  border-right: 0;
+}
+
+.invite-details-form .invite-form-field:last-child {
+  grid-column: 1 / -1;
+  border-right: 0;
+}
+
+.invite-form-field > span {
+  display: block;
+  margin-bottom: 0.8rem;
+  font-size: clamp(0.66rem, 0.9vw, 0.82rem);
+  letter-spacing: -0.035em;
+}
+
+.invite-form-field input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.45rem 0;
+  border: 0;
+  border-bottom: var(--collection-line) solid var(--collection-ink);
+  border-radius: 0;
+  outline: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+  letter-spacing: -0.04em;
+}
+
+.invite-form-field input:focus {
+  background: var(--collection-surround);
+}
+
+.invite-form-field input.has-error {
+  border-bottom-color: #9b0000;
+}
+
+.invite-form-field em {
+  display: block;
+  min-height: 0.9rem;
+  padding-top: 0.25rem;
+  color: #9b0000;
+  font-size: 0.62rem;
+  font-style: normal;
+  letter-spacing: -0.025em;
+}
+
+.invite-reservation-footer {
+  align-items: center;
+  padding: 1.25rem clamp(1.25rem, 3vw, 2.6rem) 2rem;
+}
+
+.invite-reservation__closed {
+  margin: 0;
+  padding: 1.4rem clamp(1.25rem, 3vw, 2.6rem) 3rem;
+  border-top: var(--collection-line) solid var(--collection-ink);
+  font-size: clamp(0.8rem, 1vw, 0.95rem);
+  letter-spacing: -0.035em;
+}
+
+.invite-outro {
+  position: relative;
+  z-index: 0;
+  border: 0;
+  background: transparent;
+}
+
+.invite-outro .collection-captions--outro {
+  padding: 0.65rem calc(0.5rem + var(--collection-line) + var(--collection-inset)) 1.25rem;
+}
+
+@media (min-width: 40rem) {
+  .invite-outro .collection-captions--outro {
+    padding-right: calc(5vw + var(--collection-line) + var(--collection-inset));
+    padding-left: calc(5vw + var(--collection-line) + var(--collection-inset));
+  }
+}
+
+@media (min-width: 48rem) {
+  .invite-outro .collection-captions--outro {
+    padding-right: calc(16.6667vw + var(--collection-line) + var(--collection-inset));
+    padding-left: calc(16.6667vw + var(--collection-line) + var(--collection-inset));
+  }
+}
+
+@media (max-width: 720px) {
+  .invite-poster {
+    width: 100%;
+    margin-top: 0;
+    margin-bottom: -4.5rem;
+  }
+
+  .invite-combined .invite-hero {
+    min-height: 0;
+  }
+
+  .invite-combined .invite-hero__media {
+    min-height: 58vw;
+  }
+
+  .invite-combined .invite-hero__copy {
+    min-height: 25rem;
+  }
+
+  .invite-combined .invite-hero h1 {
+    font-size: clamp(3rem, 15vw, 5rem);
+  }
+
+  .invite-brief {
+    display: block;
+  }
+
+  .invite-brief > .invite-kicker {
+    margin-bottom: 3rem;
+  }
+
+  .invite-ticket-row {
+    display: block;
+    position: relative;
+    min-height: 5rem;
+    padding-right: 10rem;
+  }
+
+  .invite-ticket-row__side {
+    position: absolute;
+    right: clamp(1.25rem, 3vw, 2.6rem);
+    bottom: 1rem;
+    width: auto;
+    justify-content: flex-end;
+  }
+
+  .invite-form-heading {
+    display: block;
+  }
+
+  .invite-form-heading > p:last-child {
+    margin-top: 0.55rem;
+  }
+
+  .invite-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .invite-details-form .invite-form-field,
+  .invite-details-form .invite-form-field:nth-child(2) {
+    grid-column: auto;
+    border-right: 0;
+  }
+
+  .invite-reservation-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .invite-reservation-footer .invite-button {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* Clear column structure for ticket selection. */
+.invite-ticket-table__head,
+.invite-ticket-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(5rem, 8rem) auto;
+  gap: clamp(0.8rem, 2vw, 1.5rem);
+  align-items: center;
+}
+
+.invite-ticket-table__head {
+  padding: 0.6rem clamp(1.25rem, 3vw, 2.6rem);
+  border-bottom: var(--collection-line) solid var(--collection-ink);
+  font-size: clamp(0.58rem, 0.8vw, 0.68rem);
+  letter-spacing: 0.04em;
+  opacity: 0.5;
+}
+
+.invite-ticket-table__head span:nth-child(2),
+.invite-ticket-row__price {
+  text-align: right;
+}
+
+.invite-ticket-table__head span:last-child {
+  min-width: 6rem;
+  text-align: center;
+}
+
+.invite-ticket-row__type {
+  min-width: 0;
+}
+
+.invite-ticket-row__type .invite-markdown {
+  max-width: 32rem;
+  margin-top: 0.45rem;
+  opacity: 0.7;
+}
+
+.invite-ticket-row__type > small {
+  display: block;
+  margin-top: 0.6rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.025em;
+  opacity: 0.48;
+}
+
+.invite-ticket-row__price {
+  font-size: clamp(0.72rem, 1vw, 0.9rem);
+}
+
+@media (max-width: 720px) {
+  .invite-ticket-table__head {
+    display: none;
+  }
+
+  .invite-ticket-row {
+    position: static;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    min-height: 0;
+    padding: 1.1rem clamp(1.25rem, 3vw, 2.6rem);
+  }
+
+  .invite-ticket-row__type {
+    grid-column: 1 / -1;
+    margin-bottom: 0.4rem;
+  }
+
+  .invite-ticket-row__price,
+  .invite-ticket-row > .invite-counter {
+    display: flex;
+    position: relative;
+    width: auto;
+    margin-top: 1rem;
+    align-items: center;
+  }
+
+  .invite-ticket-row__price::before,
+  .invite-ticket-row > .invite-counter::before {
+    position: absolute;
+    bottom: calc(100% + 0.3rem);
+    left: 0;
+    content: "PRICE";
+    font-size: 0.56rem;
+    letter-spacing: 0.04em;
+    opacity: 0.48;
+  }
+
+  .invite-ticket-row > .invite-counter::before {
+    content: "QUANTITY";
+  }
+}

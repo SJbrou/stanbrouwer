@@ -1,0 +1,23 @@
+title: Stan Brouwer
+url: "https://www.stanbrouwer.com"
+
+# This source is built separately into the active site's /old directory.
+# Keep archived pages and posts available without participating in the active
+# site's routes, layouts, data, or assets.
+include:
+  - _pages
+
+permalink: /old/:year/:month/:day/:title.html
+
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+exclude:
+  - .github
+  - bin
+  - node_modules
+  - package.json
+  - package-lock.json
+  - README.md

@@ -6,161 +6,123 @@
     if (!app || !window.TZInvites) return;
 
     var step = app.getAttribute('data-ticket-step');
-    if (step === 'tickets') renderTickets(app);
     if (step === 'details') renderDetails(app);
     if (step === 'overview') renderOverview(app);
     if (step === 'confirmation') renderConfirmation(app);
   });
 
   function esc(value) {
-    return window.TZInvites.escapeHtml(value);
+    return window.TZInvites.escapeHtml(value == null ? '' : value);
   }
 
   function attr(value) {
-    return window.TZInvites.escapeAttribute(value);
+    return window.TZInvites.escapeAttribute(value == null ? '' : value);
   }
 
-  function eventHeader(event) {
-    return '<div class="invite-ticket-event-header">' +
-      (event.heroImage ? '<img class="invite-ticket-event-header__image" src="' + attr(event.heroImage) + '" alt="">' : '<div class="invite-ticket-event-header__image invite-ticket-event-header__image--empty">INVITE</div>') +
-      '<div class="invite-ticket-event-header__copy">' +
-        '<p class="invite-kicker">INVITE</p>' +
-        '<h1>' + esc(event.title) + '</h1>' +
-        '<p>' + esc(event.dateLabel || event.dateIso) + ' / ' + esc(event.startTime + (event.endTime ? ' — ' + event.endTime : '')) + '</p>' +
-        '<p>' + esc(event.location) + '</p>' +
-      '</div>' +
-    '</div>';
+  function eventChrome(event, activeStep) {
+    var eventUrl = '/invites/?event=' + encodeURIComponent(event.id);
+    var eventTime = event.startTime + (event.endTime ? ' &mdash; ' + event.endTime : '');
+    var media = event.heroImage
+      ? '<img class="ticket-event-header__image" src="' + attr(event.heroImage) + '" alt="">'
+      : '<div class="ticket-event-header__image ticket-event-header__image--empty">INVITE</div>';
+
+    return '<a class="invite-back-link ticket-back-link" href="' + eventUrl + '">Back to invite</a>' +
+      '<header class="ticket-event-header">' +
+        '<div class="ticket-event-header__copy">' +
+          '<p class="invite-kicker">RESERVATION</p>' +
+          '<h1>' + esc(event.title) + '</h1>' +
+          '<dl class="ticket-event-meta">' +
+            '<div><dt>WHEN</dt><dd>' + esc(event.dateLabel || event.dateIso) + '<br><span>' + eventTime + '</span></dd></div>' +
+            '<div><dt>WHERE</dt><dd>' + esc(event.location) + (event.address && event.address !== event.location ? '<br><span>' + esc(event.address) + '</span>' : '') + '</dd></div>' +
+          '</dl>' +
+        '</div>' + media +
+      '</header>' + progress(activeStep);
   }
 
-  function steps(active) {
-    var names = ['Tickets', 'Details', 'Overview'];
-    return '<nav class="invite-ticket-steps" aria-label="Reservation progress">' + names.map(function (name, index) {
-      var number = index + 1;
-      var state = number < active ? ' is-done' : (number === active ? ' is-active' : '');
-      return '<span class="invite-ticket-step' + state + '"><b>' + (number < active ? '✓' : number) + '</b>' + name + '</span>' + (number < 3 ? '<span class="invite-ticket-step__line"></span>' : '');
-    }).join('') + '</nav>';
+  function progress(active) {
+    var names = ['Details', 'Review', 'Done'];
+    return '<nav class="ticket-progress" aria-label="Reservation progress"><ol>' + names.map(function (name, index) {
+      var step = index + 1;
+      var state = step < active ? ' is-complete' : (step === active ? ' is-current' : '');
+      var current = step === active ? ' aria-current="step"' : '';
+      return '<li class="ticket-progress__step' + state + '"' + current + '><span>0' + step + '</span><b>' + esc(name) + '</b></li>';
+    }).join('') + '</ol></nav>';
   }
 
   function status(container, message, href) {
-    container.innerHTML = '<div class="invite-ticket-status"><p>' + esc(message) + '</p><a class="invite-button" href="' + attr(href || '/invites/') + '">Back to invites</a></div>';
+    container.innerHTML = '<section class="ticket-status"><p class="invite-kicker">RESERVATION</p><h1>Nothing to review.</h1><p>' + esc(message) + '</p><a class="invite-button" href="' + attr(href || '/invites/') + '">Back to invites</a></section>';
   }
 
-  function loadEvent(eventId) {
-    return window.TZInvites.load().then(function (events) {
-      return events.find(function (event) {
-        return event.id === eventId && event.publish;
-      });
-    });
+  function sectionHeading(kicker, title, copy, id) {
+    return '<header class="ticket-section-heading">' +
+      '<p class="invite-kicker">' + esc(kicker) + '</p>' +
+      '<h2' + (id ? ' id="' + attr(id) + '"' : '') + '>' + esc(title) + '</h2>' +
+      (copy ? '<p class="ticket-section-heading__copy">' + esc(copy) + '</p>' : '') +
+    '</header>';
   }
 
-  function renderTickets(app) {
-    var eventId = new URLSearchParams(window.location.search).get('event');
-    if (!eventId) {
-      status(app, 'Choose an invite before reserving tickets.');
-      return;
-    }
-
-    loadEvent(eventId).then(function (event) {
-      if (!event) {
-        status(app, 'Event not found.');
-        return;
-      }
-      if (!window.TZInvites.isTicketingOpen(event)) {
-        status(app, 'Ticket sales have closed for this event.');
-        return;
-      }
-      if (!event.ticketTypes.length) {
-        status(app, 'Tickets are not available for this event yet.');
-        return;
-      }
-
-      sessionStorage.setItem('tz_event', JSON.stringify(event));
-      sessionStorage.removeItem('tz_selection');
-      sessionStorage.removeItem('tz_details');
-      var counts = {};
-      event.ticketTypes.forEach(function (ticket) { counts[ticket.id] = 0; });
-
-      app.innerHTML = eventHeader(event) + steps(1) +
-        '<section class="invite-ticket-panel" aria-labelledby="ticket-selection-title">' +
-          '<div class="invite-ticket-panel__intro"><p class="invite-kicker">SELECT YOUR ACCESS</p><h2 id="ticket-selection-title">Tickets</h2></div>' +
-          '<div class="invite-selection-list">' + event.ticketTypes.map(function (ticket) {
-            return '<div class="invite-selection-row" data-ticket-id="' + attr(ticket.id) + '">' +
-              '<div class="invite-selection-row__info"><h3>' + esc(ticket.name) + '</h3>' +
-              (ticket.descriptionMarkdown ? '<div class="invite-markdown">' + window.TZInvites.renderMarkdown(ticket.descriptionMarkdown) + '</div>' : '') +
-              '<span class="invite-selection-row__limit">Maximum ' + ticket.max + ' per reservation</span></div>' +
-              '<div class="invite-selection-row__side"><span>' + esc(ticket.price) + '</span><div class="invite-counter"><button type="button" data-action="minus" data-id="' + attr(ticket.id) + '" aria-label="Remove ' + attr(ticket.name) + '" disabled>−</button><output data-count="' + attr(ticket.id) + '">0</output><button type="button" data-action="plus" data-id="' + attr(ticket.id) + '" aria-label="Add ' + attr(ticket.name) + '"' + (ticket.max < 1 ? ' disabled' : '') + '>+</button></div></div>' +
-            '</div>';
-          }).join('') + '</div>' +
-          '<div class="invite-ticket-footer"><span><small>TOTAL</small><b data-total>0 tickets</b></span><button class="invite-button" type="button" data-continue disabled>Continue →</button></div>' +
-        '</section>';
-
-      app.querySelector('.invite-selection-list').addEventListener('click', function (clickEvent) {
-        var button = clickEvent.target.closest('button[data-action]');
-        if (!button) return;
-        var id = button.getAttribute('data-id');
-        var ticket = event.ticketTypes.find(function (candidate) { return candidate.id === id; });
-        if (!ticket) return;
-        counts[id] = Math.max(0, Math.min(ticket.max, counts[id] + (button.getAttribute('data-action') === 'plus' ? 1 : -1)));
-        updateTicketRow(app, id, counts[id], ticket.max);
-        updateTicketTotal(app, counts);
-      });
-
-      app.querySelector('[data-continue]').addEventListener('click', function () {
-        var selection = event.ticketTypes.filter(function (ticket) { return counts[ticket.id] > 0; }).map(function (ticket) {
-          return { id: ticket.id, name: ticket.name, price: ticket.price, count: counts[ticket.id] };
-        });
-        if (!selection.length) return;
-        sessionStorage.setItem('tz_selection', JSON.stringify(selection));
-        window.location.href = '/tickets/details/';
-      });
-    }).catch(function (error) {
-      console.warn('Ticket selection load failed:', error);
-      status(app, 'Ticket information is currently unavailable.');
-    });
+  function selectionTable(selection, caption) {
+    return '<div class="ticket-table-wrap"><table class="ticket-table">' +
+      '<caption>' + esc(caption || 'Selected tickets') + '</caption>' +
+      '<thead><tr><th scope="col">ACCESS</th><th scope="col">QUANTITY</th><th scope="col">UNIT PRICE</th></tr></thead>' +
+      '<tbody>' + selection.map(function (ticket) {
+        var description = ticket.descriptionMarkdown
+          ? '<div class="ticket-table__description">' + window.TZInvites.renderMarkdown(ticket.descriptionMarkdown) + '</div>'
+          : '';
+        var limit = ticket.max ? '<small>UP TO ' + esc(ticket.max) + ' PER RESERVATION</small>' : '';
+        return '<tr><th scope="row"><strong>' + esc(ticket.name) + '</strong>' + description + limit + '</th>' +
+          '<td data-label="Quantity">&times; ' + esc(ticket.count) + '</td>' +
+          '<td data-label="Unit price">' + esc(ticket.price) + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
   }
 
-  function updateTicketRow(app, id, count, max) {
-    var row = app.querySelector('[data-ticket-id="' + CSS.escape(id) + '"]');
-    if (!row) return;
-    row.querySelector('[data-count="' + CSS.escape(id) + '"]').textContent = count;
-    row.querySelector('[data-action="minus"]').disabled = count < 1;
-    row.querySelector('[data-action="plus"]').disabled = count >= max;
-    row.classList.toggle('is-selected', count > 0);
+  function facts(title, rows) {
+    return '<section class="ticket-facts-block"><h3>' + esc(title) + '</h3><dl class="ticket-facts">' + rows.filter(function (row) {
+      return row[1];
+    }).map(function (row) {
+      return '<div><dt>' + esc(row[0]) + '</dt><dd>' + esc(row[1]) + '</dd></div>';
+    }).join('') + '</dl></section>';
   }
 
-  function updateTicketTotal(app, counts) {
-    var total = Object.keys(counts).reduce(function (sum, id) { return sum + counts[id]; }, 0);
-    app.querySelector('[data-total]').textContent = total + (total === 1 ? ' ticket' : ' tickets');
-    app.querySelector('[data-continue]').disabled = total < 1;
+  function eventFactRows(event) {
+    return [
+      ['Date', event.dateLabel || event.dateIso],
+      ['Time', event.startTime + (event.endTime ? ' - ' + event.endTime : '')],
+      ['Location', event.location],
+      ['Address', event.address && event.address !== event.location ? event.address : '']
+    ];
   }
 
   function renderDetails(app) {
     var event = readSession('tz_event');
     var selection = readSession('tz_selection');
-    if (!event || !selection) {
-      status(app, 'No active reservation.');
+    if (!event || !selection || !selection.length) {
+      status(app, 'Start from an invite and choose at least one ticket.');
       return;
     }
 
     var saved = readSession('tz_details') || {};
-    app.innerHTML = eventHeader(event) + steps(2) +
-      '<section class="invite-ticket-panel invite-ticket-panel--form"><div class="invite-ticket-panel__intro"><p class="invite-kicker">YOUR DETAILS</p><h2>Reservation details</h2></div>' +
-      '<form class="invite-details-form" novalidate>' +
-        formField('First name', 'firstName', saved.firstName || '', true, 'Jana') +
-        formField('Last name', 'lastName', saved.lastName || '', true, 'Franck') +
-        formField('Email address', 'email', saved.email || '', false, 'jana@example.com', 'email') +
-        formField('City', 'city', saved.city || '', false, 'Amsterdam') +
-        formField('Date of birth', 'dateOfBirth', saved.dateOfBirth || '', false, '', 'date') +
-        '<label class="invite-form-field"><span>Notes <small>OPTIONAL</small></span><textarea name="notes" rows="4" placeholder="Anything we should know?">' + esc(saved.notes || '') + '</textarea><em data-error="notes"></em></label>' +
-        '<div class="invite-ticket-footer"><a class="invite-back-link" href="/tickets/?event=' + encodeURIComponent(event.id) + '">← Back to tickets</a><button class="invite-button" type="submit">Continue →</button></div>' +
-      '</form></section>';
+    app.innerHTML = eventChrome(event, 1) +
+      '<section class="ticket-flow-section" aria-labelledby="ticket-details-title">' +
+        sectionHeading('01 / DETAILS', 'Who is joining?', 'Only the essentials, so we can hold your place.', 'ticket-details-title') +
+        selectionTable(selection, 'Your ticket selection') +
+        '<form class="ticket-details-form" novalidate>' +
+          '<div class="ticket-form-grid">' +
+            formField('First name', 'firstName', saved.firstName || '', 'Jana', 'text', 'given-name') +
+            formField('Last name', 'lastName', saved.lastName || '', 'Franck', 'text', 'family-name') +
+            formField('Email', 'email', saved.email || '', 'jana@example.com', 'email', 'email') +
+          '</div>' +
+          '<div class="ticket-flow-footer"><a class="invite-back-link" href="/invites/?event=' + encodeURIComponent(event.id) + '">Back to tickets</a><button class="invite-button" type="submit">Review reservation &rarr;</button></div>' +
+        '</form>' +
+      '</section>';
 
     app.querySelector('form').addEventListener('submit', function (submitEvent) {
       submitEvent.preventDefault();
       var form = submitEvent.currentTarget;
       var details = Object.fromEntries(new FormData(form).entries());
       var valid = true;
-      ['firstName', 'lastName'].forEach(function (name) {
+
+      ['firstName', 'lastName', 'email'].forEach(function (name) {
         var field = form.elements[name];
         var error = form.querySelector('[data-error="' + name + '"]');
         if (!field.value.trim()) {
@@ -172,54 +134,86 @@
           field.classList.remove('has-error');
         }
       });
+
       if (details.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email)) {
         form.elements.email.classList.add('has-error');
         form.querySelector('[data-error="email"]').textContent = 'Enter a valid email';
         valid = false;
       }
       if (!valid) return;
+
       sessionStorage.setItem('tz_details', JSON.stringify(details));
       window.location.href = '/tickets/overview/';
     });
   }
 
-  function formField(label, name, value, required, placeholder, type) {
-    return '<label class="invite-form-field"><span>' + esc(label) + ' ' + (required ? '<b>*</b>' : '<small>OPTIONAL</small>') + '</span><input name="' + attr(name) + '" type="' + attr(type || 'text') + '" value="' + attr(value) + '" placeholder="' + attr(placeholder || '') + '" autocomplete="' + attr(name) + '"><em data-error="' + attr(name) + '"></em></label>';
+  function formField(label, name, value, placeholder, type, autocomplete) {
+    return '<label class="invite-form-field"><span>' + esc(label) + ' *</span><input name="' + attr(name) + '" type="' + attr(type || 'text') + '" value="' + attr(value) + '" placeholder="' + attr(placeholder) + '" autocomplete="' + attr(autocomplete) + '" aria-required="true"><em data-error="' + attr(name) + '"></em></label>';
   }
 
   function renderOverview(app) {
     var event = readSession('tz_event');
     var selection = readSession('tz_selection');
     var details = readSession('tz_details');
-    if (!event || !selection || !details) {
-      status(app, 'No active reservation.');
+    if (!event || !selection || !selection.length || !details) {
+      status(app, 'Start from an invite and complete your reservation details.');
       return;
     }
 
-    var total = selection.reduce(function (sum, ticket) { return sum + ticket.count; }, 0);
-    app.innerHTML = eventHeader(event) + steps(3) +
-      '<section class="invite-ticket-panel"><div class="invite-ticket-panel__intro"><p class="invite-kicker">CHECK EVERYTHING</p><h2>Reservation overview</h2></div>' +
-      '<div class="invite-overview-block"><h3>Tickets (' + total + ')</h3>' + selection.map(function (ticket) { return '<p><span>' + esc(ticket.name) + '</span><span>× ' + ticket.count + ' / ' + esc(ticket.price) + '</span></p>'; }).join('') + '</div>' +
-      '<div class="invite-overview-block"><h3>Your details</h3><p><span>Name</span><span>' + esc(details.firstName + ' ' + details.lastName) + '</span></p>' + (details.email ? '<p><span>Email</span><span>' + esc(details.email) + '</span></p>' : '') + (details.city ? '<p><span>City</span><span>' + esc(details.city) + '</span></p>' : '') + (details.notes ? '<p><span>Notes</span><span>' + esc(details.notes) + '</span></p>' : '') + '</div>' +
-      '<div class="invite-ticket-footer"><a class="invite-back-link" href="/tickets/details/">← Back</a><button class="invite-button" type="button" data-place-order>Place reservation →</button></div></section>';
+    app.innerHTML = eventChrome(event, 2) +
+      '<section class="ticket-flow-section" aria-labelledby="ticket-overview-title">' +
+        sectionHeading('02 / REVIEW', 'One last look.', 'Check the details below. You can still go back and make changes.', 'ticket-overview-title') +
+        '<div class="ticket-review">' +
+          '<section class="ticket-review__tickets"><h3>TICKETS</h3>' + selectionTable(selection, 'Tickets in this reservation') + '</section>' +
+          '<div class="ticket-review__facts">' +
+            facts('EVENT', eventFactRows(event)) +
+            facts('GUEST', [['Name', details.firstName + ' ' + details.lastName], ['Email', details.email]]) +
+          '</div>' +
+        '</div>' +
+        '<div class="ticket-flow-footer"><a class="invite-back-link" href="/invites/?event=' + encodeURIComponent(event.id) + '#invite-reservation-title">Change details</a><button class="invite-button" type="button" data-place-order>Confirm reservation &rarr;</button></div>' +
+      '</section>';
 
     app.querySelector('[data-place-order]').addEventListener('click', function (clickEvent) {
       clickEvent.currentTarget.disabled = true;
-      sessionStorage.setItem('tz_confirmed', JSON.stringify({ event: event, selection: selection, details: details, orderId: 'ORD-' + Date.now().toString(36).toUpperCase(), timestamp: new Date().toISOString() }));
+      sessionStorage.setItem('tz_confirmed', JSON.stringify({
+        event: event,
+        selection: selection,
+        details: details,
+        orderId: 'ORD-' + Date.now().toString(36).toUpperCase(),
+        timestamp: new Date().toISOString()
+      }));
       window.location.href = '/tickets/confirmation/';
     });
+  }
+
+  function confirmationTable(selection) {
+    return '<div class="ticket-table-wrap"><table class="ticket-table ticket-table--downloads"><caption>Your tickets</caption>' +
+      '<thead><tr><th scope="col">ACCESS</th><th scope="col">QUANTITY</th><th scope="col">TICKET</th></tr></thead><tbody>' +
+      selection.map(function (ticket) {
+        return '<tr><th scope="row"><strong>' + esc(ticket.name) + '</strong></th><td data-label="Quantity">&times; ' + esc(ticket.count) + '</td><td data-label="Ticket"><button class="invite-button invite-button--small" type="button" data-ticket-name="' + attr(ticket.name) + '" data-ticket-count="' + attr(ticket.count) + '">Download</button></td></tr>';
+      }).join('') + '</tbody></table></div>';
   }
 
   function renderConfirmation(app) {
     var confirmed = readSession('tz_confirmed');
     if (!confirmed) {
-      status(app, 'No confirmed reservation found.');
+      status(app, 'No confirmed reservation was found.');
       return;
     }
 
     var event = confirmed.event;
-    var total = confirmed.selection.reduce(function (sum, ticket) { return sum + ticket.count; }, 0);
-    app.innerHTML = '<section class="invite-confirmation"><p class="invite-kicker">RESERVATION CONFIRMED</p><h1>See you there.</h1><p class="invite-confirmation__lead">Your ' + total + ' ticket' + (total === 1 ? '' : 's') + ' for <strong>' + esc(event.title) + '</strong> have been reserved.</p><p class="invite-confirmation__order">Order reference: <strong>' + esc(confirmed.orderId) + '</strong></p><div class="invite-sync" data-sync><b>Saving your reservation…</b><span>Keep this page open for a moment.</span></div><div class="invite-confirmation__event">' + eventHeader(event) + '</div><div class="invite-confirmation__tickets">' + confirmed.selection.map(function (ticket) { return '<div><span>' + esc(ticket.name) + ' × ' + ticket.count + '</span><button class="invite-button invite-button--small" type="button" data-ticket-name="' + attr(ticket.name) + '" data-ticket-count="' + ticket.count + '">Download ticket</button></div>'; }).join('') + '</div><a class="invite-button" href="/invites/?event=' + encodeURIComponent(event.id) + '">Back to invite</a></section>';
+    var total = confirmed.selection.reduce(function (sum, ticket) { return sum + Number(ticket.count || 0); }, 0);
+    app.innerHTML = eventChrome(event, 3) +
+      '<section class="ticket-confirmation" aria-labelledby="ticket-confirmation-title">' +
+        '<header class="ticket-confirmation__heading"><p class="invite-kicker">RESERVATION CONFIRMED</p><h2 id="ticket-confirmation-title">You\'re in.</h2><p>Your ' + total + ' ticket' + (total === 1 ? '' : 's') + ' for <strong>' + esc(event.title) + '</strong> ' + (total === 1 ? 'is' : 'are') + ' reserved.</p></header>' +
+        '<div class="invite-sync" data-sync aria-live="polite"><b>Saving your reservation&hellip;</b><span>Keep this page open for a moment.</span></div>' +
+        '<div class="ticket-confirmation__facts">' +
+          facts('RESERVATION', [['Reference', confirmed.orderId], ['Reserved for', confirmed.details.firstName + ' ' + confirmed.details.lastName], ['Email', confirmed.details.email]]) +
+          facts('EVENT', eventFactRows(event)) +
+        '</div>' +
+        '<section class="ticket-confirmation__tickets"><h3>TICKETS</h3>' + confirmationTable(confirmed.selection) + '</section>' +
+        '<div class="ticket-flow-footer ticket-flow-footer--single"><a class="invite-button" href="/invites/?event=' + encodeURIComponent(event.id) + '">Back to invite</a></div>' +
+      '</section>';
 
     app.querySelectorAll('[data-ticket-name]').forEach(function (button) {
       button.addEventListener('click', function () {
@@ -241,7 +235,7 @@
       eventId: confirmed.event.id,
       eventTitle: confirmed.event.title,
       eventDate: confirmed.event.dateLabel || confirmed.event.dateIso,
-      eventTime: confirmed.event.startTime + (confirmed.event.endTime ? ' — ' + confirmed.event.endTime : ''),
+      eventTime: confirmed.event.startTime + (confirmed.event.endTime ? ' - ' + confirmed.event.endTime : ''),
       eventLocation: confirmed.event.location,
       firstName: confirmed.details.firstName,
       lastName: confirmed.details.lastName,
@@ -249,7 +243,7 @@
       city: confirmed.details.city || '',
       dateOfBirth: confirmed.details.dateOfBirth || '',
       notes: confirmed.details.notes || '',
-      totalTickets: confirmed.selection.reduce(function (sum, ticket) { return sum + ticket.count; }, 0),
+      totalTickets: confirmed.selection.reduce(function (sum, ticket) { return sum + Number(ticket.count || 0); }, 0),
       tickets: confirmed.selection.map(function (ticket) { return { name: ticket.name, count: ticket.count }; })
     };
 
@@ -259,8 +253,8 @@
     }
 
     fetch(window.TZ_WEBHOOK_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) })
-      .then(function () { notice.innerHTML = '<b>Reservation saved.</b><span>Your reservation was sent to the registration sheet.</span>'; })
-      .catch(function () { notice.innerHTML = '<b>Reservation confirmed.</b><span>Could not sync automatically. Please contact the organiser.</span>'; });
+      .then(function () { notice.innerHTML = '<b>Reservation saved.</b><span>Your reservation was added to the guest list.</span>'; })
+      .catch(function () { notice.innerHTML = '<b>Reservation confirmed.</b><span>Automatic guest-list sync failed. Please contact the organiser.</span>'; });
   }
 
   function generatePdf(event, details, ticketName, count, orderId) {
