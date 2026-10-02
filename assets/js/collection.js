@@ -29,10 +29,8 @@
 
   const subsections = [
     { tab: "WORDS", targetId: "collection-words", mediaKind: "website" },
-    { tab: "SOUNDS", targetId: "collection-sounds", mediaKind: "soundcloud" },
-    { tab: "VISUALS", targetId: "collection-visuals", mediaKind: "image" },
-    { tab: "PEOPLE", targetId: "collection-people", mediaKind: "image" },
-    { tab: "PLACES", targetId: "collection-places", mediaKind: "image" },
+    { tab: "SOUNDS", targetId: "collection-sounds", mediaKind: "soundcloud", hiddenColumnIndexes: [4] },
+    { tab: "PLACES", targetId: "collection-places", mediaKind: "image", hiddenColumnIndexes: [2] },
     { tab: "PROJECTS", targetId: "collection-projects", mediaKind: "image" }
   ];
 
@@ -109,6 +107,7 @@
     const rawRows = response.table.rows || [];
     const activeColumnIndexes = new Set();
     const urlColumnIndexes = new Set();
+    const hiddenColumnIndexes = new Set(subsection.hiddenColumnIndexes || []);
 
     rawRows.forEach((row) => {
       (row.c || []).forEach((cell, index) => {
@@ -122,7 +121,7 @@
     });
 
     const visibleColumnIndexes = Array.from(activeColumnIndexes)
-      .filter((index) => !urlColumnIndexes.has(index))
+      .filter((index) => !urlColumnIndexes.has(index) && !hiddenColumnIndexes.has(index))
       .sort((first, second) => first - second);
     const orderedUrlColumnIndexes = Array.from(urlColumnIndexes)
       .sort((first, second) => first - second);

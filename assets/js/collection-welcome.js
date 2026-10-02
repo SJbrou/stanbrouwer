@@ -8,6 +8,8 @@
   const intro = page.querySelector(".collection-intro");
   const artwork = intro?.querySelector(".collection-intro__artwork");
   const image = intro?.querySelector(".collection-intro__image");
+  const copy = intro?.querySelector(".collection-perspective-copy");
+  const captions = intro?.querySelector(".collection-captions--intro");
   const poster = page.querySelector(".collection-poster");
   const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const pendingBlocks = new Set();
@@ -47,6 +49,11 @@
     window.cancelAnimationFrame(renderRequest);
     root.classList.remove("collection-welcome-pending");
     page.classList.remove("is-welcome-active", "is-welcome-building", "is-welcome-clearing", "is-welcome-frame", "has-welcome-frame");
+    page.classList.remove("has-welcome-typography");
+    page.style.removeProperty("--collection-welcome-copy-opacity");
+    page.style.removeProperty("--collection-welcome-copy-clip");
+    page.style.removeProperty("--collection-welcome-surface-inset");
+    if (captions && artwork) artwork.after(captions);
     poster?.style.removeProperty("--collection-welcome-clip");
     detachImageEvents();
     intro?.removeEventListener("animationend", onAnimationEnd);
@@ -98,6 +105,22 @@
       width: Math.max(0, width - stroke), height: Math.max(0, height - stroke),
       "stroke-width": stroke
     }).forEach(([name, value]) => outline.setAttribute(name, value));
+    // Keep white paper inside the moving border and the original surround outside.
+    page.style.setProperty("--collection-welcome-surface-inset", [
+      y - source.y,
+      source.x + source.width - x - width,
+      source.y + source.height - y - height,
+      x - source.x
+    ].map(value => value + "px").join(" "));
+    // Let the cover text leave before the frame becomes the feed's border.
+    page.style.setProperty("--collection-welcome-copy-opacity", 1 - ease(clamp(progress / 0.18)));
+    const copyClip = [
+      Math.min(source.height, Math.max(0, y - source.y)),
+      Math.min(source.width, Math.max(0, source.x + source.width - x - width)),
+      Math.min(source.height, Math.max(0, source.y + source.height - y - height)),
+      Math.min(source.width, Math.max(0, x - source.x))
+    ];
+    page.style.setProperty("--collection-welcome-copy-clip", copyClip.map(value => value + "px").join(" "));
     // Reveal the feed within the opening frame, including on short mobile screens.
     const top = Math.min(target.height, Math.max(0, y - target.y));
     const right = Math.min(target.width, Math.max(0, target.x + target.width - x - width));
@@ -153,7 +176,7 @@
     setState("clearing");
     createFrame();
     page.classList.add("is-welcome-clearing");
-    phaseTimer = window.setTimeout(readyFrame, 1900);
+    phaseTimer = window.setTimeout(readyFrame, 700);
   };
 
   const beginHold = () => {
@@ -161,7 +184,7 @@
     window.clearTimeout(phaseTimer);
     page.classList.remove("is-welcome-building");
     setState("holding");
-    phaseTimer = window.setTimeout(beginClear, 350);
+    phaseTimer = window.setTimeout(beginClear, 233);
   };
 
   const onAnimationEnd = (event) => {
@@ -171,7 +194,7 @@
   };
 
   const onWelcomeScroll = () => {
-    if (state === "loading") {
+    if (state === "loading" || state === "waiting") {
       if (window.scrollY > 24) restoreStatic();
       return;
     }
@@ -180,7 +203,7 @@
   };
 
   const startWelcome = () => {
-    if (state !== "loading") return;
+    if (state !== "waiting") return;
     if (motion.matches || window.scrollY > 24 || !image.naturalWidth
         || !root.classList.contains("collection-welcome-pending")) {
       restoreStatic();
@@ -189,23 +212,30 @@
     window.clearTimeout(window.collectionWelcomeFallback);
     root.classList.remove("collection-welcome-pending");
     detachImageEvents();
+    if (copy && captions) {
+      copy.appendChild(captions);
+      page.classList.add("has-welcome-typography");
+    }
     setState("building");
     page.classList.add("is-welcome-active", "is-welcome-building");
     intro.addEventListener("animationend", onAnimationEnd);
     // A cancelled animation must still advance to the next phase.
-    phaseTimer = window.setTimeout(beginHold, 2100);
+    phaseTimer = window.setTimeout(beginHold, 700);
   };
 
   const onImageLoad = () => {
     const decoded = image.decode ? image.decode().catch(() => {}) : Promise.resolve();
-    decoded.then(() => window.requestAnimationFrame(startWelcome));
+    decoded.then(() => {
+      if (state !== "loading") return;
+      setState("waiting");
+      phaseTimer = window.setTimeout(() => window.requestAnimationFrame(startWelcome), 500);
+    });
   };
 
   const setupScrollReveals = () => {
     if (motion.matches || !("IntersectionObserver" in window)) return;
     const blocks = page.querySelectorAll([
       ".collection-section--invites",
-      ".collection-section:not(.collection-section--invites) > .collection-section__heading",
       ".collection-subsection"
     ].join(","));
     observer = new IntersectionObserver((entries) => {
