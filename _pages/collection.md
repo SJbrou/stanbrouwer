@@ -2,12 +2,15 @@
 layout: collection
 title: Collection
 permalink: /
+welcome: true
 ---
 
-<main class="collection-page">
+<main class="collection-page" data-collection-welcome>
   <header class="collection-intro">
     <h1 id="collection-page-title" class="collection-visually-hidden">Stan Brouwer, volume 001: a carefully curated collection of experiences</h1>
-    <img class="collection-intro__image" src="{{ '/assets/img/header-image.jpg' | relative_url }}" alt="Black-and-white perspective grid artwork">
+    <div class="collection-intro__artwork">
+      <img class="collection-intro__image" src="{{ '/assets/img/header-image.jpg' | relative_url }}" alt="Black-and-white perspective grid artwork" width="954" height="953" decoding="async" fetchpriority="high">
+    </div>
     <div class="collection-captions collection-captions--intro">
       <p>a carefully curated<br>collection of experiences</p>
       <p>Stan Brouwer<br>vol. 001</p>

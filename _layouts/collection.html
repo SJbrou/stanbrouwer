@@ -8,6 +8,18 @@
     <meta name="description" content="A carefully curated collection of experiences by Stan Brouwer.">
     <link rel="canonical" href="{{ page.url | replace:'index.html','' | absolute_url }}">
     <link rel="stylesheet" href="{{ '/assets/styles/collection.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+    {% if page.welcome %}
+    <script>
+      if (window.matchMedia && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+          && window.CSS && CSS.supports('clip-path', 'inset(0)')) {
+        document.documentElement.classList.add('collection-welcome-pending');
+        window.collectionWelcomeFallback = window.setTimeout(function () {
+          document.documentElement.classList.remove('collection-welcome-pending');
+        }, 4000);
+      }
+    </script>
+    <script src="{{ '/assets/js/collection-welcome.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+    {% endif %}
     <script>
       window.TZ_INVITES_CONFIG = {
         sheetId: {{ site.invites_sheet_id | jsonify }},
