@@ -612,7 +612,8 @@ a.invite-button:focus-visible::after {
   text-overflow: clip;
 }
 
-.collection-subsection--words .collection-cell:first-child {
+.collection-subsection--words .collection-cell:first-child,
+.collection-subsection--words .collection-cell:last-child {
   text-align: right;
 }
 
