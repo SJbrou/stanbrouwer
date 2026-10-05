@@ -43,6 +43,8 @@ jobs:
           destination: ./_legacy_site
 
       - name: Add legacy site to deployment
+        # The archived /old site is optional and must not block the current site.
+        continue-on-error: true
         run: |
           mkdir -p ./_site/old
           if [ -d ./_legacy_site/old ]; then
