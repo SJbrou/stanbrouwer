@@ -78,9 +78,5 @@ welcome: true
 
   <footer class="collection-outro">
     <img class="collection-outro__image" src="{{ '/assets/img/black-white-perspective-grid-background-vector.jpg' | relative_url }}" alt="Black-and-white perspective grid artwork">
-    <div class="collection-captions collection-captions--outro">
-      <p>a carefully curated<br>collection</p>
-      <p>Stan Brouwer<br>vol. 001</p>
-    </div>
   </footer>
 </main>
