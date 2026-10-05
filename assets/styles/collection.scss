@@ -72,6 +72,13 @@ body.collection-body {
   container-type: inline-size;
 }
 
+// Match the welcome artwork to the poster's half-rem side margins on phones.
+@media (max-width: 39.999rem) {
+  [data-collection-welcome] .collection-intro {
+    width: calc(100% - 1rem);
+  }
+}
+
 [data-collection-welcome] .collection-intro__artwork {
   position: relative;
   container-type: inline-size;
