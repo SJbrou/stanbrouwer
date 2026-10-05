@@ -605,6 +605,10 @@ a.invite-button:focus-visible::after {
   text-overflow: clip;
 }
 
+.collection-subsection--words .collection-cell:first-child {
+  text-align: right;
+}
+
 .collection-subsection--sounds .collection-row__columns {
   grid-template-columns:
     minmax(6ch, 0.55fr)
