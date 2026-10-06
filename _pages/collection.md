@@ -35,15 +35,12 @@ welcome: true
           <div class="collection-subsection__rule"></div>
           <h2 id="words-title">WORDS</h2>
           <div id="collection-words" class="collection-rows" role="list" aria-live="polite" aria-busy="true"></div>
-          <div class="collection-media-slot" data-collection-media-slot hidden aria-live="polite"></div>
         </section>
 
         <section class="collection-subsection collection-subsection--sounds" aria-labelledby="sounds-title">
           <div class="collection-subsection__rule"></div>
           <h2 id="sounds-title">SOUNDS</h2>
           <div id="collection-sounds" class="collection-rows" role="list" aria-live="polite" aria-busy="true"></div>
-          <div class="collection-media-slot" data-collection-media-slot hidden aria-live="polite"></div>
-          <div class="collection-sound-hover-preview" data-collection-sound-hover-preview hidden aria-hidden="true"></div>
         </section>
 
       </div>
@@ -55,25 +52,35 @@ welcome: true
           <div class="collection-subsection__rule"></div>
           <h2 id="places-title">PLACES</h2>
           <div id="collection-places" class="collection-rows" role="list" aria-live="polite" aria-busy="true"></div>
-          <div class="collection-media-slot" data-collection-media-slot hidden aria-live="polite"></div>
         </section>
 
         <section class="collection-subsection collection-subsection--projects" aria-labelledby="projects-title">
           <div class="collection-subsection__rule"></div>
           <h2 id="projects-title">PROJECTS</h2>
           <div id="collection-projects" class="collection-rows" role="list" aria-live="polite" aria-busy="true"></div>
-          <div class="collection-media-slot" data-collection-media-slot hidden aria-live="polite"></div>
         </section>
       </div>
     </section>
   </article>
 
-  <aside id="collection-mobile-media" class="collection-mobile-media" hidden aria-live="polite" aria-label="Active item preview">
-    <div class="collection-mobile-media__content"></div>
-    <div class="collection-mobile-media__drag-handle" aria-hidden="true">DRAG</div>
-    <button class="collection-mobile-media__close" type="button" aria-label="Minimize media preview">×</button>
+  <aside id="collection-media-window" class="collection-media-window" hidden aria-live="polite" aria-label="Audio player and media preview">
+    <div class="collection-media-window__chrome">
+      <span class="collection-media-window__title" data-collection-media-title>MEDIA</span>
+      <button class="collection-media-window__minimize" type="button" aria-label="Minimize audio player" hidden>−</button>
+      <button class="collection-media-window__close" type="button" aria-label="Close media window">×</button>
+    </div>
+    <div class="collection-media-window__content"></div>
+    <button class="collection-window__resize" type="button" aria-label="Resize media window" title="Resize window"></button>
   </aside>
-  <button id="collection-mobile-media-toggle" class="collection-mobile-media-toggle" type="button" hidden aria-expanded="false">MEDIA +</button>
+  <aside id="collection-image-window" class="collection-image-window" hidden aria-live="polite" aria-label="Image preview">
+    <div class="collection-image-window__chrome">
+      <span class="collection-image-window__title" data-collection-image-title>PREVIEW</span>
+      <button class="collection-image-window__close" type="button" aria-label="Close image preview">×</button>
+    </div>
+    <div class="collection-image-window__content"></div>
+    <button class="collection-window__resize" type="button" aria-label="Resize image preview" title="Resize window"></button>
+  </aside>
+  <button id="collection-media-window-toggle" class="collection-media-window-toggle" type="button" hidden aria-expanded="false">MEDIA +</button>
   <button id="collection-mobile-sound-candidate" class="collection-mobile-sound-candidate" type="button" hidden></button>
 
   <footer class="collection-outro">

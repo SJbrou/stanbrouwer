@@ -12,20 +12,33 @@
   let soundcloudWidgetApi;
   const rowMetadata = new WeakMap();
   const desktopSelectedRows = new Map();
-  const desktopSoundHoverRows = new Map();
+  let desktopHoveredRow = null;
+  let desktopFocusedRow = null;
+  let desktopPreviewRow = null;
+  let desktopImageRow = null;
+  let desktopPinnedRow = null;
+  let desktopDismissedRow = null;
+  let desktopPreviewRefreshPending = false;
   let callbackCount = 0;
   let mobilePanel;
   let mobileContent;
+  let mobileWindowTitle;
+  let imagePanel;
+  let imageContent;
+  let imageWindowTitle;
+  let audioMinimizeButton;
   let mobileToggle;
   let mobileCandidate;
   let mobileCurrentRow = null;
   let mobileNowPlayingRow = null;
   let mobileCandidateRow = null;
   let mobileMinimised = false;
+  let audioPlayerMinimised = false;
   let mobilePositionInitialised = false;
   let mobileSelectionPending = false;
   let collectionTruncationPending = false;
   let mobileDrag = null;
+  let windowResize = null;
 
   const subsections = [
     { tab: "WORDS", targetId: "collection-words", mediaKind: "website" },
@@ -313,6 +326,23 @@
     control.setAttribute("aria-label", isPlaying ? "Pause track" : "Play track");
   };
 
+  const updateSoundcloudMarquee = (target) => {
+    const ticker = target?.querySelector(".collection-soundcloud-meta__ticker");
+    const firstCopy = ticker?.querySelector("span:not([aria-hidden='true'])");
+    const panel = target?.closest(".collection-media-window");
+    if (!ticker || !firstCopy) {
+      return;
+    }
+
+    ticker.classList.remove("is-overflowing");
+    const overflows = panel
+      && !panel.hidden
+      && panel.classList.contains("is-minimized")
+      && !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      && firstCopy.scrollWidth > firstCopy.clientWidth + 1;
+    ticker.classList.toggle("is-overflowing", Boolean(overflows));
+  };
+
   const renderSoundcloudPlayer = (
     target,
     source,
@@ -390,6 +420,7 @@
     } else {
       target.replaceChildren(waveform, metadata, control);
     }
+    requestAnimationFrame(() => updateSoundcloudMarquee(target));
 
     loadSoundcloudWidgetApi()
       .then((soundcloud) => {
@@ -520,42 +551,162 @@
       desktopSelectedRows.delete(subsectionElement);
     }
 
-    const slot = subsectionElement.querySelector("[data-collection-media-slot]");
-    if (slot) {
-      clearMedia(slot);
-      slot.hidden = true;
+    if (desktopHoveredRow && subsectionElement.contains(desktopHoveredRow)) {
+      desktopHoveredRow = null;
     }
-
-    const hoverPreview = subsectionElement.querySelector("[data-collection-sound-hover-preview]");
-    if (hoverPreview) {
-      hoverPreview.classList.remove("is-visible", "is-bottom-anchored");
-      clearMedia(hoverPreview);
-      hoverPreview.hidden = true;
-      hoverPreview.style.removeProperty("top");
+    if (desktopFocusedRow && subsectionElement.contains(desktopFocusedRow)) {
+      desktopFocusedRow = null;
     }
-    desktopSoundHoverRows.delete(subsectionElement);
+    if (desktopPinnedRow && subsectionElement.contains(desktopPinnedRow)) {
+      desktopPinnedRow.classList.remove("is-active");
+      desktopPinnedRow = null;
+      hideDesktopAudioPlayer();
+    }
+    if (desktopPreviewRow && subsectionElement.contains(desktopPreviewRow)) {
+      hideDesktopPreview();
+    }
+    if (desktopImageRow && subsectionElement.contains(desktopImageRow)) {
+      hideDesktopImagePreview();
+    }
   };
 
-  const showDesktopPreview = (entry, subsectionElement, row, isActive = false) => {
-    if (!row.media) {
+  const setMediaWindowTitle = (title = "MEDIA") => {
+    if (mobileWindowTitle) {
+      mobileWindowTitle.textContent = title;
+    }
+  };
+
+  const setImageWindowTitle = (title = "PREVIEW") => {
+    if (imageWindowTitle) {
+      imageWindowTitle.textContent = title;
+    }
+  };
+
+  const updateImageWindowPosition = () => {
+    imagePanel?.classList.toggle("is-secondary", Boolean(desktopPinnedRow || desktopPreviewRow));
+  };
+
+  const hideDesktopImagePreview = () => {
+    if (desktopImageRow) {
+      desktopImageRow.classList.remove("is-active");
+    }
+    if (imagePanel) {
+      imagePanel.hidden = true;
+      imagePanel.classList.remove("is-secondary");
+    }
+    desktopImageRow = null;
+    clearMedia(imageContent);
+    setImageWindowTitle();
+  };
+
+  const hideDesktopPreview = () => {
+    if (desktopPinnedRow) {
       return;
     }
 
-    const selectedRow = desktopSelectedRows.get(subsectionElement);
-    if (selectedRow && selectedRow !== entry) {
-      selectedRow.classList.remove("is-active");
+    if (desktopPreviewRow && desktopPreviewRow !== desktopPinnedRow) {
+      desktopPreviewRow.classList.remove("is-active");
     }
+    desktopPreviewRow = null;
+    updateImageWindowPosition();
+    if (mobilePanel) {
+      mobilePanel.hidden = true;
+      mobilePanel.classList.remove("is-pinned", "is-minimized");
+    }
+    if (audioMinimizeButton) {
+      audioMinimizeButton.hidden = true;
+    }
+    setAudioPlayerMinimised(false);
+    clearMedia(mobileContent);
+    setMediaWindowTitle();
+  };
 
-    desktopSelectedRows.set(subsectionElement, entry);
-    entry.classList.toggle("is-active", isActive);
-
-    const slot = subsectionElement.querySelector("[data-collection-media-slot]");
-    if (!slot) {
+  const showDesktopPreview = (entry, row) => {
+    if (!row.media || !mobilePanel || !mobileContent || desktopPinnedRow) {
       return;
     }
 
-    slot.hidden = false;
-    renderMedia(slot, row);
+    if (desktopPreviewRow && desktopPreviewRow !== entry && desktopPreviewRow !== desktopPinnedRow) {
+      desktopPreviewRow.classList.remove("is-active");
+    }
+
+    desktopPreviewRow = entry;
+    updateImageWindowPosition();
+    entry.classList.add("is-active");
+    mobilePanel.hidden = false;
+    mobilePanel.classList.remove("is-pinned");
+    setAudioPlayerMinimised(false);
+    if (audioMinimizeButton) {
+      audioMinimizeButton.hidden = true;
+    }
+    if (mobileToggle) {
+      mobileToggle.hidden = true;
+      mobileToggle.setAttribute("aria-expanded", "true");
+    }
+    setMediaWindowTitle(row.label);
+
+    const key = row.media.kind === "soundcloud"
+      ? `soundcloud-artwork:${row.media.source}`
+      : `${row.media.kind}:${row.media.source}`;
+    if (mobileContent.dataset.mediaKey === key && mobileContent.firstElementChild) {
+      return;
+    }
+
+    if (row.media.kind === "soundcloud") {
+      renderSoundcloudArtwork(mobileContent, row);
+    } else {
+      renderMedia(mobileContent, row);
+    }
+  };
+
+  const showDesktopImagePreview = (entry, row) => {
+    if (row.media?.kind !== "image" || !imagePanel || !imageContent) {
+      hideDesktopImagePreview();
+      return;
+    }
+
+    entry.classList.add("is-active");
+    imagePanel.hidden = false;
+    if (desktopImageRow && desktopImageRow !== entry) {
+      desktopImageRow.classList.remove("is-active");
+    }
+    desktopImageRow = entry;
+    updateImageWindowPosition();
+    setImageWindowTitle(row.label);
+
+    const key = `${row.media.kind}:${row.media.source}`;
+    if (imageContent.dataset.mediaKey !== key || !imageContent.firstElementChild) {
+      renderMedia(imageContent, row);
+    }
+  };
+
+  const showDesktopAudioPlayer = (entry, row) => {
+    if (row.media?.kind !== "soundcloud" || !mobilePanel || !mobileContent) {
+      return;
+    }
+
+    if (desktopPreviewRow && desktopPreviewRow !== entry) {
+      desktopPreviewRow.classList.remove("is-active");
+    }
+    desktopPreviewRow = null;
+    updateImageWindowPosition();
+    entry.classList.add("is-active");
+    mobilePanel.hidden = false;
+    mobilePanel.classList.add("is-pinned");
+    if (audioMinimizeButton) {
+      audioMinimizeButton.hidden = false;
+    }
+    setAudioPlayerMinimised(audioPlayerMinimised);
+    if (mobileToggle) {
+      mobileToggle.hidden = true;
+      mobileToggle.setAttribute("aria-expanded", "true");
+    }
+    setMediaWindowTitle(row.label);
+
+    const key = `${row.media.kind}:${row.media.source}`;
+    if (mobileContent.dataset.mediaKey !== key || !mobileContent.firstElementChild) {
+      renderMedia(mobileContent, row);
+    }
   };
 
   const initialiseDesktopPreview = (subsectionElement) => {
@@ -564,113 +715,180 @@
     }
 
     const selectedRow = desktopSelectedRows.get(subsectionElement);
-    const selectedMetadata = selectedRow && selectedRow.isConnected ? rowMetadata.get(selectedRow) : null;
-    if (selectedMetadata?.media) {
-      showDesktopPreview(selectedRow, subsectionElement, selectedMetadata, selectedRow.classList.contains("is-active"));
-      return;
+    if (selectedRow && !selectedRow.isConnected) {
+      desktopSelectedRows.delete(subsectionElement);
     }
 
-    const firstMediaRow = Array.from(subsectionElement.querySelectorAll(".collection-row"))
-      .find((entry) => rowMetadata.get(entry)?.media);
-    if (firstMediaRow) {
-      showDesktopPreview(firstMediaRow, subsectionElement, rowMetadata.get(firstMediaRow));
-      return;
+    if (desktopPinnedRow && !desktopPinnedRow.isConnected) {
+      desktopPinnedRow = null;
+      hideDesktopAudioPlayer();
     }
 
-    clearDesktopPreview(subsectionElement);
+    if (desktopPreviewRow && !desktopPreviewRow.isConnected) {
+      hideDesktopPreview();
+    }
+
+    if (desktopImageRow && !desktopImageRow.isConnected) {
+      hideDesktopImagePreview();
+    }
   };
 
-  const positionSoundHoverPreview = (entry, subsectionElement) => {
-    const preview = subsectionElement.querySelector("[data-collection-sound-hover-preview]");
-    if (!preview) {
+  const refreshDesktopPreview = () => {
+    if (!isDesktopMedia()) {
       return;
     }
 
-    const subsectionRect = subsectionElement.getBoundingClientRect();
-    const entryRect = entry.getBoundingClientRect();
-    const rows = Array.from(subsectionElement.querySelectorAll(".collection-row"));
-    const lastRow = rows[rows.length - 1];
-    const lastRowRect = lastRow?.getBoundingClientRect();
-    const previewHeight = preview.getBoundingClientRect().height;
-    const rowAlignedTop = Math.max(0, entryRect.top - subsectionRect.top);
-    const lastRowBottom = lastRowRect ? lastRowRect.bottom - subsectionRect.top : null;
-    const bottomAnchoredTop = lastRowBottom == null || previewHeight === 0
-      ? rowAlignedTop
-      : Math.max(0, lastRowBottom - previewHeight);
-    const isBottomAnchored = lastRowBottom != null
-      && previewHeight > 0
-      && rowAlignedTop + previewHeight > lastRowBottom;
+    const hoveredRow = desktopHoveredRow?.isConnected && desktopHoveredRow.matches(":hover")
+      ? desktopHoveredRow
+      : null;
+    const focusedRow = desktopFocusedRow === document.activeElement ? desktopFocusedRow : null;
+    const entry = hoveredRow || focusedRow;
+    const row = entry && rowMetadata.get(entry);
 
-    preview.classList.toggle("is-bottom-anchored", isBottomAnchored);
-    preview.style.top = `${isBottomAnchored ? bottomAnchoredTop : rowAlignedTop}px`;
+    if (desktopPinnedRow?.isConnected) {
+      if (entry && entry !== desktopPinnedRow && row?.media?.kind === "image" && desktopDismissedRow !== entry) {
+        desktopDismissedRow = null;
+        showDesktopImagePreview(entry, row);
+      }
+      return;
+    }
+
+    if (entry && row?.media) {
+      if (desktopDismissedRow === entry) {
+        return;
+      }
+
+      desktopDismissedRow = null;
+      if (row.media.kind === "image") {
+        hideDesktopPreview();
+        showDesktopImagePreview(entry, row);
+        return;
+      }
+      showDesktopPreview(entry, row);
+      return;
+    }
+
+    if (mobilePanel?.matches(":hover") || mobilePanel?.contains(document.activeElement)) {
+      return;
+    }
+
+    hideDesktopPreview();
   };
 
-  const showSoundHoverPreview = (entry, subsectionElement, row) => {
-    const preview = subsectionElement.querySelector("[data-collection-sound-hover-preview]");
-    if (!preview || !row.media) {
+  const scheduleDesktopPreviewRefresh = () => {
+    if (desktopPreviewRefreshPending) {
       return;
     }
 
-    if (desktopSoundHoverRows.get(subsectionElement) !== entry) {
-      preview.classList.remove("is-visible");
-    }
-    desktopSoundHoverRows.set(subsectionElement, entry);
-    preview.hidden = false;
-    positionSoundHoverPreview(entry, subsectionElement);
+    desktopPreviewRefreshPending = true;
     window.requestAnimationFrame(() => {
-      if (desktopSoundHoverRows.get(subsectionElement) === entry) {
-        preview.classList.add("is-visible");
-      }
+      desktopPreviewRefreshPending = false;
+      refreshDesktopPreview();
     });
-    renderSoundcloudArtwork(preview, row);
   };
 
-  const clearSoundHoverPreview = (entry, subsectionElement) => {
-    const currentEntry = desktopSoundHoverRows.get(subsectionElement);
-    if (currentEntry && currentEntry !== entry) {
-      return;
-    }
-
-    desktopSoundHoverRows.delete(subsectionElement);
-    const preview = subsectionElement.querySelector("[data-collection-sound-hover-preview]");
-    if (preview) {
-      preview.classList.remove("is-visible", "is-bottom-anchored");
-      clearMedia(preview);
-      preview.hidden = true;
-      preview.style.removeProperty("top");
-    }
-  };
-
-  const updateSoundHoverPreviewPositions = () => {
+  const activateDesktopPreview = (entry, row) => {
     if (!isDesktopMedia()) {
       return;
     }
 
-    desktopSoundHoverRows.forEach((entry, subsectionElement) => {
-      if (entry.isConnected && subsectionElement.isConnected) {
-        positionSoundHoverPreview(entry, subsectionElement);
+    if (desktopPinnedRow) {
+      scheduleDesktopPreviewRefresh();
+      return;
+    }
+
+    if (desktopDismissedRow === entry) {
+      return;
+    }
+
+    if (desktopDismissedRow && desktopDismissedRow !== entry) {
+      desktopDismissedRow = null;
+    }
+
+    if (row.media) {
+      if (row.media.kind === "image") {
+        hideDesktopPreview();
+        showDesktopImagePreview(entry, row);
+      } else {
+        showDesktopPreview(entry, row);
       }
-    });
+    } else {
+      hideDesktopPreview();
+    }
   };
 
-  const activateDesktopPreview = (entry, subsectionElement, row) => {
-    if (!isDesktopMedia()) {
-      return;
+  const closeDesktopPreview = () => {
+    const hoveredRow = desktopHoveredRow?.matches(":hover") ? desktopHoveredRow : null;
+    const dismissedRow = hoveredRow || desktopFocusedRow || desktopPreviewRow || desktopPinnedRow;
+    if (desktopPinnedRow) {
+      const subsectionElement = desktopPinnedRow.closest(".collection-subsection");
+      desktopPinnedRow.classList.remove("is-active");
+      if (subsectionElement) {
+        desktopSelectedRows.delete(subsectionElement);
+      }
+      desktopPinnedRow = null;
     }
 
-    if (!row.media) {
-      entry.classList.add("is-active");
-      return;
-    }
-
-    if (row.media.kind === "soundcloud") {
-      entry.classList.add("is-active");
-      showSoundHoverPreview(entry, subsectionElement, row);
-      return;
-    }
-
-    showDesktopPreview(entry, subsectionElement, row, true);
+    desktopDismissedRow = dismissedRow;
+    hideDesktopPreview();
   };
+
+  const closeDesktopImagePreview = () => {
+    desktopDismissedRow = desktopImageRow || desktopHoveredRow || desktopFocusedRow;
+    hideDesktopImagePreview();
+  };
+
+  const hideDesktopAudioPlayer = () => {
+    if (desktopPinnedRow) {
+      desktopPinnedRow.classList.remove("is-active");
+      const subsectionElement = desktopPinnedRow.closest(".collection-subsection");
+      if (subsectionElement) {
+        desktopSelectedRows.delete(subsectionElement);
+      }
+      desktopPinnedRow = null;
+    }
+
+    setAudioPlayerMinimised(false);
+    if (mobilePanel) {
+      mobilePanel.hidden = true;
+      mobilePanel.classList.remove("is-pinned", "is-minimized");
+    }
+    if (audioMinimizeButton) {
+      audioMinimizeButton.hidden = true;
+    }
+    clearMedia(mobileContent);
+    setMediaWindowTitle();
+    updateImageWindowPosition();
+  };
+
+  const setAudioPlayerMinimised = (minimised) => {
+    if (!mobilePanel) {
+      audioPlayerMinimised = minimised;
+      return;
+    }
+
+    if (minimised && !audioPlayerMinimised) {
+      const currentHeight = mobilePanel.getBoundingClientRect().height;
+      mobilePanel.dataset.expandedHeight = mobilePanel.style.height || `${currentHeight}px`;
+      mobilePanel.style.removeProperty("height");
+    } else if (!minimised && audioPlayerMinimised) {
+      const expandedHeight = mobilePanel.dataset.expandedHeight;
+      if (expandedHeight) {
+        mobilePanel.style.height = expandedHeight;
+        delete mobilePanel.dataset.expandedHeight;
+      }
+    }
+
+    audioPlayerMinimised = minimised;
+    mobilePanel.classList.toggle("is-minimized", minimised);
+    if (audioMinimizeButton) {
+      audioMinimizeButton.textContent = minimised ? "\u25a1" : "\u2212";
+      audioMinimizeButton.setAttribute("aria-label", minimised ? "Maximize audio player" : "Minimize audio player");
+    }
+    requestAnimationFrame(() => updateSoundcloudMarquee(mobileContent));
+  };
+
+  const toggleAudioPlayerMinimised = () => setAudioPlayerMinimised(!audioPlayerMinimised);
 
   const resetMobilePosition = () => {
     if (!mobilePanel) {
@@ -687,6 +905,9 @@
   const hideMobilePreview = () => {
     if (mobilePanel) {
       mobilePanel.hidden = true;
+    }
+    if (audioMinimizeButton) {
+      audioMinimizeButton.hidden = true;
     }
 
     if (mobileToggle) {
@@ -752,6 +973,16 @@
     mobilePanel.hidden = false;
     mobileToggle.hidden = true;
     mobileToggle.setAttribute("aria-expanded", "true");
+    setMediaWindowTitle(preview.label);
+    const showingAudioPlayer = previewRow === mobileNowPlayingRow && preview.media.kind === "soundcloud";
+    if (audioMinimizeButton) {
+      audioMinimizeButton.hidden = !showingAudioPlayer;
+      if (showingAudioPlayer) {
+        audioMinimizeButton.textContent = audioPlayerMinimised ? "\u25a1" : "\u2212";
+        audioMinimizeButton.setAttribute("aria-label", audioPlayerMinimised ? "Maximize audio player" : "Minimize audio player");
+      }
+    }
+    setAudioPlayerMinimised(showingAudioPlayer && audioPlayerMinimised);
     const key = `${preview.media.kind}:${preview.media.source}`;
     if (mobileContent.dataset.mediaKey !== key || !mobileContent.firstElementChild) {
       renderMedia(mobileContent, preview);
@@ -817,23 +1048,44 @@
     document.querySelectorAll(".collection-row.is-active").forEach((entry) => entry.classList.remove("is-active"));
 
     if (isDesktopMedia()) {
+      if (mobileNowPlayingRow) {
+        desktopPinnedRow = mobileNowPlayingRow;
+        const subsectionElement = desktopPinnedRow.closest(".collection-subsection");
+        if (subsectionElement) {
+          desktopSelectedRows.set(subsectionElement, desktopPinnedRow);
+        }
+        const row = rowMetadata.get(desktopPinnedRow);
+        if (row?.media) {
+          showDesktopAudioPlayer(desktopPinnedRow, row);
+        }
+      } else {
+        hideMobilePreview();
+      }
+
       if (mobileCurrentRow) {
         mobileCurrentRow.classList.remove("is-active");
       }
 
       mobileCurrentRow = null;
-      hideMobilePreview();
-      document.querySelectorAll(".collection-subsection").forEach(initialiseDesktopPreview);
+      mobileNowPlayingRow = null;
+      desktopHoveredRow = null;
+      desktopFocusedRow = null;
+      desktopDismissedRow = null;
       return;
     }
 
-    document.querySelectorAll("[data-collection-sound-hover-preview]").forEach((preview) => {
-      preview.classList.remove("is-visible", "is-bottom-anchored");
-      clearMedia(preview);
-      preview.hidden = true;
-      preview.style.removeProperty("top");
-    });
-    desktopSoundHoverRows.clear();
+    if (desktopPinnedRow) {
+      mobileNowPlayingRow = desktopPinnedRow;
+      desktopPinnedRow = null;
+      mobilePanel?.classList.remove("is-pinned");
+      hideDesktopImagePreview();
+    } else {
+      hideMobilePreview();
+      clearMedia(mobileContent);
+    }
+    desktopHoveredRow = null;
+    desktopFocusedRow = null;
+    desktopPreviewRow = null;
 
     scheduleMobileSelection();
   };
@@ -844,13 +1096,26 @@
     }
 
     if (isDesktopMedia()) {
-      showDesktopPreview(entry, subsectionElement, row, true);
-      requestSoundcloudPlayback(subsectionElement.querySelector("[data-collection-media-slot]"), row);
+      if (desktopPinnedRow && desktopPinnedRow !== entry) {
+        const previousSubsection = desktopPinnedRow.closest(".collection-subsection");
+        desktopPinnedRow.classList.remove("is-active");
+        if (previousSubsection) {
+          desktopSelectedRows.delete(previousSubsection);
+        }
+      }
+
+      desktopPinnedRow = entry;
+      desktopDismissedRow = null;
+      setAudioPlayerMinimised(false);
+      desktopSelectedRows.set(subsectionElement, entry);
+      showDesktopAudioPlayer(entry, row);
+      requestSoundcloudPlayback(mobileContent, row);
       return;
     }
 
     mobileNowPlayingRow = entry;
     mobileMinimised = false;
+    setAudioPlayerMinimised(false);
     setMobileActiveRow(entry);
     updateMobileSoundCandidate();
     presentMobilePreview();
@@ -881,27 +1146,50 @@
     const isPersistedSoundSelection = () => row.media?.kind === "soundcloud"
       && desktopSelectedRows.get(subsectionElement) === entry;
 
-    entry.addEventListener("mouseenter", () => activateDesktopPreview(entry, subsectionElement, row));
-    entry.addEventListener("focus", () => activateDesktopPreview(entry, subsectionElement, row));
-    entry.addEventListener("mouseleave", () => {
-      if (isDesktopMedia() && document.activeElement !== entry) {
-        if (!isPersistedSoundSelection()) {
-          entry.classList.remove("is-active");
-        }
-        if (row.media?.kind === "soundcloud") {
-          clearSoundHoverPreview(entry, subsectionElement);
-        }
+    entry.addEventListener("mouseenter", () => {
+      if (!isDesktopMedia()) {
+        return;
       }
+
+      desktopHoveredRow = entry;
+      activateDesktopPreview(entry, row);
+    });
+    entry.addEventListener("focus", () => {
+      if (!isDesktopMedia()) {
+        return;
+      }
+
+      desktopFocusedRow = entry;
+      activateDesktopPreview(entry, row);
+    });
+    entry.addEventListener("mouseleave", () => {
+      if (!isDesktopMedia()) {
+        return;
+      }
+
+      if (desktopHoveredRow === entry) {
+        desktopHoveredRow = null;
+      }
+      if (desktopDismissedRow === entry) {
+        desktopDismissedRow = null;
+      }
+      if (!isPersistedSoundSelection() && desktopImageRow !== entry && document.activeElement !== entry) {
+        entry.classList.remove("is-active");
+      }
+      scheduleDesktopPreviewRefresh();
     });
     entry.addEventListener("blur", () => {
-      if (isDesktopMedia() && !entry.matches(":hover")) {
-        if (!isPersistedSoundSelection()) {
-          entry.classList.remove("is-active");
-        }
-        if (row.media?.kind === "soundcloud") {
-          clearSoundHoverPreview(entry, subsectionElement);
-        }
+      if (!isDesktopMedia()) {
+        return;
       }
+
+      if (desktopFocusedRow === entry) {
+        desktopFocusedRow = null;
+      }
+      if (!entry.matches(":hover") && !isPersistedSoundSelection() && desktopImageRow !== entry) {
+        entry.classList.remove("is-active");
+      }
+      scheduleDesktopPreviewRefresh();
     });
     if (row.media?.kind === "soundcloud") {
       entry.addEventListener("click", (event) => {
@@ -1003,6 +1291,7 @@
 
       const columns = document.createElement("div");
       columns.className = "collection-row__columns";
+      columns.dataset.columnCount = String(row.values.length);
       columns.style.setProperty("--collection-grid-template", gridTemplate);
       row.values.forEach((value, index) => {
         const cell = document.createElement("span");
@@ -1094,49 +1383,174 @@
     }
   };
 
-  const setMobileDragPosition = (event) => {
-    if (!mobileDrag || event.pointerId !== mobileDrag.pointerId || !mobilePanel) {
+  const setWindowSize = (panel, width, height, left, top) => {
+    const padding = 8;
+    const minimumWidth = 160;
+    const minimumHeight = 120;
+    const maximumWidth = Math.max(minimumWidth, Math.min(window.innerWidth - left - padding, window.innerWidth * 0.8, 960));
+    const maximumHeight = Math.max(minimumHeight, Math.min(window.innerHeight - top - padding, window.innerHeight * 0.85, 960));
+    panel.style.left = `${left}px`;
+    panel.style.right = "auto";
+    panel.style.top = `${top}px`;
+    panel.style.bottom = "auto";
+    panel.style.width = `${Math.min(Math.max(minimumWidth, width), maximumWidth)}px`;
+    panel.style.height = `${Math.min(Math.max(minimumHeight, height), maximumHeight)}px`;
+    panel.style.aspectRatio = "auto";
+    if (panel === mobilePanel) {
+      mobilePositionInitialised = true;
+    }
+  };
+
+  const beginWindowResize = (panel, event) => {
+    if (!panel || event.button !== 0 || panel.classList.contains("is-minimized")) {
       return;
     }
 
-    const rect = mobilePanel.getBoundingClientRect();
+    const rect = panel.getBoundingClientRect();
+    windowResize = {
+      panel,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      startWidth: rect.width,
+      startHeight: rect.height,
+      left: rect.left,
+      top: rect.top
+    };
+    panel.setPointerCapture?.(event.pointerId);
+    panel.classList.add("is-resizing");
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
+  const resizeWindowWithKeyboard = (panel, event) => {
+    if (!panel || panel.classList.contains("is-minimized")) {
+      return;
+    }
+
+    const step = event.shiftKey ? 40 : 16;
+    let widthChange = 0;
+    let heightChange = 0;
+    if (event.key === "ArrowRight") {
+      widthChange = step;
+    } else if (event.key === "ArrowLeft") {
+      widthChange = -step;
+    } else if (event.key === "ArrowDown") {
+      heightChange = step;
+    } else if (event.key === "ArrowUp") {
+      heightChange = -step;
+    } else {
+      return;
+    }
+
+    const rect = panel.getBoundingClientRect();
+    setWindowSize(panel, rect.width + widthChange, rect.height + heightChange, rect.left, rect.top);
+    event.preventDefault();
+  };
+
+  const setMobileDragPosition = (event) => {
+    if (windowResize && event.pointerId === windowResize.pointerId) {
+      const resize = windowResize;
+      setWindowSize(
+        resize.panel,
+        resize.startWidth + event.clientX - resize.startX,
+        resize.startHeight + event.clientY - resize.startY,
+        resize.left,
+        resize.top
+      );
+      return;
+    }
+
+    if (!mobileDrag || event.pointerId !== mobileDrag.pointerId) {
+      return;
+    }
+
+    const panel = mobileDrag.panel;
+    const rect = panel.getBoundingClientRect();
     const padding = 8;
     const maxLeft = Math.max(padding, window.innerWidth - rect.width - padding);
     const maxTop = Math.max(padding, window.innerHeight - rect.height - padding);
     const left = Math.min(Math.max(padding, event.clientX - mobileDrag.offsetX), maxLeft);
     const top = Math.min(Math.max(padding, event.clientY - mobileDrag.offsetY), maxTop);
 
-    mobilePanel.style.left = `${left}px`;
-    mobilePanel.style.right = "auto";
-    mobilePanel.style.top = `${top}px`;
-    mobilePanel.style.bottom = "auto";
-    mobilePositionInitialised = true;
+    panel.style.left = `${left}px`;
+    panel.style.right = "auto";
+    panel.style.top = `${top}px`;
+    panel.style.bottom = "auto";
+    if (panel === mobilePanel) {
+      mobilePositionInitialised = true;
+    }
   };
 
   const stopMobileDrag = (event) => {
-    if (!mobileDrag || event.pointerId !== mobileDrag.pointerId || !mobilePanel) {
+    if (windowResize && event.pointerId === windowResize.pointerId) {
+      const panel = windowResize.panel;
+      if (panel.hasPointerCapture?.(event.pointerId)) {
+        panel.releasePointerCapture(event.pointerId);
+      }
+      windowResize = null;
+      panel.classList.remove("is-resizing");
       return;
     }
 
-    if (mobilePanel.hasPointerCapture?.(event.pointerId)) {
-      mobilePanel.releasePointerCapture(event.pointerId);
+    if (!mobileDrag || event.pointerId !== mobileDrag.pointerId) {
+      return;
+    }
+
+    const panel = mobileDrag.panel;
+    if (panel.hasPointerCapture?.(event.pointerId)) {
+      panel.releasePointerCapture(event.pointerId);
     }
 
     mobileDrag = null;
-    mobilePanel.classList.remove("is-dragging");
+    panel.classList.remove("is-dragging");
+  };
+
+  const beginWindowDrag = (panel, event) => {
+    if (!panel || event.button !== 0 || event.target.closest("button")) {
+      return;
+    }
+
+    const rect = panel.getBoundingClientRect();
+    mobileDrag = {
+      panel,
+      pointerId: event.pointerId,
+      offsetX: event.clientX - rect.left,
+      offsetY: event.clientY - rect.top
+    };
+    panel.setPointerCapture?.(event.pointerId);
+    panel.classList.add("is-dragging");
+    event.preventDefault();
   };
 
   const setupMobileControls = () => {
-    mobilePanel = document.getElementById("collection-mobile-media");
-    mobileContent = mobilePanel?.querySelector(".collection-mobile-media__content");
-    mobileToggle = document.getElementById("collection-mobile-media-toggle");
+    mobilePanel = document.getElementById("collection-media-window");
+    mobileContent = mobilePanel?.querySelector(".collection-media-window__content");
+    mobileWindowTitle = mobilePanel?.querySelector("[data-collection-media-title]");
+    imagePanel = document.getElementById("collection-image-window");
+    imageContent = imagePanel?.querySelector(".collection-image-window__content");
+    imageWindowTitle = imagePanel?.querySelector("[data-collection-image-title]");
+    audioMinimizeButton = mobilePanel?.querySelector(".collection-media-window__minimize");
+    mobileToggle = document.getElementById("collection-media-window-toggle");
     mobileCandidate = document.getElementById("collection-mobile-sound-candidate");
-    const closeButton = mobilePanel?.querySelector(".collection-mobile-media__close");
+    const closeButton = mobilePanel?.querySelector(".collection-media-window__close");
+    const imageCloseButton = imagePanel?.querySelector(".collection-image-window__close");
+    const dragHandle = mobilePanel?.querySelector(".collection-media-window__chrome");
+    const imageDragHandle = imagePanel?.querySelector(".collection-image-window__chrome");
+    const mediaResizeHandle = mobilePanel?.querySelector(".collection-window__resize");
+    const imageResizeHandle = imagePanel?.querySelector(".collection-window__resize");
 
     closeButton?.addEventListener("click", () => {
-      mobileMinimised = true;
-      presentMobilePreview();
+      if (isDesktopMedia()) {
+        closeDesktopPreview();
+      } else {
+        mobileMinimised = true;
+        presentMobilePreview();
+      }
     });
+
+    imageCloseButton?.addEventListener("click", closeDesktopImagePreview);
+    audioMinimizeButton?.addEventListener("click", toggleAudioPlayerMinimised);
 
     mobileToggle?.addEventListener("click", () => {
       mobileMinimised = false;
@@ -1155,25 +1569,32 @@
       }
     });
 
-    mobilePanel?.addEventListener("pointerdown", (event) => {
-      if (event.button !== 0 || event.target.closest("button")) {
-        return;
+    const attachWindowEvents = (panel, handle, resizeHandle) => {
+      handle?.addEventListener("pointerdown", (event) => beginWindowDrag(panel, event));
+      resizeHandle?.addEventListener("pointerdown", (event) => beginWindowResize(panel, event));
+      resizeHandle?.addEventListener("keydown", (event) => resizeWindowWithKeyboard(panel, event));
+      panel?.addEventListener("pointermove", setMobileDragPosition);
+      panel?.addEventListener("pointerup", stopMobileDrag);
+      panel?.addEventListener("pointercancel", stopMobileDrag);
+      panel?.addEventListener("pointerleave", () => {
+        if (isDesktopMedia()) {
+          scheduleDesktopPreviewRefresh();
+        }
+      });
+      panel?.addEventListener("focusout", () => {
+        if (isDesktopMedia()) {
+          scheduleDesktopPreviewRefresh();
+        }
+      });
+    };
+
+    attachWindowEvents(mobilePanel, dragHandle, mediaResizeHandle);
+    attachWindowEvents(imagePanel, imageDragHandle, imageResizeHandle);
+    mobileContent?.addEventListener("pointerdown", (event) => {
+      if (mobilePanel?.classList.contains("is-minimized")) {
+        beginWindowDrag(mobilePanel, event);
       }
-
-      const rect = mobilePanel.getBoundingClientRect();
-      mobileDrag = {
-        pointerId: event.pointerId,
-        offsetX: event.clientX - rect.left,
-        offsetY: event.clientY - rect.top
-      };
-      mobilePanel.setPointerCapture?.(event.pointerId);
-      mobilePanel.classList.add("is-dragging");
-      event.preventDefault();
     });
-
-    mobilePanel?.addEventListener("pointermove", setMobileDragPosition);
-    mobilePanel?.addEventListener("pointerup", stopMobileDrag);
-    mobilePanel?.addEventListener("pointercancel", stopMobileDrag);
   };
 
   const hydrateInvites = async () => {
@@ -1278,11 +1699,21 @@
     window.addEventListener("scroll", scheduleMobileSelection, { passive: true });
     window.addEventListener("resize", () => {
       scheduleMobileSelection();
-      updateSoundHoverPreviewPositions();
       scheduleCollectionTruncation();
+      updateSoundcloudMarquee(mobileContent);
     });
 
-    document.fonts?.ready?.then(scheduleCollectionTruncation);
+    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (reducedMotionQuery.addEventListener) {
+      reducedMotionQuery.addEventListener("change", () => updateSoundcloudMarquee(mobileContent));
+    } else {
+      reducedMotionQuery.addListener(() => updateSoundcloudMarquee(mobileContent));
+    }
+
+    document.fonts?.ready?.then(() => {
+      scheduleCollectionTruncation();
+      updateSoundcloudMarquee(mobileContent);
+    });
 
     if (desktopMediaQuery.addEventListener) {
       desktopMediaQuery.addEventListener("change", setMediaMode);
