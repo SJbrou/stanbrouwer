@@ -9,6 +9,7 @@
     <meta name="description" content="A carefully curated collection of experiences by Stan Brouwer.">
     <link rel="canonical" href="{{ page.url | replace:'index.html','' | absolute_url }}">
     <link rel="stylesheet" href="{{ '/assets/styles/collection.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+    <link rel="stylesheet" href="{{ '/assets/styles/project-details.css' | relative_url }}?v={{ site.time | date: '%s' }}">
     {% if page.welcome %}
     <script>
       if (window.matchMedia && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -22,15 +23,53 @@
     <script src="{{ '/assets/js/collection-welcome.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
     {% endif %}
     <script>
+      window.COLLECTION_PROJECTS_CONFIG = {
+        sheetId: {{ site.invites_sheet_id | jsonify }},
+        homeUrl: {{ '/' | relative_url | jsonify }},
+        detailUrl: {{ '/projects/' | relative_url | jsonify }},
+        previewUrl: {{ '/projects/design-preview/' | relative_url | jsonify }},
+        exampleImage: {{ '/assets/img/de_loods.jpg' | relative_url | jsonify }},
+        transitionGridImage: {{ '/assets/img/black-white-perspective-grid-background-vector.jpg' | relative_url | jsonify }},
+        siteTitle: {{ site.title | jsonify }}
+      };
       window.TZ_INVITES_CONFIG = {
         sheetId: {{ site.invites_sheet_id | jsonify }},
         sheetName: {{ site.invites_sheet_name | default: 'INVITES' | jsonify }}
       };
     </script>
     <script src="{{ '/assets/js/invites.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+    <script src="{{ '/assets/js/collection-projects.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
     <script src="{{ '/assets/js/collection.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+    <script src="{{ '/assets/js/collection-navigation.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
   </head>
   <body class="collection-body">
-    {{ content }}
+    {% if page.project_preview %}
+    <nav class="project-design-controls" data-project-design-controls aria-label="Project design preview">
+      <a href="{{ '/' | relative_url }}#projects-title" data-collection-home>← COLLECTION</a>
+      <span class="project-design-controls__label">DESIGN PREVIEW</span>
+      <div class="project-design-controls__layouts" role="group" aria-label="Page design">
+        <button type="button" data-project-design="editorial" aria-pressed="false">01 Editorial sheet</button>
+        <button type="button" data-project-design="split" aria-pressed="false">02 Split dossier</button>
+        <button type="button" data-project-design="modular" aria-pressed="true">03 Modular plate</button>
+      </div>
+      <label>CONTENT <select data-project-example>
+        <option value="image">Image + text example</option>
+        <option value="text">Without an image</option>
+        <option value="long">Long Markdown example</option>
+      </select></label>
+      <div class="project-design-controls__transitions" role="group" aria-label="Transition concept">
+        <span class="project-design-controls__label">TRANSITION</span>
+        <button type="button" data-project-transition="fixed" aria-pressed="true">01 Fixed grid</button>
+        <button type="button" data-project-transition="lift" aria-pressed="false">02 Lifting sheet</button>
+        <button type="button" data-project-transition="footer" aria-pressed="false">03 Grid footer</button>
+      </div>
+      <button type="button" data-project-preview-switch>Switch to PROJECTS</button>
+      <button type="button" data-project-replay>Replay transition ↗</button>
+      <span class="project-design-controls__status" data-project-design-status role="status">Modular plate</span>
+      <span class="project-design-controls__status" data-project-transition-status role="status">The image sits at each page's end and stays pinned while the page folds through PERSPECTIVE.</span>
+    </nav>
+    {% endif %}
+    {% unless page.project_detail or page.project_preview %}{{ content }}{% endunless %}
+    {% include collection-project-detail.html %}
   </body>
 </html>

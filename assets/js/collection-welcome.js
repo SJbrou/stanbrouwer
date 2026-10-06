@@ -87,7 +87,7 @@
 
   const renderFrame = () => {
     renderRequest = undefined;
-    if (!frame || state === "static") return;
+    if (!frame || state === "static" || page.hidden) return;
     if (needsMeasure) measureFrame();
     const { source, target, pageTop } = geometry;
     const progress = state === "clearing" ? 0

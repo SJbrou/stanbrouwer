@@ -64,6 +64,7 @@ defaults:
 
 exclude:
   - archive
+  - docs
   - vendor
   - .bundle
   - .sass-cache
@@ -76,3 +77,4 @@ exclude:
   - README.md
   - LICENSE
   - assets/invites-sample.tsv
+  - scripts/check-project-details.cjs

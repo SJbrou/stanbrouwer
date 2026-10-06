@@ -1,0 +1,13 @@
+<main class="collection-page project-detail-page" data-project-page {% unless page.project_detail or page.project_preview %}hidden{% endunless %}>
+  <article class="collection-poster project-detail project-detail--modular" data-project-surface aria-busy="true">
+    <nav class="project-detail__nav" aria-label="Project navigation">
+      <a class="project-detail__back" href="{{ '/' | relative_url }}#projects-title" data-collection-home>← PROJECTS</a>
+      <span class="project-detail__signature">PERSPECTIVE</span>
+    </nav>
+    <header class="project-detail__header">
+      <h1 class="project-detail__title" tabindex="-1">{% if page.project_preview %}Design preview{% else %}PROJECTS{% endif %}</h1>
+    </header>
+    <div class="project-detail__body" data-project-loading role="status"><p>Loading project…</p></div>
+    <noscript><p class="project-detail__notice">Enable JavaScript to read projects from the collection.</p></noscript>
+  </article>
+</main>

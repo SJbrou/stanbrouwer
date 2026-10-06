@@ -52,6 +52,8 @@ body.collection-body {
 }
 
 .collection-intro {
+  --collection-intro-top-space: clamp(0.75rem, 2vw, 1.5rem);
+  padding-top: var(--collection-intro-top-space);
   padding-bottom: clamp(12rem, 28vw, 25rem);
 }
 
@@ -66,8 +68,8 @@ body.collection-body {
 // The width multiplier preserves the image's original 954:953 aspect ratio.
 [data-collection-welcome] .collection-intro {
   width: 100%;
-  max-width: calc((100vh - 4.5rem) * 1.00105);
-  max-width: calc((100svh - 4.5rem) * 1.00105);
+  max-width: calc((100vh - 4.5rem - var(--collection-intro-top-space)) * 1.00105);
+  max-width: calc((100svh - 4.5rem - var(--collection-intro-top-space)) * 1.00105);
   margin-inline: auto;
   container-type: inline-size;
 }
@@ -665,6 +667,13 @@ a.invite-button:focus-visible::after {
 .collection-media__image,
 .collection-soundcloud-artwork {
   object-fit: cover;
+}
+
+.collection-media-window .collection-media__image,
+.collection-image-window .collection-media__image {
+  object-fit: contain;
+  object-position: center;
+  background: var(--collection-paper);
 }
 
 .collection-soundcloud-artwork {

@@ -37,6 +37,7 @@
   let mobilePositionInitialised = false;
   let mobileSelectionPending = false;
   let collectionTruncationPending = false;
+  let collectionSuspended = false;
   let mobileDrag = null;
   let windowResize = null;
 
@@ -44,7 +45,7 @@
     { tab: "WORDS", targetId: "collection-words", mediaKind: "website" },
     { tab: "SOUNDS", targetId: "collection-sounds", mediaKind: "soundcloud", hiddenColumnIndexes: [4] },
     { tab: "PLACES", targetId: "collection-places", mediaKind: "image", hiddenColumnIndexes: [2] },
-    { tab: "PROJECTS", targetId: "collection-projects", mediaKind: "image" }
+    { tab: "PROJECTS", targetId: "collection-projects", mediaKind: "image", hiddenColumnIndexes: [3, 4, 5] }
   ];
 
   const isDesktopMedia = () => desktopMediaQuery.matches;
@@ -117,7 +118,7 @@
       throw new Error("The sheet did not return a valid response.");
     }
 
-    const rawRows = response.table.rows || [];
+    const rawRows = (response.table.rows || []).filter(row => subsection.tab !== "PROJECTS" || visibleValue(row.c?.[1]).trim());
     const activeColumnIndexes = new Set();
     const urlColumnIndexes = new Set();
     const hiddenColumnIndexes = new Set(subsection.hiddenColumnIndexes || []);
@@ -134,7 +135,8 @@
     });
 
     const visibleColumnIndexes = Array.from(activeColumnIndexes)
-      .filter((index) => !urlColumnIndexes.has(index) && !hiddenColumnIndexes.has(index))
+      .filter((index) => !urlColumnIndexes.has(index) && !hiddenColumnIndexes.has(index)
+        && (subsection.tab !== "PROJECTS" || index < 3))
       .sort((first, second) => first - second);
     const orderedUrlColumnIndexes = Array.from(urlColumnIndexes)
       .sort((first, second) => first - second);
@@ -155,11 +157,16 @@
         const cells = row.c || [];
         const values = visibleColumnIndexes.map((index) => visibleValue(cells[index]));
         const links = orderedUrlColumnIndexes.map((index) => linkValue(cells[index])).filter(Boolean);
-        const routing = mediaForRow(subsection, links);
+        const project = subsection.tab === "PROJECTS" ? window.CollectionProjects.fromCells(cells) : null;
+        const routing = project ? {
+          media: project.image ? { kind: "image", source: project.image } : null,
+          destination: project.description ? window.CollectionProjects.href(project.slug) : project.externalUrl
+        } : mediaForRow(subsection, links);
 
         return {
           values,
           ...routing,
+          projectSlug: project?.description ? project.slug : null,
           label: itemLabel(values, subsection.tab)
         };
       })
@@ -388,6 +395,7 @@
       if (isPlaying) {
         pauseSoundcloudFrame(frame);
       } else {
+        retainSoundcloudSelection(row);
         playSoundcloudFrame(frame);
       }
 
@@ -429,7 +437,11 @@
         }
 
         const widget = soundcloud.Widget(frame);
-        widget.bind(soundcloud.Widget.Events.PLAY, () => setSoundcloudControlState(target, true));
+        widget.bind(soundcloud.Widget.Events.PLAY, () => {
+          if (target.dataset.mediaKey !== key) return;
+          setSoundcloudControlState(target, true);
+          retainSoundcloudSelection(row);
+        });
         widget.bind(soundcloud.Widget.Events.PAUSE, () => setSoundcloudControlState(target, false));
         widget.bind(soundcloud.Widget.Events.FINISH, () => {
           if (target.dataset.mediaKey === key) {
@@ -733,8 +745,25 @@
     }
   };
 
+  const retainSoundcloudSelection = (row) => {
+    const entry = Array.from(document.querySelectorAll(".collection-subsection--sounds .collection-row"))
+      .find(node => rowMetadata.get(node) === row);
+    if (!entry) return;
+    if (isDesktopMedia()) {
+      if (desktopPinnedRow === entry) return;
+      desktopPinnedRow = entry;
+      desktopSelectedRows.set(entry.closest(".collection-subsection"), entry);
+      showDesktopAudioPlayer(entry, row);
+    } else {
+      if (mobileNowPlayingRow === entry) return;
+      mobileNowPlayingRow = entry;
+      updateMobileSoundCandidate();
+      presentMobilePreview();
+    }
+  };
+
   const refreshDesktopPreview = () => {
-    if (!isDesktopMedia()) {
+    if (collectionSuspended || !isDesktopMedia()) {
       return;
     }
 
@@ -924,7 +953,7 @@
 
   const mobilePreviewRow = () => {
     const nowPlaying = mobileNowPlayingRow && rowMetadata.get(mobileNowPlayingRow);
-    return nowPlaying?.media?.kind === "soundcloud" ? mobileNowPlayingRow : mobileCurrentRow;
+    return nowPlaying?.media?.kind === "soundcloud" ? mobileNowPlayingRow : collectionSuspended ? null : mobileCurrentRow;
   };
 
   const updateMobileSoundCandidate = () => {
@@ -934,7 +963,7 @@
 
     const currentRow = mobileCurrentRow && rowMetadata.get(mobileCurrentRow);
     const nowPlaying = mobileNowPlayingRow && rowMetadata.get(mobileNowPlayingRow);
-    const shouldShow = currentRow?.media?.kind === "soundcloud"
+    const shouldShow = !collectionSuspended && currentRow?.media?.kind === "soundcloud"
       && nowPlaying?.media?.kind === "soundcloud"
       && mobileCurrentRow !== mobileNowPlayingRow;
 
@@ -1008,7 +1037,7 @@
   };
 
   const selectMobileMiddleRow = () => {
-    if (isDesktopMedia()) {
+    if (collectionSuspended || isDesktopMedia()) {
       return;
     }
 
@@ -1033,6 +1062,7 @@
   };
 
   const scheduleMobileSelection = () => {
+    if (collectionSuspended || document.querySelector("[data-collection-welcome]")?.hidden) return;
     if (isDesktopMedia() || mobileSelectionPending) {
       return;
     }
@@ -1087,7 +1117,10 @@
     desktopFocusedRow = null;
     desktopPreviewRow = null;
 
-    scheduleMobileSelection();
+    if (collectionSuspended) {
+      updateMobileSoundCandidate();
+      presentMobilePreview();
+    } else scheduleMobileSelection();
   };
 
   const playSoundcloudRow = (entry, subsectionElement, row) => {
@@ -1279,6 +1312,7 @@
       entry.className = "collection-row";
       if (row.destination) {
         entry.href = row.destination;
+        if (row.projectSlug) entry.dataset.collectionProject = row.projectSlug;
       } else {
         entry.tabIndex = 0;
         if (row.media?.kind === "soundcloud") {
@@ -1333,7 +1367,9 @@
     scheduleMobileSelection();
   };
 
-  const loadTab = (subsection) => new Promise((resolve, reject) => {
+  const loadTab = (subsection) => subsection.tab === "PROJECTS"
+    ? window.CollectionProjects.loadResponse().then(response => normaliseRows(response, subsection))
+    : new Promise((resolve, reject) => {
     callbackCount += 1;
     const callbackName = `collectionSheetCallback${callbackCount}`;
     const script = document.createElement("script");
@@ -1533,6 +1569,12 @@
     audioMinimizeButton = mobilePanel?.querySelector(".collection-media-window__minimize");
     mobileToggle = document.getElementById("collection-media-window-toggle");
     mobileCandidate = document.getElementById("collection-mobile-sound-candidate");
+    // Move empty window shells once, before an iframe is created. Moving a playing
+    // iframe between parents would reload it and interrupt playback.
+    const dock = document.createElement("div");
+    dock.className = "collection-media-dock";
+    dock.append(...[mobilePanel, imagePanel, mobileToggle, mobileCandidate].filter(Boolean));
+    document.body.append(dock);
     const closeButton = mobilePanel?.querySelector(".collection-media-window__close");
     const imageCloseButton = imagePanel?.querySelector(".collection-image-window__close");
     const dragHandle = mobilePanel?.querySelector(".collection-media-window__chrome");
@@ -1692,10 +1734,13 @@
     }
   };
 
-  document.addEventListener("DOMContentLoaded", () => {
+  let initialised = false;
+  let ready;
+  const initialise = () => {
+    if (initialised || !document.querySelector("[data-collection-welcome]")) return ready;
+    initialised = true;
     setupMobileControls();
-    hydrateInvites();
-    subsections.forEach(hydrateSubsection);
+    ready = Promise.all([hydrateInvites(), ...subsections.map(hydrateSubsection)]);
     window.addEventListener("scroll", scheduleMobileSelection, { passive: true });
     window.addEventListener("resize", () => {
       scheduleMobileSelection();
@@ -1722,5 +1767,26 @@
     }
 
     setMediaMode();
-  });
+    return ready;
+  };
+
+  window.Collection = {
+    initialise,
+    suspend() {
+      collectionSuspended = true;
+      closeDesktopImagePreview();
+      if (!desktopPinnedRow && !mobileNowPlayingRow) {
+        hideDesktopPreview();
+        hideMobilePreview();
+        clearMedia(mobileContent);
+      }
+      updateMobileSoundCandidate();
+    },
+    resume() {
+      collectionSuspended = false;
+      scheduleCollectionTruncation();
+      scheduleMobileSelection();
+    }
+  };
+  document.addEventListener("DOMContentLoaded", initialise);
 })();
