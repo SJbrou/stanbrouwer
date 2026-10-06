@@ -155,6 +155,23 @@
       height: Math.max(1, Math.min(innerHeight, rect.bottom) - y)
     };
   };
+  const floorFrame = page => {
+    const rect = page.querySelector(".project-detail__ground-image, .collection-outro__image")?.getBoundingClientRect();
+    return rect && rect.width && rect.height
+      ? { x: rect.left, y: rect.top, width: rect.width, height: rect.height }
+      : null;
+  };
+  const pinProjectFloor = (page, rect) => {
+    const floor = page?.querySelector(".project-detail__ground");
+    if (!floor || !rect) return;
+    const viewportWidth = document.documentElement.clientWidth || innerWidth;
+    Object.assign(floor.style, {
+      left: `${rect.x / viewportWidth * 100}%`,
+      top: `${rect.y / innerHeight * 100}%`,
+      right: `${(viewportWidth - rect.x - rect.width) / viewportWidth * 100}%`,
+      bottom: "auto", width: "auto", height: "auto"
+    });
+  };
   const focusedProjectLink = () => homeFocus && home
     ? Array.from(home.querySelectorAll("[data-collection-project]")).find(node => node.dataset.collectionProject === homeFocus)
     : null;
@@ -205,7 +222,7 @@
     frame = requestAnimationFrame(tick);
   });
 
-  const makeTransition = kind => {
+  const makeTransition = (kind, floorRect) => {
     const overlay = document.createElement("div");
     overlay.className = `collection-route collection-route--${kind}`;
     overlay.setAttribute("aria-hidden", "true");
@@ -245,12 +262,12 @@
     const positionFloor = () => {
       const ratio = floorImage.naturalWidth && floorImage.naturalHeight
         ? floorImage.naturalWidth / floorImage.naturalHeight : 1920 / 521;
-      const width = innerWidth;
-      const height = width / ratio;
+      const width = floorRect?.width || innerWidth;
+      const height = floorRect?.height || width / ratio;
       floorImage.style.width = `${width}px`;
       floorImage.style.height = `${height}px`;
-      floorImage.style.left = "0px";
-      floorImage.style.top = `${innerHeight - height}px`;
+      floorImage.style.left = `${floorRect?.x ?? 0}px`;
+      floorImage.style.top = `${floorRect?.y ?? innerHeight - height}px`;
     };
     floorImage.addEventListener("load", positionFloor, { once: true });
     positionFloor();
@@ -365,18 +382,24 @@
     try {
       const canAnimate = !motion.matches && window.CSS?.supports("clip-path", "inset(0)") && !document.hidden;
       const start = canAnimate ? visibleFrame(outgoing) : null;
+      const floorRect = floorFrame(outgoing);
       const previewFocal = controls && isPreview(url)
         ? detail.querySelector(previewSide === "project" ? "[data-collection-project]" : "[data-collection-home]")
         : null;
       const focalElement = options.focal || previewFocal || (isHome(url)
         ? detail.querySelector("[data-collection-home]")
         : isHome(currentUrl) ? focusedProjectLink() : null);
-      const linkFocus = canAnimate && focalElement ? focalPoint(focalElement) : null;
+      const linkFocus = canAnimate && (options.point || focalElement)
+        ? options.point || focalPoint(focalElement) : null;
       const square = canAnimate ? squareFrame(linkFocus) : null;
       const focus = canAnimate ? linkFocus || {
         x: square.x + square.width / 2, y: square.y + square.height / 2
       } : null;
-      if (canAnimate) transition = makeTransition(transitionVariant);
+      if (canAnimate) transition = makeTransition(transitionVariant, floorRect);
+      const switchToTarget = () => {
+        swap(url, state);
+        if (!isHome(url)) pinProjectFloor(activePage(), floorRect);
+      };
       const prepared = isHome(url) ? ensureHome()
         : isPreview(url) ? Promise.resolve(renderPreview()) : showDetail(url);
       if (isHome(currentUrl)) window.Collection.suspend();
@@ -391,7 +414,7 @@
           transition.lift(-innerHeight, square, 1);
           const ready = prepared.then(() => true);
           await Promise.all([interrupted ? Promise.resolve() : delay(200), Promise.race([ready, delay(2200)])]);
-          swap(url, state);
+          switchToTarget();
           transition.capture();
           transition.lift(innerHeight, square, 1);
           transition.overlay.dataset.transitionPhase = "rise-in";
@@ -403,7 +426,7 @@
           transition.footer(0, square, 1);
           const ready = prepared.then(() => true);
           await Promise.all([interrupted ? Promise.resolve() : delay(180), Promise.race([ready, delay(2200)])]);
-          swap(url, state);
+          switchToTarget();
           transition.capture();
           transition.footer(0, square, 1);
           transition.overlay.dataset.transitionPhase = "crossfade-in";
@@ -418,7 +441,7 @@
           transition.draw(square, square, 0, 0, 1, 1, focus, 0.78);
           const ready = prepared.then(() => true);
           await Promise.all([interrupted ? Promise.resolve() : delay(200), Promise.race([ready, delay(2200)])]);
-          swap(url, state);
+          switchToTarget();
           transition.capture();
           transition.overlay.dataset.transitionPhase = "expand";
           const target = visibleFrame(activePage());
@@ -430,7 +453,7 @@
       } else {
         // The loading surface can be shown immediately without waiting on the network.
         if (isHome(url)) await Promise.race([prepared, delay(2200)]);
-        swap(url, state);
+        switchToTarget();
       }
       currentUrl = url;
       if (isHome(url) && home && homeFocus) {
@@ -440,10 +463,11 @@
       prepared.then(() => {
         if (currentUrl.href !== url.href) return;
         if (isHome(url) && home?.hidden) {
-          swap(url, state);
+          switchToTarget();
           const link = Array.from(home.querySelectorAll("[data-collection-project]")).find(node => node.dataset.collectionProject === homeFocus);
           link?.focus({ preventScroll: true });
         }
+        if (!isHome(url)) pinProjectFloor(activePage(), floorRect);
         metadata(url);
         if (isHome(url) && homeScroll == null && Math.abs(scrollY - scrollFor(url, state)) < 4) window.scrollTo(0, scrollFor(url, state));
       }).catch(() => { if (isHome(url) && currentUrl.href === url.href) location.assign(url.href); });
@@ -474,12 +498,14 @@
     if (controls && previewSide === "index" && url.pathname === previewPath && url.origin === location.origin) {
       event.preventDefault();
       previewSide = "project";
-      navigate(currentUrl, { replay: true, focal: link });
+      navigate(currentUrl, { replay: true, focal: link,
+        point: event.detail > 0 ? { x: event.clientX, y: event.clientY } : null });
       return;
     }
     if (url.origin !== location.origin || ![homePath, detailPath].includes(url.pathname)) return;
     event.preventDefault();
-    navigate(url, { focal: link });
+    navigate(url, { focal: link,
+      point: event.detail > 0 ? { x: event.clientX, y: event.clientY } : null });
   });
   window.addEventListener("popstate", event => navigate(location.href, { pop: true, state: event.state?.collectionView }));
   window.addEventListener("resize", () => { if (navigating) interrupted = true; });
