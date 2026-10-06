@@ -9,7 +9,7 @@
 .project-detail-page { padding-bottom: 0.5rem; }
 .project-detail {
   min-height: calc(100svh - 2rem);
-  margin-bottom: 0;
+  margin-bottom: calc(-1 * min(9.5rem, 12vw));
   letter-spacing: -0.035em;
 }
 .project-detail__nav {
@@ -162,7 +162,7 @@
   background: var(--collection-paper);
 }
 .project-detail__ground { position: relative; z-index: 0; line-height: 0; }
-.project-detail__ground-image { display: block; width: 100%; height: auto; mix-blend-mode: multiply; }
+.project-detail__ground-image { display: block; width: 100%; height: auto; }
 @media (min-width: 60rem) {
   .project-detail--modular.has-image .project-detail__heading-row {
     grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);

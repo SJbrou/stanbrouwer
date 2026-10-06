@@ -208,19 +208,19 @@
     }
     if (variant === "modular") {
       surface.classList.add("has-ground");
-      const ground = element("div", "project-detail__ground");
+      const ground = element("footer", "collection-outro project-detail__ground");
       ground.setAttribute("aria-hidden", "true");
-      const groundImage = element("img", "project-detail__ground-image");
+      const groundImage = element("img", "collection-outro__image project-detail__ground-image");
       groundImage.src = config.transitionGridImage;
       groundImage.alt = "";
       groundImage.draggable = false;
       groundImage.decoding = "async";
       ground.append(groundImage);
-      body.append(ground);
       if (info.childNodes.length) nav.insertBefore(info, nav.querySelector(".project-detail__signature"));
       const content = element("div", "project-detail__content");
       content.append(header, body);
       surface.append(content);
+      host.append(ground);
     } else surface.insertBefore(body, surface.querySelector(".project-detail__footer"));
     surface.setAttribute("aria-busy", "false");
   };
