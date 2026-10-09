@@ -10,34 +10,20 @@
     <link rel="canonical" href="{{ page.url | replace:'index.html','' | absolute_url }}">
     <link rel="stylesheet" href="{{ '/assets/styles/collection.css' | relative_url }}?v={{ site.time | date: '%s' }}">
     <link rel="stylesheet" href="{{ '/assets/styles/project-details.css' | relative_url }}?v={{ site.time | date: '%s' }}">
-    {% if page.welcome %}
-    <script>
-      if (window.matchMedia && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
-          && window.CSS && CSS.supports('clip-path', 'inset(0)')) {
-        document.documentElement.classList.add('collection-welcome-pending');
-        window.collectionWelcomeFallback = window.setTimeout(function () {
-          document.documentElement.classList.remove('collection-welcome-pending');
-        }, 4000);
-      }
-    </script>
     <script src="{{ '/assets/js/collection-welcome.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
-    {% endif %}
     <script>
       window.COLLECTION_PROJECTS_CONFIG = {
         sheetId: {{ site.invites_sheet_id | jsonify }},
         homeUrl: {{ '/' | relative_url | jsonify }},
         detailUrl: {{ '/projects/' | relative_url | jsonify }},
+        inviteUrl: {{ '/invites/' | relative_url | jsonify }},
         previewUrl: {{ '/projects/design-preview/' | relative_url | jsonify }},
         exampleImage: {{ '/assets/img/de_loods.jpg' | relative_url | jsonify }},
         transitionGridImage: {{ '/assets/img/black-white-perspective-grid-background-vector.jpg' | relative_url | jsonify }},
         siteTitle: {{ site.title | jsonify }}
       };
-      window.TZ_INVITES_CONFIG = {
-        sheetId: {{ site.invites_sheet_id | jsonify }},
-        sheetName: {{ site.invites_sheet_name | default: 'INVITES' | jsonify }}
-      };
     </script>
-    <script src="{{ '/assets/js/invites.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+    {% include booking-assets.html %}
     <script src="{{ '/assets/js/collection-projects.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
     <script src="{{ '/assets/js/collection.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
     <script src="{{ '/assets/js/collection-navigation.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
@@ -66,10 +52,11 @@
       <button type="button" data-project-preview-switch>Switch to PROJECTS</button>
       <button type="button" data-project-replay>Replay transition ↗</button>
       <span class="project-design-controls__status" data-project-design-status role="status">Modular plate</span>
-      <span class="project-design-controls__status" data-project-transition-status role="status">The image sits at each page's end and stays pinned while the page folds through PERSPECTIVE.</span>
+      <span class="project-design-controls__status" data-project-transition-status role="status">One continuous grid stays behind the paper as it folds through PERSPECTIVE into the next page.</span>
     </nav>
     {% endif %}
     {% unless page.project_detail or page.project_preview %}{{ content }}{% endunless %}
     {% include collection-project-detail.html %}
+    {% include collection-invite-detail.html hidden=true %}
   </body>
 </html>

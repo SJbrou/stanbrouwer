@@ -1,0 +1,267 @@
+---
+---
+
+// The width follows the other detail pages; the paper persists between every step.
+.booking-experience {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(min-content, 1fr) auto;
+  min-height: calc(100svh - var(--booking-toolbar-height, 0px));
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.booking-experience .booking-frame {
+  position: relative;
+  min-width: 0;
+  height: auto;
+  min-height: 32rem;
+  padding: 0;
+  overflow: visible;
+}
+// The document owns scrolling; the paper grows with the complete booking step.
+.booking-content { position: relative; }
+.booking-host { min-width: 0; }
+.booking-experience .project-detail__nav { min-height: 3.5rem; padding-inline: clamp(1.25rem, 3vw, 2.5rem); border-bottom: 0; }
+.booking-experience .project-detail__signature { font-size: 0.75rem; }
+.booking-experience .booking-layout-body { width: min(100%, 44rem); margin-inline: auto; padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1.25rem, 4vw, 3rem) 3rem; }
+.booking-experience .booking-lead,
+.booking-experience .booking-action { min-width: 0; }
+.booking-experience .booking-lead { padding: 0; }
+.booking-experience .invite-detail__header,
+.booking-experience .project-detail__header { padding: 0; }
+.booking-experience .booking-lead .project-detail__title {
+  max-width: 19ch;
+  margin: 0;
+  font-size: clamp(2.25rem, 4vw, 3.5rem);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.075em;
+  overflow-wrap: break-word;
+}
+.booking-experience .invite-detail__heading-row { display: block; }
+.booking-experience .invite-detail__figure { width: 5.5rem; margin: 1.75rem 0 0; }
+.booking-event-meta { margin: 1.75rem 0 0; font-size: 0.75rem; line-height: 1.6; color: #595959; }
+.booking-experience .invite-detail__section { padding: 0; }
+.booking-experience .booking-lead .invite-detail__section { margin-top: 1.5rem; }
+.booking-experience .invite-detail__section > .invite-markdown { max-width: 50ch; }
+.booking-experience .invite-detail__section > .invite-markdown :is(p, li) { font-size: 0.95rem; line-height: 1.65; }
+.booking-experience .invite-detail__section > .invite-markdown p { margin-bottom: 0.85rem; }
+.booking-experience .booking-action { margin-top: 3rem; border: 0; }
+.booking-experience .invite-detail__section h2 {
+  max-width: none;
+  margin: 0 0 1.5rem;
+  font-size: clamp(1.4rem, 2vw, 1.75rem);
+  line-height: 1.15;
+  letter-spacing: -0.055em;
+}
+.booking-experience .invite-ticket-table__head { font-size: 0.62rem; opacity: 0.65; }
+.booking-experience .invite-ticket-row { min-height: 0; padding: 1.2rem 0; gap: 0.75rem; }
+.booking-experience .invite-ticket-row.is-selected { background: transparent; }
+.booking-experience .invite-ticket-row strong { font-size: 0.95rem; font-weight: 400; }
+.booking-experience .invite-ticket-row__type > small { display: none; }
+.booking-experience .invite-ticket-row__type .invite-markdown { margin-top: 0.5rem; }
+.booking-experience .invite-ticket-row__type .invite-markdown p { max-width: 38ch; font-size: 0.75rem; line-height: 1.5; }
+.booking-experience .invite-ticket-table__head { padding-inline: 0; }
+.booking-experience .invite-ticket-row__price { font-size: 0.85rem; }
+.booking-experience .invite-reservation-footer { align-items: center; padding: 1.5rem 0 0; }
+.booking-experience .invite-reservation-footer small { display: none; }
+.booking-experience .invite-reservation-footer b { color: #595959; font-size: 0.8rem; font-weight: 400; }
+.booking-experience .invite-reservation__closed { padding: 1.5rem 0; font-size: 0.85rem; }
+
+.booking-experience .ticket-event-header { padding: 0 clamp(1.25rem, 3vw, 2.5rem) 0.5rem; }
+.booking-experience .ticket-event-header .project-detail__title { max-width: none; margin: 0; color: #595959; font-size: 0.85rem; line-height: 1.5; letter-spacing: -0.035em; }
+.booking-experience .ticket-section-heading h2,
+.booking-experience .ticket-confirmation__heading h2 { max-width: 15ch; margin: 0; font-size: clamp(2.5rem, 4.5vw, 4.25rem); font-weight: 400; line-height: 1.05; letter-spacing: -0.075em; }
+.booking-experience .ticket-section-heading__copy,
+.booking-experience .ticket-confirmation__heading > p:last-child { max-width: 42ch; margin: 1.25rem 0 0; font-size: 0.9rem; line-height: 1.6; letter-spacing: -0.035em; }
+.booking-experience .ticket-flow-section .booking-action,
+.booking-experience .ticket-confirmation .booking-action { margin-top: 2.5rem; }
+.booking-selection-note { margin: 1rem 0 0; color: #595959; font-size: 0.75rem; line-height: 1.5; }
+.booking-selection-note a { color: #000; text-underline-offset: 0.2em; }
+.booking-experience .ticket-form-grid { grid-template-columns: 1fr; gap: 1.25rem; border: 0; }
+.booking-experience .ticket-form-grid .invite-form-field { padding: 0; border: 0; }
+.booking-experience .ticket-form-grid .invite-form-field > span { margin-bottom: 0.4rem; font-size: 0.75rem; }
+.booking-experience .ticket-form-grid input { padding: 0.7rem 0; font-size: 1rem; }
+.booking-experience .ticket-flow-footer { padding: 2rem 0 0; gap: 1.5rem; border: 0; }
+.booking-experience .ticket-flow-footer--single { justify-content: flex-start; }
+.booking-experience .invite-button { min-height: 2.75rem; padding: 0.8rem 1rem; font: inherit; font-size: 0.8rem; letter-spacing: -0.035em; }
+.booking-experience .invite-back-link { font-size: 0.75rem; }
+.booking-experience .ticket-table-wrap { border-top: 0; }
+.booking-experience .ticket-table :is(th, td) { padding: 1rem 0; line-height: 1.4; }
+.booking-experience .ticket-table tbody th strong { font-size: 0.9rem; font-weight: 400; }
+.booking-experience .ticket-table thead th { padding: 0 0 0.65rem; font-size: 0.6rem; }
+.booking-experience .ticket-table thead th:first-child,
+.booking-experience .ticket-table tbody th { width: 52%; }
+.booking-experience .ticket-table thead th:nth-child(2),
+.booking-experience .ticket-table tbody td:nth-child(2) { width: 23%; }
+.booking-experience .ticket-table thead th:nth-child(3),
+.booking-experience .ticket-table tbody td:nth-child(3) { width: 25%; }
+.booking-experience .ticket-review__facts,
+.booking-experience .ticket-confirmation__facts { grid-template-columns: 1fr; gap: 1.75rem; margin-top: 2rem; }
+.booking-experience .ticket-facts-block { border: 0; }
+.booking-experience .ticket-facts-block > h3 { padding: 0 0 0.75rem; border: 0; color: #595959; font-size: 0.65rem; letter-spacing: 0; }
+.booking-experience .ticket-facts > div { grid-template-columns: 6.5rem minmax(0, 1fr); border: 0; }
+.booking-experience .ticket-facts :is(dt, dd) { padding: 0.25rem 0; font-size: 0.8rem; line-height: 1.5; }
+.booking-experience .ticket-confirmation__tickets { margin-top: 2rem; }
+.booking-experience .ticket-confirmation__facts { margin-top: 0; }
+.booking-experience .ticket-confirmation__tickets .invite-button { padding: 0.5rem 0.6rem; min-height: 2.25rem; font-size: 0.7rem; white-space: nowrap; }
+
+// The focal marker is the only layer outside the animated content. The border never moves.
+.booking-focal { position: absolute; z-index: 3; width: 0; height: 0; opacity: 0; pointer-events: none; color: #000; }
+.booking-focal__point { position: absolute; left: -3px; top: -3px; width: 6px; height: 6px; background: #000; }
+.booking-focal__label { position: absolute; top: 1rem; left: -5rem; width: 10rem; text-align: center; font-size: 0.6rem; letter-spacing: -0.04em; }
+.booking-frame[data-motion="diamond"] .booking-focal__point { transform: rotate(45deg); }
+
+[data-booking-page][hidden] { display: none; }
+.booking-experience .booking-frame { margin-bottom: calc(-1 * var(--collection-ground-overlap)); }
+.booking-experience .ticket-progress { display: none; }
+.booking-experience .invite-sync { display: block; margin: 0 0 2rem; padding: 0; border: 0; background: transparent; font-size: 0.75rem; }
+.booking-experience .invite-sync b { font-weight: 400; }
+.booking-experience .invite-sync span { display: block; margin-top: 0.35rem; color: #595959; opacity: 1; }
+.booking-experience .invite-access { margin: 1rem 0 0; }
+.booking-experience .invite-message,
+.booking-experience .ticket-status { width: min(100%, 44rem); max-width: none; margin-inline: auto; padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1.25rem, 4vw, 3rem); }
+.booking-experience .invite-message h1,
+.booking-experience .ticket-status h1 { margin: 0 0 1.5rem; font-size: clamp(2.25rem, 4.5vw, 4.25rem); font-weight: 400; line-height: 1.05; letter-spacing: -0.075em; }
+.booking-experience .ticket-download-error { margin: 0.5rem 0 0; font-size: 0.7rem; }
+
+@media (min-width: 48rem) {
+  .booking-experience .invite-detail.has-image .invite-detail__heading-row { grid-template-columns: minmax(0, 1fr) 5.5rem; }
+}
+
+@media (max-width: 47.999rem) {
+  .booking-experience .ticket-table tbody th,
+  .booking-experience .ticket-table tbody td { padding-block: 0.6rem; }
+  .booking-experience .ticket-table tbody th { padding-top: 1rem; }
+  .booking-experience .ticket-flow-footer { align-items: stretch; flex-direction: column; }
+  .booking-experience .invite-reservation-footer { align-items: stretch; flex-direction: column; }
+  .booking-experience .booking-layout-body { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+  .booking-experience .ticket-section-heading h2,
+  .booking-experience .ticket-confirmation__heading h2 { font-size: 2rem; }
+  .booking-experience .ticket-section-heading__copy { margin-top: 0.75rem; }
+  .booking-selection-note { margin-top: 0.5rem; }
+  .booking-experience .ticket-flow-section .booking-action { margin-top: 1.75rem; }
+  .booking-experience .ticket-form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 0.8rem; }
+  .booking-experience .ticket-form-grid .invite-form-field:last-child { grid-column: 1 / -1; }
+  .booking-experience .ticket-flow-footer { padding-top: 1.25rem; gap: 0.75rem; }
+}
+
+@media (pointer: coarse) {
+  .booking-experience :is(button, .invite-button) { min-height: 44px; }
+  .booking-experience .invite-counter output { height: 44px; }
+}
+
+// The sheet uses the detail page's inset, title scale, media ratio and top rule.
+.booking-sheet .project-detail__nav {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: stretch;
+  gap: 0;
+  min-height: 3.5rem;
+  padding: 0;
+  border-bottom: 1px solid var(--collection-ink);
+  font-size: clamp(0.75rem, 1vw, 0.95rem);
+}
+.booking-sheet .project-detail__nav > :is(.project-detail__back, .project-detail__signature) {
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  padding: 0.65rem var(--collection-inset);
+  white-space: nowrap;
+}
+.booking-sheet .project-detail__back { grid-column: 1; border-right: 1px solid var(--collection-ink); }
+.booking-sheet .project-detail__signature { grid-column: 3; margin-left: 0; border-left: 1px solid var(--collection-ink); font-size: inherit; }
+.booking-sheet .booking-sheet-meta { grid-column: 2; order: 0; align-self: center; padding: 0.65rem var(--collection-inset); }
+.booking-sheet .project-detail__meta { gap: 0.5rem 1.5rem; }
+.booking-sheet .project-detail__meta > div { min-width: 0; max-width: 100%; }
+.booking-sheet .booking-layout-body { width: 100%; margin: 0; padding: 0; }
+.booking-sheet .booking-sheet-header { padding: clamp(2rem, 5vw, 4.5rem) var(--collection-inset) 0; }
+.booking-sheet .booking-frame .booking-sheet-header .project-detail__heading-row { display: block; }
+.booking-sheet .booking-frame.has-image .booking-sheet-header .project-detail__heading-row {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
+  align-items: start;
+  gap: clamp(1.5rem, 3vw, 3rem);
+}
+.booking-sheet .booking-sheet-header :is(.project-detail__title, h2) {
+  max-width: 17ch;
+  margin: 0;
+  font-size: clamp(2.65rem, 6.6vw, 6.5rem);
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: -0.09em;
+  overflow-wrap: break-word;
+}
+.booking-sheet .booking-sheet-header .project-detail__figure { width: 100%; margin: 0; }
+.booking-sheet .booking-sheet-header .project-detail__image { display: block; width: 100%; height: auto; }
+.booking-sheet .booking-sheet-header .booking-sheet-context {
+  max-width: none;
+  margin: 0 0 1.25rem;
+  color: #595959;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  letter-spacing: -0.035em;
+}
+.booking-sheet .booking-sheet-columns { padding: clamp(2rem, 4vw, 3.5rem) var(--collection-inset) 3rem; }
+.booking-sheet .booking-lead { max-width: 65ch; margin: 0; padding: 0; }
+.booking-sheet .booking-lead .invite-detail__section { margin: 0; }
+.booking-sheet .invite-detail__section > .invite-markdown { max-width: 65ch; }
+.booking-sheet .invite-detail__section > .invite-markdown :is(p, li) { font-size: clamp(1rem, 1.15vw, 1.15rem); line-height: 1.65; }
+.booking-sheet .invite-detail__section > .invite-markdown p { margin-bottom: 1.4em; }
+.booking-sheet .booking-sheet-columns .booking-action { max-width: 65ch; margin-top: 3rem; }
+.booking-sheet .booking-action > h2 { margin-bottom: 1.5rem; font-size: clamp(1.5rem, 2.2vw, 2rem); letter-spacing: -0.06em; }
+.booking-sheet .invite-ticket-table__head { color: #595959; font-size: 0.7rem; opacity: 1; }
+.booking-sheet .invite-ticket-row strong { font-size: 1rem; }
+.booking-sheet .invite-ticket-row__type .invite-markdown p { font-size: 0.85rem; }
+.booking-sheet .invite-ticket-row__price { font-size: 0.9rem; }
+.booking-sheet .invite-reservation-footer b { font-size: 0.85rem; }
+.booking-sheet .invite-button { font-size: 0.85rem; }
+.booking-sheet .ticket-section-heading__copy,
+.booking-sheet .ticket-confirmation__heading > p:last-child { max-width: 50ch; margin-top: 0; font-size: 1rem; }
+.booking-sheet .booking-selection-note { margin-top: 1rem; font-size: 0.85rem; }
+.booking-sheet .ticket-table tbody th strong { font-size: 1rem; }
+.booking-sheet .ticket-table thead th { font-size: 0.7rem; }
+.booking-sheet .ticket-facts :is(dt, dd) { font-size: 0.9rem; }
+.booking-sheet .ticket-facts-block > h3 { font-size: 0.75rem; }
+.booking-sheet .ticket-flow-footer .invite-back-link { font-size: 0.85rem; }
+.booking-sheet .ticket-flow-footer--single { justify-content: flex-start; }
+
+// The invitation gets the full detail-page masthead; booking steps leave room for the task.
+.booking-sheet.ticket-page .booking-sheet-header { padding-top: clamp(1.5rem, 3vw, 2.5rem); }
+.booking-sheet.ticket-page .booking-frame.has-image .booking-sheet-header .project-detail__heading-row { grid-template-columns: minmax(0, 1fr) 10rem; }
+.booking-sheet.ticket-page .booking-sheet-header .project-detail__heading-row > h2 { max-width: none; font-size: clamp(2.65rem, 5.5vw, 5rem); }
+.booking-sheet.ticket-page .booking-sheet-columns { padding-top: 1.75rem; padding-bottom: 2rem; }
+.booking-sheet .ticket-form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.booking-sheet .ticket-form-grid .invite-form-field:last-child { grid-column: 1 / -1; }
+
+// A wider sheet connects the booking rows to the collection's lists.
+.booking-sheet--ruled .booking-sheet-columns .booking-action { max-width: none; padding-top: 1.5rem; border-top: 1px solid var(--collection-ink); }
+.booking-sheet--ruled .ticket-form-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
+.booking-sheet--ruled .ticket-form-grid .invite-form-field:last-child { grid-column: auto; }
+.booking-sheet--ruled .ticket-review__facts,
+.booking-sheet--ruled .ticket-confirmation__facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 3rem; }
+.booking-sheet--ruled .ticket-form-grid .invite-form-field > span { font-size: 0.85rem; }
+
+@media (max-width: 59.999rem) {
+  .booking-sheet .project-detail__nav { grid-template-columns: minmax(0, 1fr) auto; }
+  .booking-sheet .project-detail__back { border-right: 0; }
+  .booking-sheet .project-detail__signature { grid-column: 2; }
+  .booking-sheet .booking-sheet-meta { grid-column: 1 / -1; border-top: 1px solid var(--collection-ink); }
+  .booking-sheet .booking-frame.has-image .booking-sheet-header .project-detail__heading-row { grid-template-columns: 1fr; gap: 2rem; }
+  .booking-sheet .booking-sheet-header .project-detail__figure { width: min(12rem, 48%); justify-self: end; }
+  .booking-sheet .booking-sheet-columns { padding-top: 2rem; }
+  .booking-sheet.ticket-page .booking-frame.has-image .booking-sheet-header .project-detail__heading-row { grid-template-columns: minmax(0, 1fr) 6.5rem; gap: 1rem; }
+  .booking-sheet.ticket-page .booking-sheet-header .project-detail__figure { width: 100%; }
+  .booking-sheet.ticket-page .booking-sheet-header .project-detail__heading-row > h2 { font-size: clamp(2rem, 5vw, 3rem); }
+}
+
+@media (max-width: 47.999rem) {
+  .booking-sheet--ruled .ticket-form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 0.8rem; }
+  .booking-sheet--ruled .ticket-form-grid .invite-form-field:last-child { grid-column: 1 / -1; }
+  .booking-sheet--ruled .ticket-review__facts,
+  .booking-sheet--ruled .ticket-confirmation__facts { grid-template-columns: 1fr; gap: 1.75rem; }
+  .booking-sheet .booking-sheet-columns .booking-action { margin-top: 2.25rem; }
+}
+
+.booking-sheet .invite-message,
+.booking-sheet .ticket-status { width: 100%; max-width: none; margin: 0; padding: clamp(2rem, 5vw, 4.5rem) var(--collection-inset); }

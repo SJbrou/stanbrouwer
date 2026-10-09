@@ -134,7 +134,21 @@
   };
 
   const frame = (host, title, variant = "modular") => {
-    const surface = element("article", `collection-poster project-detail project-detail--${variant}`);
+    // Keep the same grid through loading, retries and content replacement.
+    let ground = host.querySelector(":scope > .project-detail__ground");
+    if (!ground) {
+      ground = element("footer", "collection-outro project-detail__ground");
+      ground.setAttribute("aria-hidden", "true");
+      const image = element("img", "collection-outro__image project-detail__ground-image");
+      image.src = config.transitionGridImage;
+      image.width = 1920;
+      image.height = 521;
+      image.alt = "";
+      image.draggable = false;
+      image.decoding = "async";
+      ground.append(image);
+    }
+    const surface = element("article", `collection-poster project-detail project-detail--${variant} has-ground`);
     surface.dataset.projectSurface = "";
     const nav = element("nav", "project-detail__nav");
     nav.setAttribute("aria-label", "Project navigation");
@@ -147,7 +161,7 @@
     heading.tabIndex = -1;
     header.append(heading);
     surface.append(nav, header);
-    host.replaceChildren(surface);
+    host.replaceChildren(surface, ground);
     return { surface, nav, header };
   };
 
@@ -207,20 +221,10 @@
       }
     }
     if (variant === "modular") {
-      surface.classList.add("has-ground");
-      const ground = element("footer", "collection-outro project-detail__ground");
-      ground.setAttribute("aria-hidden", "true");
-      const groundImage = element("img", "collection-outro__image project-detail__ground-image");
-      groundImage.src = config.transitionGridImage;
-      groundImage.alt = "";
-      groundImage.draggable = false;
-      groundImage.decoding = "async";
-      ground.append(groundImage);
       if (info.childNodes.length) nav.insertBefore(info, nav.querySelector(".project-detail__signature"));
       const content = element("div", "project-detail__content");
       content.append(header, body);
       surface.append(content);
-      host.append(ground);
     } else surface.insertBefore(body, surface.querySelector(".project-detail__footer"));
     surface.setAttribute("aria-busy", "false");
   };

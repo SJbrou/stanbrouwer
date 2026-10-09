@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <meta name="robots" content="noindex, nofollow">
+    <title>{{ page.title | escape }} - {{ site.title | escape }}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ '/assets/img/favicon.svg' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/styles/collection.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+    <link rel="stylesheet" href="{{ '/assets/styles/project-details.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+    <link rel="stylesheet" href="{{ '/assets/styles/ticketing.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+    <link rel="stylesheet" href="{{ '/assets/styles/invite-experience.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+    <link rel="stylesheet" href="{{ '/assets/styles/invite-preview.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+    <script>
+      window.COLLECTION_PROJECTS_CONFIG = {
+        homeUrl: {{ '/' | relative_url | jsonify }},
+        detailUrl: {{ '/projects/' | relative_url | jsonify }},
+        exampleImage: {{ '/assets/img/de_loods.jpg' | relative_url | jsonify }},
+        transitionGridImage: {{ '/assets/img/black-white-perspective-grid-background-vector.jpg' | relative_url | jsonify }}
+      };
+    </script>
+    <script src="{{ '/assets/js/invites.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+    <script src="{{ '/assets/js/invite-detail.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+    <script src="{{ '/assets/js/invite-ticketing.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+    <script src="{{ '/assets/js/collection-transition.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+    <script src="{{ '/assets/js/invite-experience.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+    <script src="{{ '/assets/js/collection-projects.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+    <script src="{{ '/assets/js/invite-design-preview.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+  </head>
+  <body class="collection-body invite-preview-body">
+    <nav class="project-design-controls invite-preview-controls" aria-label="Design preview controls">
+      <a href="{{ '/' | relative_url }}">← COLLECTION</a>
+      <span class="project-design-controls__label">Invite / ticket layouts</span>
+      <label>Layout
+        <select data-preview-layout>
+          <option value="detail">Detail sheet</option>
+          <option value="side">Side column</option>
+          <option value="ruled">Ruled sheet</option>
+          <option value="quiet">Quiet column</option>
+        </select>
+      </label>
+      <span class="project-design-controls__label">Point collapse</span>
+      <button type="button" data-preview-replay>Replay transition</button>
+      <button type="button" data-preview-next>Next step →</button>
+      <details class="invite-preview-controls__examples">
+        <summary>View / example</summary>
+        <div class="invite-preview-controls__example-fields">
+          <label>View
+            <select data-preview-view>
+              <option value="invite">Invite</option>
+              <option value="details">Attendee details</option>
+              <option value="overview">Review</option>
+              <option value="confirmation">Confirmation</option>
+              <option value="reference">Project reference</option>
+            </select>
+          </label>
+          <label>Example
+            <select data-preview-fixture>
+              <option value="open">Reservations open</option>
+              <option value="closed">Reservations closed</option>
+              <option value="no-image">Without an image</option>
+              <option value="long">Long title / multiple tickets</option>
+            </select>
+          </label>
+        </div>
+      </details>
+      <p class="project-design-controls__status" data-preview-description aria-live="polite"></p>
+      <p class="invite-preview-controls__note">Sample booking. Compare the invite and all three booking steps; each page grows with its content.</p>
+    </nav>
+    <main class="collection-page project-detail-page" data-invite-preview-stage aria-label="Layout example"></main>
+    <noscript><p class="invite-preview-noscript">Enable JavaScript to explore the layout examples.</p></noscript>
+  </body>
+</html>

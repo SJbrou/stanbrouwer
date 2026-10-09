@@ -1,0 +1,19 @@
+<main class="collection-page project-detail-page invite-page booking-experience booking-sheet booking-sheet--ruled" id="invite-page" data-invite-page data-booking-page {% if include.hidden %}hidden{% endif %} aria-live="polite">
+  <article class="collection-poster project-detail project-detail--modular has-ground invite-detail booking-frame" data-invite-surface aria-busy="true">
+    <div class="booking-content"><div class="booking-host">
+    <nav class="project-detail__nav" aria-label="Event navigation">
+      <a class="project-detail__back" href="{{ '/' | relative_url }}#collection-invites" data-collection-home>← COLLECTION</a>
+      <span class="project-detail__signature">PERSPECTIVE</span>
+    </nav>
+    <div id="invite-content" class="invite-content" aria-busy="true" role="status">
+      <p class="project-detail__notice">Loading invite…</p>
+    </div>
+    <noscript><p class="invite-message">Enable JavaScript to view the event and reserve tickets.</p></noscript>
+    </div></div>
+    <div class="booking-focal" aria-hidden="true"><span class="booking-focal__point"></span><span class="booking-focal__label">PERSPECTIVE</span></div>
+  </article>
+
+  <footer class="collection-outro project-detail__ground invite-outro" aria-hidden="true">
+    <img class="collection-outro__image project-detail__ground-image" src="{{ '/assets/img/black-white-perspective-grid-background-vector.jpg' | relative_url }}" width="1920" height="521" alt="" draggable="false" decoding="async">
+  </footer>
+</main>

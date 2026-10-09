@@ -96,8 +96,8 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
     assert.deepEqual(geometry.broken, [], 'Content must fit inside the viewport');
   };
   const refinedModular = async page => {
-    assert.equal(await page.locator('.project-detail--modular').count(), 1);
-    assert.equal(await page.locator('.project-detail__footer').count(), 0);
+    assert.equal(await page.locator('[data-project-page] .project-detail--modular').count(), 1);
+    assert.equal(await page.locator('[data-project-page] .project-detail__footer').count(), 0);
     assert.equal(await page.locator('[data-project-page] .collection-image-window, [data-project-page] .collection-image-window__chrome, [data-project-page] figcaption').count(), 0, 'Project image must have no window or caption');
     const photo = page.locator('[data-project-page] .project-detail__image');
     if (await photo.count()) await photo.evaluate(image => image.decode());
@@ -179,6 +179,13 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
     if (!failuresOnly) for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
       const { context, page, requestCount, playerRequestCount } = await setup(viewport, 'no-preference', 0, true);
       await page.goto(address);
+      // Reveal the collection before testing its media controls. The welcome
+      // has its own input checks and can still cover these rows on first load.
+      await page.evaluate(() => {
+        const root = document.querySelector('[data-collection-welcome]');
+        scrollTo(0, window.CollectionWelcome?.snapshot(root)?.handoverEnd || 0);
+      });
+      await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
       const sound = page.getByRole('button', { name: 'Play A track that stays on SoundCloud' });
       if (viewport.width >= 960) await sound.click();
       else {
@@ -186,7 +193,8 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
         // Scroll to the mobile preview, then start inside the player without selecting the row.
         await page.evaluate(() => {
           const row = document.querySelector('#collection-sounds .collection-row');
-          scrollTo(0, row.getBoundingClientRect().top + scrollY + row.offsetHeight / 2 - innerHeight / 2);
+          const welcomeEnd = window.CollectionWelcome?.snapshot(document.querySelector('[data-collection-welcome]'))?.handoverEnd || 0;
+          scrollTo(0, Math.max(welcomeEnd, row.getBoundingClientRect().top + scrollY + row.offsetHeight / 2 - innerHeight / 2));
         });
       }
       await page.locator('.collection-media__frame--soundcloud').waitFor();
@@ -215,8 +223,9 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
       await page.evaluate(() => new Promise(resolve => requestAnimationFrame(resolve)));
       await page.evaluate(() => {
         // A browser may scroll again to bring the clicked row clear of a media window.
-        document.querySelector('[data-collection-project="airco-tube-light"]').addEventListener('click', () => {
+        document.querySelector('[data-collection-project="airco-tube-light"]').addEventListener('click', event => {
           window.collectionDepartureScroll = scrollY;
+          window.collectionDeparturePoint = { x: event.clientX, y: event.clientY };
         }, { once: true });
         window.transitionPhases = [];
         new MutationObserver(records => {
@@ -226,17 +235,14 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
           }
         }).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-transition-phase'] });
       });
-      const projectFocal = await link.evaluate(node => {
-        const rect = node.getBoundingClientRect();
-        return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-      });
       await link.click();
       const scroll = await page.evaluate(() => window.collectionDepartureScroll);
+      const projectFocal = await page.evaluate(() => window.collectionDeparturePoint);
       assert(Number.isFinite(scroll), 'Record the scroll position at the actual navigation click');
       const squareHandle = await page.waitForFunction(() => {
         const overlay = document.querySelector('.collection-route');
         if (overlay?.dataset.transitionPhase !== 'hold') return false;
-        const rect = overlay.querySelector('rect');
+        const rect = overlay.querySelector('.collection-route__frame > rect');
         return { x: Number(rect.getAttribute('x')), y: Number(rect.getAttribute('y')),
           width: Number(rect.getAttribute('width')), height: Number(rect.getAttribute('height')) };
       }, null, { polling: 'raf' });
@@ -248,9 +254,14 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
       }), 'The media window must remain above the transition overlay');
       assert(Math.abs(square.width - square.height) < 1);
       assert(square.width >= 111 && square.width <= 176);
-      assert(Math.abs(square.x + square.width / 2 - projectFocal.x) < 1,
+      const projectEdge = (square.width + 1) / 2 + 8;
+      const safeProjectFocal = {
+        x: Math.max(projectEdge, Math.min(viewport.width - projectEdge, projectFocal.x)),
+        y: Math.max(projectEdge, Math.min(viewport.height - projectEdge, projectFocal.y))
+      };
+      assert(Math.abs(square.x + square.width / 2 - safeProjectFocal.x) < 1,
         'The clicked project link must be the transition perspective point');
-      assert(Math.abs(square.y + square.height / 2 - projectFocal.y) < 1,
+      assert(Math.abs(square.y + square.height / 2 - safeProjectFocal.y) < 1,
         'The clicked project link must be the transition perspective point');
       await page.screenshot({ path: path.join(artifacts, `transition-square-${viewport.width}.png`) });
       await settled(page);
@@ -297,14 +308,21 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
       const returnSquareHandle = await page.waitForFunction(() => {
         const overlay = document.querySelector('.collection-route');
         if (overlay?.dataset.transitionPhase !== 'hold') return false;
-        const rect = overlay.querySelector('rect');
+        const rect = overlay.querySelector('.collection-route__frame > rect');
         return { x: Number(rect.getAttribute('x')), y: Number(rect.getAttribute('y')),
           width: Number(rect.getAttribute('width')), height: Number(rect.getAttribute('height')) };
       }, null, { polling: 'raf' });
       const returnSquare = await returnSquareHandle.jsonValue();
-      assert(Math.abs(returnSquare.x + returnSquare.width / 2 - backFocal.x) < 1,
+      // The transition keeps the whole square inside the viewport, even when
+      // the clicked arrow is closer to an edge than half the square's width.
+      const edge = (returnSquare.width + 1) / 2 + 8;
+      const safeBackFocal = {
+        x: Math.max(edge, Math.min(viewport.width - edge, backFocal.x)),
+        y: Math.max(edge, Math.min(viewport.height - edge, backFocal.y))
+      };
+      assert(Math.abs(returnSquare.x + returnSquare.width / 2 - safeBackFocal.x) < 1,
         `The PROJECTS back arrow must be the return transition perspective point (${JSON.stringify({ returnSquare, backFocal })})`);
-      assert(Math.abs(returnSquare.y + returnSquare.height / 2 - backFocal.y) < 1,
+      assert(Math.abs(returnSquare.y + returnSquare.height / 2 - safeBackFocal.y) < 1,
         `The PROJECTS back arrow must be the return transition perspective point (${JSON.stringify({ returnSquare, backFocal })})`);
       await settled(page);
       const returnScroll = await page.evaluate(() => scrollY);
@@ -339,14 +357,16 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
       assert.equal(await page.locator('.project-detail__figure').count(), 0);
       assert.equal(await page.locator('.project-detail__meta dd').textContent(), 'September');
       assert.equal(await page.locator('.project-detail__external').count(), 0);
-      await page.locator('[data-collection-home]').click();
+      await page.locator('[data-project-page] [data-collection-home]').click();
       await page.locator('#collection-projects [data-collection-project]').first().waitFor();
       await settled(page);
       assert.equal(await page.locator('[data-collection-project="notes-without-an-image"]').isVisible(), true,
         'Returning from a direct detail URL should focus its project in the collection');
-      const resumedImage = await page.locator('.collection-intro__image').boundingBox();
-      assert(resumedImage.y + resumedImage.height < 0,
-        `Returning to a project should resume at the collection content instead of the welcome image (${JSON.stringify({ resumedImage, scrollY: await page.evaluate(() => scrollY) })})`);
+      const resumedTitle = await page.locator('.collection-perspective-title').boundingBox();
+      assert(resumedTitle.y + resumedTitle.height < 0,
+        'Returning to a project should expose the collection, with the welcome title above the viewport');
+      assert(!['building', 'clearing'].includes(await page.locator('.collection-intro').getAttribute('data-welcome-state')),
+        'Returning to a project must not replay the opening');
       const resumedProject = await page.locator('[data-collection-project="notes-without-an-image"]').boundingBox();
       assert(resumedProject.y >= 0 && resumedProject.y < 844,
         'The returned collection should keep the current project link in view');
@@ -385,7 +405,7 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
       await page.route(`${address}/`, async route => { await sleep(5000); await route.continue(); });
       await page.goto(`${address}/projects/?project=airco-tube-light`);
       await page.getByRole('heading', { name: 'Airco tube light' }).waitFor();
-      await page.locator('[data-collection-home]').click();
+      await page.locator('[data-project-page] [data-collection-home]').click();
       await settled(page);
       await page.getByRole('heading', { name: 'Loading collection…' }).waitFor();
       await page.waitForFunction(() => document.querySelector('[data-collection-welcome]')?.hidden === false);

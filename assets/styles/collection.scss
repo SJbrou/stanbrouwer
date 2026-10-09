@@ -11,6 +11,8 @@
 
 :root {
   color-scheme: light;
+  // Locking document scroll during navigation must not change page width.
+  scrollbar-gutter: stable;
 }
 
 html,
@@ -38,6 +40,8 @@ body.collection-body {
   --collection-surround: #f5f6f1;
   --collection-line: 1px;
   --collection-inset: clamp(0.55rem, 1.7vw, 1.5rem);
+  --collection-content-width: calc(100% - 1rem);
+  --collection-ground-overlap: min(9.5rem, 12vw);
   min-height: 100vh;
   background: var(--collection-surround);
   overflow: hidden;
@@ -46,7 +50,8 @@ body.collection-body {
 .collection-poster {
   position: relative;
   z-index: 1;
-  margin: clamp(0.75rem, 2vw, 1.5rem) 0.5rem -9.5rem;
+  width: var(--collection-content-width);
+  margin: clamp(0.75rem, 2vw, 1.5rem) 0.5rem calc(-1 * var(--collection-ground-overlap));
   border: var(--collection-line) solid var(--collection-ink);
   background: var(--collection-paper);
 }
@@ -64,34 +69,72 @@ body.collection-body {
   height: auto;
 }
 
-// Fit the complete welcome artwork and its captions into a short laptop viewport.
-// The width multiplier preserves the image's original 954:953 aspect ratio.
+// Fit the complete square within the viewport without changing its proportions.
 [data-collection-welcome] .collection-intro {
-  width: 100%;
-  max-width: calc((100vh - 4.5rem - var(--collection-intro-top-space)) * 1.00105);
-  max-width: calc((100svh - 4.5rem - var(--collection-intro-top-space)) * 1.00105);
+  width: min(var(--collection-content-width), 80vw);
+  max-width: calc((100vh - 4.5rem - 2 * var(--collection-intro-top-space)) * 954 / 953);
+  max-width: calc((100svh - 4.5rem - 2 * var(--collection-intro-top-space)) * 954 / 953);
   margin-inline: auto;
   container-type: inline-size;
+  padding-bottom: clamp(1rem, 4vw, 3rem);
 }
 
-// Match the welcome artwork to the poster's half-rem side margins on phones.
-@media (max-width: 39.999rem) {
-  [data-collection-welcome] .collection-intro {
-    width: calc(100% - 1rem);
-  }
+[data-collection-welcome] .collection-welcome-pin {
+  display: flow-root;
 }
 
 [data-collection-welcome] .collection-intro__artwork {
   position: relative;
   container-type: inline-size;
+  opacity: var(--collection-welcome-intro-opacity, 1);
+}
+
+[data-collection-welcome].is-welcome-enhanced .collection-intro__artwork {
+  position: sticky;
+  top: var(--collection-intro-top-space);
+}
+
+.collection-welcome-range { display: none; }
+[data-collection-welcome].is-welcome-enhanced .collection-welcome-range {
+  display: block;
+  height: var(--collection-welcome-distance);
+}
+
+[data-collection-welcome].is-welcome-enhanced {
+  --collection-intro-top-space: clamp(0.75rem, 2vw, 1.5rem);
+  --collection-welcome-distance: clamp(360px, 75vh, 720px);
+  --collection-welcome-distance: clamp(360px, 75svh, 720px);
+  // A short feed must still be able to reach the handover's end.
+  min-height: calc(100svh + var(--collection-welcome-distance) + var(--collection-intro-top-space));
+
+  .collection-intro {
+    height: calc(var(--collection-intro-top-space) + var(--collection-welcome-distance));
+    padding-bottom: 0;
+  }
+
+  .collection-intro__artwork {
+    margin-bottom: 0;
+    pointer-events: none;
+  }
+
+  .collection-poster {
+    margin-top: 0;
+    min-height: 100vh;
+    min-height: 100svh;
+  }
+
+  &.is-welcome-complete .collection-intro__artwork { opacity: 0; }
 }
 
 [data-collection-welcome] {
   --collection-highlight: rgba(0, 0, 0, 0.045);
+  display: flow-root;
+  overflow: visible;
+  overflow: clip;
 
   .collection-poster {
     // Keep the closing captions below the poster, including on narrow screens.
-    margin-bottom: calc(-1 * min(9.5rem, 12vw));
+    margin-bottom: calc(-1 * var(--collection-ground-overlap));
   }
 
   .collection-section {
@@ -132,17 +175,12 @@ body.collection-body {
   }
 
   &.has-welcome-typography {
-    // Reserve the captions' former space so moving them into the image is stable.
-    .collection-intro__artwork {
-      margin-bottom: calc(clamp(0.75rem, 2.25cqw, 1.1rem) * 2.1 + 0.55rem);
-    }
-
     .collection-perspective-copy {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       padding: 3.5cqw;
-      transform: translate(10.377%, 68.730%) scale(0.19602);
+      transform: var(--collection-welcome-type-transform, none);
     }
 
     .collection-perspective-title {
@@ -163,8 +201,6 @@ body.collection-body {
   .collection-welcome-frame {
     position: absolute;
     inset: 0;
-    width: 100%;
-    height: 100%;
     z-index: 2;
     overflow: visible;
     pointer-events: none;
@@ -174,35 +210,44 @@ body.collection-body {
   }
 }
 
+[data-collection-welcome].is-welcome-static {
+  .collection-intro__artwork { opacity: 1; }
+  .collection-intro__image { opacity: 0; }
+  .collection-intro__artwork::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border: var(--collection-line) solid var(--collection-ink);
+    background: var(--collection-paper);
+    pointer-events: none;
+  }
+  .collection-perspective-copy { transform: none; opacity: 1; clip-path: none; }
+}
+
 // Progressive enhancement: the unanimated page remains the default.
 @media (prefers-reduced-motion: no-preference) {
-  html.collection-welcome-pending [data-collection-welcome] {
-    .collection-intro__image { opacity: 0; }
-    .collection-perspective-copy { opacity: 0; }
-    .collection-captions--intro { opacity: 0; }
-    .collection-poster { opacity: 0; }
-  }
-
   [data-collection-welcome] {
+    &.is-welcome-building .collection-poster,
+    &.is-welcome-clearing .collection-poster,
+    &.is-welcome-ready .collection-poster { pointer-events: none; }
+
     &.is-welcome-active .collection-poster {
       clip-path: inset(var(--collection-welcome-clip, 0 0 100% 0));
+      opacity: var(--collection-welcome-content-opacity, 1);
     }
 
     &.is-welcome-building .collection-intro__image {
-      animation: collection-perspective-depth 400ms steps(1, end) reverse both;
+      clip-path: inset(var(--collection-welcome-depth-clip));
     }
 
+    &.is-welcome-building .collection-intro__artwork::after,
     &.is-welcome-clearing .collection-intro__artwork::after {
       content: "";
       position: absolute;
       inset: 0;
       background: var(--collection-paper);
       pointer-events: none;
-      animation: collection-perspective-depth 400ms steps(1, end) reverse both;
-    }
-
-    &.is-welcome-clearing .collection-perspective-copy {
-      animation: collection-perspective-type 400ms steps(1, end) reverse both;
+      clip-path: inset(var(--collection-welcome-panel-clip));
     }
 
     &.is-welcome-frame .collection-intro__image { opacity: 0; }
@@ -214,80 +259,19 @@ body.collection-body {
       pointer-events: none;
     }
     &.is-welcome-frame .collection-perspective-copy {
-      transform: none;
+      transform: var(--collection-welcome-copy-transform, none);
       opacity: var(--collection-welcome-copy-opacity, 1);
-      clip-path: inset(var(--collection-welcome-copy-clip, 0));
     }
 
     &.has-welcome-frame {
-      .collection-welcome-frame { opacity: 1; }
+      .collection-welcome-frame { opacity: var(--collection-welcome-intro-opacity, 1); }
       .collection-poster { border-color: transparent; }
       .collection-poster > .collection-section:first-child { border-top-color: transparent; }
     }
   }
 
-  [data-collection-welcome] .collection-scroll-reveal {
-    opacity: 1;
-    transform: none;
-    transition: opacity 350ms ease-out, transform 400ms ease-out;
-
-    &.is-reveal-pending {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-  }
 }
 
-// The same 21 measured depth steps build the image and then expand its cover.
-// Playing in reverse starts around the off-centre opening and travels outward.
-@keyframes collection-perspective-depth {
-  0% { clip-path: inset(0); }
-  5% { clip-path: inset(13.956% 14.256% 2.623% 2.306%); }
-  10% { clip-path: inset(23.924% 24.319% 4.271% 3.774%); }
-  15% { clip-path: inset(31.375% 31.971% 5.519% 4.927%); }
-  20% { clip-path: inset(37.356% 38.050% 6.495% 5.765%); }
-  25% { clip-path: inset(42.078% 42.872% 7.282% 6.499%); }
-  30% { clip-path: inset(45.960% 46.751% 7.922% 7.023%); }
-  35% { clip-path: inset(49.213% 50.105% 8.468% 7.547%); }
-  40% { clip-path: inset(51.941% 52.935% 8.919% 7.966%); }
-  45% { clip-path: inset(54.355% 55.346% 9.318% 8.281%); }
-  50% { clip-path: inset(56.453% 57.442% 9.664% 8.595%); }
-  55% { clip-path: inset(58.237% 59.329% 9.958% 8.910%); }
-  60% { clip-path: inset(59.811% 60.901% 10.220% 9.119%); }
-  65% { clip-path: inset(61.280% 62.369% 10.462% 9.329%); }
-  70% { clip-path: inset(62.539% 63.732% 10.672% 9.539%); }
-  75% { clip-path: inset(63.694% 64.885% 10.871% 9.644%); }
-  80% { clip-path: inset(64.743% 65.933% 11.039% 9.853%); }
-  85% { clip-path: inset(65.687% 66.876% 11.196% 9.958%); }
-  90% { clip-path: inset(66.527% 67.820% 11.333% 10.063%); }
-  95% { clip-path: inset(67.366% 68.658% 11.469% 10.168%); }
-  100% { clip-path: inset(68.101% 69.392% 11.584% 10.377%); }
-}
-
-// Match the clearing aperture with a uniform type scale, preserving letter shapes.
-@keyframes collection-perspective-type {
-  0% { transform: translate(0, 0) scale(1); }
-  5% { transform: translate(2.306%, 13.956%) scale(0.83438); }
-  10% { transform: translate(3.774%, 23.924%) scale(0.71907); }
-  15% { transform: translate(4.927%, 31.375%) scale(0.63102); }
-  20% { transform: translate(5.765%, 37.356%) scale(0.56185); }
-  25% { transform: translate(6.499%, 42.078%) scale(0.50629); }
-  30% { transform: translate(7.023%, 45.960%) scale(0.46226); }
-  35% { transform: translate(7.547%, 49.213%) scale(0.42348); }
-  40% { transform: translate(7.966%, 51.941%) scale(0.39099); }
-  45% { transform: translate(8.281%, 54.355%) scale(0.36373); }
-  50% { transform: translate(8.595%, 56.453%) scale(0.33963); }
-  55% { transform: translate(8.910%, 58.237%) scale(0.31761); }
-  60% { transform: translate(9.119%, 59.811%) scale(0.29980); }
-  65% { transform: translate(9.329%, 61.280%) scale(0.28302); }
-  70% { transform: translate(9.539%, 62.539%) scale(0.26729); }
-  75% { transform: translate(9.644%, 63.694%) scale(0.25471); }
-  80% { transform: translate(9.853%, 64.743%) scale(0.24214); }
-  85% { transform: translate(9.958%, 65.687%) scale(0.23166); }
-  90% { transform: translate(10.063%, 66.527%) scale(0.22117); }
-  95% { transform: translate(10.168%, 67.366%) scale(0.21174); }
-  100% { transform: translate(10.377%, 68.730%) scale(0.19602); }
-}
 
 .collection-captions {
   display: flex;
@@ -1457,9 +1441,13 @@ a.invite-button:focus-visible::after {
 }
 
 @media (min-width: 40rem) {
+  .collection-page {
+    --collection-content-width: 90vw;
+  }
+
   .collection-poster {
-    margin-right: 5vw;
-    margin-left: 5vw;
+    margin-right: auto;
+    margin-left: auto;
   }
 
   .collection-captions--outro {
@@ -1469,8 +1457,11 @@ a.invite-button:focus-visible::after {
 }
 
 @media (min-width: 48rem) {
+  .collection-page {
+    --collection-content-width: 66.6667vw;
+  }
+
   .collection-poster {
-    width: 66.6667vw;
     margin-right: auto;
     margin-left: auto;
   }

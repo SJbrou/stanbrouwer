@@ -1,14 +1,34 @@
 (function () {
   'use strict';
 
+  var pdfLibrary;
+  var reservations = {};
+
   document.addEventListener('DOMContentLoaded', function () {
     var app = document.querySelector('[data-ticket-step]');
-    if (!app || !window.TZInvites) return;
+    if (window.TZBooking || !app || !window.TZInvites) return;
 
     var step = app.getAttribute('data-ticket-step');
-    if (step === 'details') renderDetails(app);
-    if (step === 'overview') renderOverview(app);
-    if (step === 'confirmation') renderConfirmation(app);
+    render(app, step, {
+      event: readSession('tz_event'),
+      selection: readSession('tz_selection'),
+      details: readSession('tz_details'),
+      confirmed: readSession('tz_confirmed')
+    }, {
+      onDetails: function (details) {
+        sessionStorage.setItem('tz_details', JSON.stringify(details));
+        window.location.href = '/tickets/overview/';
+      },
+      onConfirm: function (reservation) {
+        sessionStorage.setItem('tz_confirmed', JSON.stringify(Object.assign({}, reservation, {
+          orderId: 'ORD-' + Date.now().toString(36).toUpperCase(),
+          timestamp: new Date().toISOString()
+        })));
+        window.location.href = '/tickets/confirmation/';
+      },
+      onTicket: downloadTicket,
+      onSync: syncReservation
+    });
   });
 
   function esc(value) {
@@ -21,22 +41,35 @@
 
   function eventChrome(event, activeStep) {
     var eventUrl = '/invites/?event=' + encodeURIComponent(event.id);
-    var eventTime = event.startTime + (event.endTime ? ' &mdash; ' + event.endTime : '');
+    var eventTime = [event.startTime, event.endTime].filter(Boolean).join(' – ');
+    var location = event.address && event.address !== event.location
+      ? [event.location, event.address].filter(Boolean).join(' / ')
+      : event.location;
     var media = event.heroImage
-      ? '<img class="ticket-event-header__image" src="' + attr(event.heroImage) + '" alt="">'
-      : '<div class="ticket-event-header__image ticket-event-header__image--empty">INVITE</div>';
+      ? '<figure class="project-detail__figure ticket-event-header__figure"><img class="project-detail__image ticket-event-header__image" src="' + attr(event.heroImage) + '" alt="" decoding="async"></figure>'
+      : '';
 
-    return '<a class="invite-back-link ticket-back-link" href="' + eventUrl + '">Back to invite</a>' +
-      '<header class="ticket-event-header">' +
-        '<div class="ticket-event-header__copy">' +
-          '<p class="invite-kicker">RESERVATION</p>' +
-          '<h1>' + esc(event.title) + '</h1>' +
-          '<dl class="ticket-event-meta">' +
-            '<div><dt>WHEN</dt><dd>' + esc(event.dateLabel || event.dateIso) + '<br><span>' + eventTime + '</span></dd></div>' +
-            '<div><dt>WHERE</dt><dd>' + esc(event.location) + (event.address && event.address !== event.location ? '<br><span>' + esc(event.address) + '</span>' : '') + '</dd></div>' +
-          '</dl>' +
-        '</div>' + media +
+    return '<nav class="project-detail__nav" aria-label="Reservation navigation">' +
+        '<a class="project-detail__back" data-ticket-back="invite" href="' + eventUrl + '">← INVITE</a>' +
+        '<div class="project-detail__meta-row ticket-event-meta-row"><dl class="project-detail__meta">' +
+          '<div><dt class="project-detail__meta-label">DATE</dt><dd>' + esc([event.dateLabel || event.dateIso, eventTime].filter(Boolean).join(' / ')) + '</dd></div>' +
+          '<div><dt class="project-detail__meta-label">LOCATION</dt><dd>' + esc(location) + '</dd></div>' +
+        '</dl></div>' +
+        '<span class="project-detail__signature">RESERVATION</span>' +
+      '</nav>' +
+      '<header class="project-detail__header ticket-event-header">' +
+        '<div class="project-detail__heading-row"><h1 class="project-detail__title" tabindex="-1">' + esc(event.title) + '</h1>' + media + '</div>' +
       '</header>' + progress(activeStep);
+  }
+
+  function setEventSurface(app, event) {
+    var surface = app.closest('[data-ticket-surface]');
+    var image = app.querySelector('.ticket-event-header__image');
+    if (surface) surface.classList.toggle('has-image', !!event.heroImage);
+    image?.addEventListener('error', function () {
+      image.closest('figure')?.remove();
+      surface?.classList.remove('has-image');
+    }, { once: true });
   }
 
   function progress(active) {
@@ -93,18 +126,18 @@
     ];
   }
 
-  function renderDetails(app) {
-    var event = readSession('tz_event');
-    var selection = readSession('tz_selection');
+  function renderDetails(app, state, actions) {
+    var event = state.event;
+    var selection = state.selection;
     if (!event || !selection || !selection.length) {
       status(app, 'Start from an invite and choose at least one ticket.');
       return;
     }
 
-    var saved = readSession('tz_details') || {};
+    var saved = state.details || {};
     app.innerHTML = eventChrome(event, 1) +
       '<section class="ticket-flow-section" aria-labelledby="ticket-details-title">' +
-        sectionHeading('01 / DETAILS', 'Who is joining?', 'Only the essentials, so we can hold your place.', 'ticket-details-title') +
+        sectionHeading('ATTENDEE DETAILS', 'Who is joining?', 'Only the essentials, so we can hold your place.', 'ticket-details-title') +
         selectionTable(selection, 'Your ticket selection') +
         '<form class="ticket-details-form" novalidate>' +
           '<div class="ticket-form-grid">' +
@@ -112,9 +145,14 @@
             formField('Last name', 'lastName', saved.lastName || '', 'Franck', 'text', 'family-name') +
             formField('Email', 'email', saved.email || '', 'jana@example.com', 'email', 'email') +
           '</div>' +
-          '<div class="ticket-flow-footer"><a class="invite-back-link" href="/invites/?event=' + encodeURIComponent(event.id) + '">Back to tickets</a><button class="invite-button" type="submit">Review reservation &rarr;</button></div>' +
+          '<div class="ticket-flow-footer"><a class="invite-back-link" data-ticket-back="invite" href="/invites/?event=' + encodeURIComponent(event.id) + '">Back to invite</a><button class="invite-button" type="submit">Review reservation &rarr;</button></div>' +
         '</form>' +
       '</section>';
+    setEventSurface(app, event);
+
+    app.querySelector('form').addEventListener('input', function (inputEvent) {
+      if (actions.onDetailsChange) actions.onDetailsChange(Object.fromEntries(new FormData(inputEvent.currentTarget).entries()));
+    });
 
     app.querySelector('form').addEventListener('submit', function (submitEvent) {
       submitEvent.preventDefault();
@@ -140,10 +178,12 @@
         form.querySelector('[data-error="email"]').textContent = 'Enter a valid email';
         valid = false;
       }
-      if (!valid) return;
+      if (!valid) {
+        form.querySelector('.has-error')?.focus();
+        return;
+      }
 
-      sessionStorage.setItem('tz_details', JSON.stringify(details));
-      window.location.href = '/tickets/overview/';
+      if (actions.onDetails) actions.onDetails(details);
     });
   }
 
@@ -151,10 +191,10 @@
     return '<label class="invite-form-field"><span>' + esc(label) + ' *</span><input name="' + attr(name) + '" type="' + attr(type || 'text') + '" value="' + attr(value) + '" placeholder="' + attr(placeholder) + '" autocomplete="' + attr(autocomplete) + '" aria-required="true"><em data-error="' + attr(name) + '"></em></label>';
   }
 
-  function renderOverview(app) {
-    var event = readSession('tz_event');
-    var selection = readSession('tz_selection');
-    var details = readSession('tz_details');
+  function renderOverview(app, state, actions) {
+    var event = state.event;
+    var selection = state.selection;
+    var details = state.details;
     if (!event || !selection || !selection.length || !details) {
       status(app, 'Start from an invite and complete your reservation details.');
       return;
@@ -162,7 +202,7 @@
 
     app.innerHTML = eventChrome(event, 2) +
       '<section class="ticket-flow-section" aria-labelledby="ticket-overview-title">' +
-        sectionHeading('02 / REVIEW', 'One last look.', 'Check the details below. You can still go back and make changes.', 'ticket-overview-title') +
+        sectionHeading('REVIEW', 'One last look.', 'Check the details below. You can still go back and make changes.', 'ticket-overview-title') +
         '<div class="ticket-review">' +
           '<section class="ticket-review__tickets"><h3>TICKETS</h3>' + selectionTable(selection, 'Tickets in this reservation') + '</section>' +
           '<div class="ticket-review__facts">' +
@@ -170,19 +210,17 @@
             facts('GUEST', [['Name', details.firstName + ' ' + details.lastName], ['Email', details.email]]) +
           '</div>' +
         '</div>' +
-        '<div class="ticket-flow-footer"><a class="invite-back-link" href="/invites/?event=' + encodeURIComponent(event.id) + '#invite-reservation-title">Change details</a><button class="invite-button" type="button" data-place-order>Confirm reservation &rarr;</button></div>' +
+        '<div class="ticket-flow-footer"><a class="invite-back-link" data-ticket-back="details" href="/invites/?event=' + encodeURIComponent(event.id) + '#invite-reservation-title">Change details</a><button class="invite-button" type="button" data-place-order>Confirm reservation &rarr;</button></div>' +
       '</section>';
+    setEventSurface(app, event);
 
     app.querySelector('[data-place-order]').addEventListener('click', function (clickEvent) {
       clickEvent.currentTarget.disabled = true;
-      sessionStorage.setItem('tz_confirmed', JSON.stringify({
+      if (actions.onConfirm) actions.onConfirm({
         event: event,
         selection: selection,
-        details: details,
-        orderId: 'ORD-' + Date.now().toString(36).toUpperCase(),
-        timestamp: new Date().toISOString()
-      }));
-      window.location.href = '/tickets/confirmation/';
+        details: details
+      });
     });
   }
 
@@ -194,8 +232,8 @@
       }).join('') + '</tbody></table></div>';
   }
 
-  function renderConfirmation(app) {
-    var confirmed = readSession('tz_confirmed');
+  function renderConfirmation(app, state, actions) {
+    var confirmed = state.confirmed;
     if (!confirmed) {
       status(app, 'No confirmed reservation was found.');
       return;
@@ -212,20 +250,39 @@
           facts('EVENT', eventFactRows(event)) +
         '</div>' +
         '<section class="ticket-confirmation__tickets"><h3>TICKETS</h3>' + confirmationTable(confirmed.selection) + '</section>' +
-        '<div class="ticket-flow-footer ticket-flow-footer--single"><a class="invite-button" href="/invites/?event=' + encodeURIComponent(event.id) + '">Back to invite</a></div>' +
+        '<div class="ticket-flow-footer ticket-flow-footer--single"><a class="invite-button" data-ticket-back="invite" href="/invites/?event=' + encodeURIComponent(event.id) + '">Back to invite</a></div>' +
       '</section>';
+    setEventSurface(app, event);
 
     app.querySelectorAll('[data-ticket-name]').forEach(function (button) {
       button.addEventListener('click', function () {
-        if (event.ticketPdf) {
-          window.open(event.ticketPdf, '_blank', 'noopener');
-        } else {
-          generatePdf(event, confirmed.details, button.getAttribute('data-ticket-name'), button.getAttribute('data-ticket-count'), confirmed.orderId);
-        }
+        if (actions.onTicket) actions.onTicket(confirmed, button.getAttribute('data-ticket-name'), button.getAttribute('data-ticket-count'), button);
       });
     });
-    syncReservation(confirmed, app.querySelector('[data-sync]'));
+    var notice = app.querySelector('[data-sync]');
+    if (actions.onSync) actions.onSync(confirmed, notice);
+    else notice.innerHTML = '<b>Reservation confirmed.</b>';
   }
+
+  // Renderers receive data and actions explicitly; only the production adapter above uses storage or network.
+  function render(app, step, state, actions) {
+    actions = actions || {};
+    var renderer = { details: renderDetails, overview: renderOverview, confirmation: renderConfirmation }[step];
+    if (!renderer) return;
+    renderer(app, state, actions);
+    if (actions.onBack) app.querySelectorAll('[data-ticket-back]').forEach(function (link) {
+      link.addEventListener('click', function (clickEvent) {
+        if (clickEvent.button || clickEvent.metaKey || clickEvent.ctrlKey || clickEvent.shiftKey || clickEvent.altKey) return;
+        clickEvent.preventDefault();
+        actions.onBack(link.getAttribute('data-ticket-back'));
+      });
+    });
+  }
+
+  window.TZTicketing = {
+    render: render, selectionTable: selectionTable, facts: facts, eventFactRows: eventFactRows,
+    syncReservation: syncReservation, downloadTicket: downloadTicket
+  };
 
   function syncReservation(confirmed, notice) {
     var payload = {
@@ -252,9 +309,52 @@
       return;
     }
 
-    fetch(window.TZ_WEBHOOK_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) })
+    // Returning through browser history should not submit the same reservation again.
+    var saved = false;
+    try { saved = sessionStorage.getItem('tz_synced_order') === confirmed.orderId; } catch (_) {}
+    if (!reservations[confirmed.orderId]) reservations[confirmed.orderId] = saved ? Promise.resolve() :
+      fetch(window.TZ_WEBHOOK_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) })
+        .then(function () {
+          try { sessionStorage.setItem('tz_synced_order', confirmed.orderId); } catch (_) {}
+        });
+    return reservations[confirmed.orderId]
       .then(function () { notice.innerHTML = '<b>Reservation saved.</b><span>Your reservation was added to the guest list.</span>'; })
-      .catch(function () { notice.innerHTML = '<b>Reservation confirmed.</b><span>Automatic guest-list sync failed. Please contact the organiser.</span>'; });
+      .catch(function () {
+        delete reservations[confirmed.orderId];
+        notice.innerHTML = '<b>Reservation confirmed.</b><span>Automatic guest-list sync failed. Please contact the organiser.</span>';
+      });
+  }
+
+  function loadPdfLibrary() {
+    if (window.jspdf?.jsPDF) return Promise.resolve();
+    if (!pdfLibrary) pdfLibrary = new Promise(function (resolve, reject) {
+      var script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      script.crossOrigin = 'anonymous';
+      script.referrerPolicy = 'no-referrer';
+      script.onload = function () {
+        if (window.jspdf?.jsPDF) resolve();
+        else { pdfLibrary = null; script.remove(); reject(new Error('Ticket download unavailable.')); }
+      };
+      script.onerror = function () { pdfLibrary = null; script.remove(); reject(new Error('Ticket download unavailable.')); };
+      document.head.append(script);
+    });
+    return pdfLibrary;
+  }
+
+  async function downloadTicket(confirmed, name, count, button) {
+    if (confirmed.event.ticketPdf) { window.open(confirmed.event.ticketPdf, '_blank', 'noopener'); return; }
+    if (button) { button.disabled = true; button.parentElement.querySelector('.ticket-download-error')?.remove(); }
+    try {
+      await loadPdfLibrary();
+      generatePdf(confirmed.event, confirmed.details, name, count, confirmed.orderId);
+    } catch (_) {
+      var notice = document.createElement('p');
+      notice.className = 'ticket-download-error';
+      notice.setAttribute('role', 'status');
+      notice.textContent = 'Download unavailable. Please try again.';
+      button?.after(notice);
+    } finally { if (button) button.disabled = false; }
   }
 
   function generatePdf(event, details, ticketName, count, orderId) {

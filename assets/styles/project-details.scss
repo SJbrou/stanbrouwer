@@ -6,10 +6,15 @@
 [data-collection-welcome][hidden],
 .project-design-controls[hidden] { display: none; }
 
-.project-detail-page { padding-bottom: 0.5rem; overflow: visible; }
+.project-detail-page {
+  display: grid;
+  grid-template-rows: minmax(min-content, 1fr) auto;
+  min-height: calc(100svh - var(--booking-toolbar-height, 0px));
+  padding-bottom: 0;
+  overflow: visible;
+}
 .project-detail {
-  min-height: calc(100svh - 2rem);
-  margin-bottom: 0;
+  min-height: 0;
   letter-spacing: -0.035em;
 }
 .project-detail__nav {
@@ -155,21 +160,87 @@
 .project-detail--modular .project-detail__section + .project-detail__section { margin-top: 0; }
 .project-detail--modular .project-detail__section > * { max-width: 65ch; }
 .project-detail--modular.has-ground .project-detail__copy { position: relative; z-index: 1; }
-.project-detail--modular.has-ground .project-detail__section:last-child {
-  position: relative;
-  width: min(78%, 65rem);
-  margin-bottom: calc(-1 * clamp(3rem, 8vw, 7rem));
-  background: var(--collection-paper);
-}
 .project-detail__ground {
-  position: fixed;
+  position: relative;
   z-index: 0;
-  inset-inline: 0;
-  bottom: 0;
   line-height: 0;
   pointer-events: none;
 }
-.project-detail__ground-image { display: block; width: 100%; height: auto; }
+.project-detail__ground-image { display: block; width: 100%; height: auto; aspect-ratio: 1920 / 521; }
+
+// Event invitations share the Modular Plate shell, with their reservation controls arranged as content sections.
+[data-invite-page][hidden] { display: none; }
+[data-invite-page] { padding-bottom: 0; overflow: visible; }
+.invite-page .invite-detail {
+  min-height: 0;
+  overflow: visible;
+}
+.invite-detail .project-detail__nav { align-items: center; }
+.invite-detail__meta-row { flex: 1 1 auto; }
+.invite-detail__meta-row .project-detail__meta { width: 100%; }
+.invite-detail__meta-row .project-detail__meta > div { max-width: 30ch; }
+.invite-detail__meta-row .project-detail__meta dd { overflow-wrap: anywhere; }
+.invite-detail__content { position: relative; z-index: 1; }
+.invite-detail .invite-detail__heading-row .project-detail__title { margin-bottom: clamp(2rem, 4vw, 3.5rem); }
+.invite-detail__figure { width: 100%; }
+.invite-detail__figure .project-detail__image { width: 100%; height: auto; }
+.invite-access { margin: 0 var(--collection-inset) 1rem; font-size: clamp(0.65rem, 0.85vw, 0.8rem); }
+.invite-outro { border: 0; background: transparent; }
+.invite-detail .invite-detail__section > :not(h2):not(.invite-markdown) { max-width: none; }
+.invite-detail__section + .invite-detail__section { border-top: 1px solid var(--collection-ink); }
+.invite-detail__section h2 {
+  max-width: 18ch;
+  margin: 0 0 clamp(1.25rem, 3vw, 2.5rem);
+  font-size: clamp(1.8rem, 4.4vw, 4.4rem);
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: -0.085em;
+}
+.invite-detail__section .invite-markdown { max-width: 65ch; }
+.invite-detail__section .invite-markdown p { margin: 0 0 1.4em; }
+.invite-detail__section > .invite-markdown :is(p, li) { font-size: inherit; line-height: inherit; letter-spacing: inherit; }
+.invite-detail__section > .invite-markdown h3 { font-size: 1.3rem; }
+.invite-detail__section .invite-markdown > :last-child { margin-bottom: 0; }
+.invite-detail__reservation .invite-ticket-table { border-top: 1px solid var(--collection-ink); }
+.invite-detail__reservation .invite-details-form { border-top: 0; }
+.invite-detail__reservation .invite-form-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem var(--collection-inset);
+}
+.invite-detail__reservation .invite-form-heading h3 { margin: 0; font-size: 1rem; font-weight: 400; }
+.invite-detail__reservation .invite-form-heading p { margin: 0; font-size: 0.8rem; opacity: 0.6; }
+.invite-detail__reservation .invite-form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--collection-ink); }
+.invite-detail__reservation .invite-details-form .invite-form-field { grid-column: auto; padding: 1rem var(--collection-inset); border-right: 0; border-bottom: 1px solid var(--collection-ink); }
+.invite-detail__reservation .invite-reservation-footer { padding: 1.25rem var(--collection-inset) 0; }
+.invite-message { padding: clamp(2rem, 6vw, 5rem) var(--collection-inset); }
+.invite-message .project-detail__title { margin: 0 0 1.5rem; }
+.invite-message p { max-width: 55ch; }
+.invite-page :is(a, button, input):focus-visible,
+.ticket-page :is(a, button, input):focus-visible { outline: 2px solid var(--collection-ink); outline-offset: 3px; }
+
+// Reservation pages use the same page width, title treatment and ground image as project details.
+.ticket-page .ticket-poster {
+  min-height: calc(100svh - 2rem);
+  overflow: visible;
+}
+.ticket-detail { padding-bottom: clamp(2.5rem, 6vw, 5rem); }
+.ticket-detail .project-detail__nav { align-items: center; }
+.ticket-event-meta-row { flex: 1 1 auto; }
+.ticket-event-meta-row .project-detail__meta { width: 100%; }
+.ticket-event-meta-row .project-detail__meta > div { max-width: 30ch; }
+.ticket-event-meta-row .project-detail__meta dd { overflow-wrap: anywhere; }
+.ticket-event-header { padding-bottom: 0; }
+.ticket-event-header__figure { width: 100%; }
+.ticket-event-header__image { width: 100%; height: auto; }
+.ticket-progress { position: relative; z-index: 1; }
+.ticket-detail .ticket-section-heading,
+.ticket-detail .ticket-confirmation__heading { padding-right: var(--collection-inset); padding-left: var(--collection-inset); }
+.ticket-detail .ticket-section-heading h2,
+.ticket-detail .ticket-confirmation__heading h2 { max-width: 14ch; }
+
 @media (min-width: 60rem) {
   .project-detail--modular.has-image .project-detail__heading-row {
     grid-template-columns: minmax(0, 3fr) minmax(0, 1fr);
@@ -217,9 +288,19 @@ body.is-collection-navigating .collection-media-dock { z-index: 10001; }
 
 // A viewport-sized visual copy preserves the current scroll position and type proportions.
 body.is-collection-navigating { overflow: hidden; }
-.collection-route { position: fixed; inset: 0; z-index: 10000; overflow: hidden; background: #f5f6f1; }
+.collection-route {
+  position: fixed;
+  inset: 0;
+  // The SVG and clipping coordinates use the full viewport, including its
+  // reserved scrollbar gutter. Keep their CSS canvas the same width.
+  right: auto;
+  width: 100vw;
+  z-index: 10000;
+  overflow: hidden;
+}
+.collection-route::before { content: ""; position: absolute; inset: 0; z-index: 0; background: #f5f6f1; opacity: var(--collection-route-background-opacity, 1); pointer-events: none; }
 .collection-route__floor { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
-.collection-route__floor-image { position: absolute; display: block; max-width: none; mix-blend-mode: multiply; }
+.collection-route__floor-image { position: absolute; display: block; max-width: none; }
 .collection-route__paper { position: absolute; inset: 0; z-index: 1; overflow: hidden; background: #fff; }
 .collection-route__snapshot { position: absolute; inset: 0; transform-origin: 0 0; overflow: hidden; }
 .collection-route__snapshot > .collection-page { position: absolute; width: 100%; min-height: 100%; }
@@ -252,11 +333,13 @@ body.is-collection-navigating { overflow: hidden; }
   .project-detail--split .project-detail__aside { display: flex; flex-direction: column; gap: 1.5rem; }
   .project-detail--split .project-detail__aside .project-detail__meta { order: -1; margin-top: 0; }
   .project-detail--split .project-detail__figure { width: 100%; max-width: 28rem; }
-  .project-detail--modular.has-ground .project-detail__section:last-child {
-    width: 90%;
-    margin-bottom: calc(-1 * clamp(2.5rem, 9vw, 4rem));
-  }
   .project-detail__body { line-height: 1.6; }
+  .invite-detail.project-detail--modular.has-image .invite-detail__heading-row { grid-template-columns: minmax(0, 1fr); }
+  .invite-detail .invite-detail__heading-row .project-detail__title { max-width: none; margin-bottom: 1.25rem; overflow-wrap: normal; word-break: normal; }
+  .invite-detail .invite-detail__figure { width: min(10rem, 40%); justify-self: end; }
+  .invite-detail__reservation .invite-form-grid { grid-template-columns: 1fr; }
+  .invite-detail__reservation .invite-form-heading { display: block; }
+  .invite-detail__reservation .invite-form-heading p { margin-top: 0.55rem; }
   .project-design-controls select { font-size: 1rem; }
 }
 @media (pointer: coarse) {

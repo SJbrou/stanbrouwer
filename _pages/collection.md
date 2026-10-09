@@ -84,6 +84,6 @@ welcome: true
   <button id="collection-mobile-sound-candidate" class="collection-mobile-sound-candidate" type="button" hidden></button>
 
   <footer class="collection-outro">
-    <img class="collection-outro__image" src="{{ '/assets/img/black-white-perspective-grid-background-vector.jpg' | relative_url }}" alt="Black-and-white perspective grid artwork">
+    <img class="collection-outro__image" src="{{ '/assets/img/black-white-perspective-grid-background-vector.jpg' | relative_url }}" width="1920" height="521" alt="Black-and-white perspective grid artwork">
   </footer>
 </main>

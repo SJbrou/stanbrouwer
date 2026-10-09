@@ -1,0 +1,47 @@
+---
+---
+
+.invite-preview-controls { position: relative; z-index: 2; gap: 0.65rem 1.15rem; background: #f5f6f1; font-size: 0.75rem; }
+.invite-preview-controls select { width: auto; max-width: 100%; }
+.invite-preview-controls p { margin: 0; line-height: 1.5; }
+.invite-preview-controls .project-design-controls__status { height: 3em; overflow: hidden; }
+.invite-preview-controls__note { flex-basis: 100%; color: #595959; }
+.invite-preview-controls__examples { margin-left: auto; }
+.invite-preview-controls__examples summary { padding: 0.65rem 0; cursor: pointer; }
+.invite-preview-controls__example-fields { display: flex; flex-wrap: wrap; gap: 0.75rem; padding-bottom: 0.75rem; }
+.invite-preview-controls :is(a, button, select, summary):focus-visible { outline: 2px solid #000; outline-offset: 3px; }
+.invite-preview-controls button:disabled { opacity: 0.4; }
+.invite-preview-noscript { padding: 1rem; }
+
+.invite-preview-sample-ticket { grid-column: 1 / -1; margin-top: 2rem; padding: 1.5rem; border: 1px solid #000; background: #f5f6f1; }
+.invite-preview-sample-ticket h3 { margin: 1rem 0; font-size: 1.25rem; font-weight: 400; line-height: 1.2; }
+.invite-preview-sample-ticket p { font-size: 0.8rem; line-height: 1.5; overflow-wrap: anywhere; }
+.invite-preview-sample-ticket button { padding: 0.65rem 1rem; border: 1px solid #000; border-radius: 0; background: #fff; color: #000; font: inherit; font-size: 0.8rem; }
+.invite-preview--reference .booking-host > .project-detail__content > .project-detail__header { padding: clamp(2rem, 5vw, 4.5rem) var(--collection-inset) 0; }
+
+@media (min-width: 60rem) {
+  .invite-preview--side .booking-sheet-columns { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: clamp(2rem, 4vw, 4rem); }
+  .invite-preview--side .booking-sheet-columns .booking-action { max-width: none; margin-top: 0; }
+  .invite-preview--side .booking-sheet-header .project-detail__heading-row > :is(.project-detail__title, h2) { font-size: clamp(2.65rem, 5.8vw, 5.75rem); }
+  .invite-preview--side .invite-ticket-table__head { display: none; }
+  .invite-preview--side .invite-ticket-row { grid-template-columns: minmax(0, 1fr) auto; }
+  .invite-preview--side .invite-ticket-row__type { grid-column: 1 / -1; }
+  .invite-preview--side .invite-ticket-row__price { text-align: left; }
+  .invite-preview--side .invite-counter { justify-self: end; }
+  .invite-preview--side .invite-reservation-footer,
+  .invite-preview--side .ticket-flow-footer { align-items: stretch; flex-direction: column; gap: 1rem; }
+}
+
+@media (max-width: 47.999rem) {
+  .invite-preview-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem 0.75rem; padding: 0.75rem; }
+  .invite-preview-controls > label { display: block; }
+  .invite-preview-controls > label select { width: 100%; margin-top: 0.4rem; font-size: 0.8rem; }
+  .invite-preview-controls__examples { margin-left: 0; }
+  .invite-preview-controls__examples,
+  .invite-preview-controls__note { grid-column: 1 / -1; }
+  .invite-preview-controls .project-design-controls__status { display: none; }
+  .invite-preview-controls__example-fields label { display: block; }
+  .invite-preview-controls__example-fields select { width: 100%; margin-top: 0.4rem; }
+  .invite-preview-controls__note { font-size: 0.65rem; }
+}
+

@@ -78,3 +78,6 @@ exclude:
   - LICENSE
   - assets/invites-sample.tsv
   - scripts/check-project-details.cjs
+  - scripts/check-welcome.cjs
+  - scripts/check-footer.cjs
+  - scripts/check-invites.cjs

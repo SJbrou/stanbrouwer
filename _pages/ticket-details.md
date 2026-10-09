@@ -5,6 +5,4 @@ permalink: /tickets/details/
 hide_navbar: true
 ---
 
-<div class="invite-ticket-app" data-ticket-step="details" id="ticketing-app">
-  <p class="invite-ticket-status">LOADING DETAILS</p>
-</div>
+<!-- The shared booking shell is rendered by the ticketing layout. -->

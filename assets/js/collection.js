@@ -38,6 +38,7 @@
   let mobileSelectionPending = false;
   let collectionTruncationPending = false;
   let collectionSuspended = false;
+  let welcomeActive = false;
   let mobileDrag = null;
   let windowResize = null;
 
@@ -672,7 +673,7 @@
   };
 
   const showDesktopImagePreview = (entry, row) => {
-    if (row.media?.kind !== "image" || !imagePanel || !imageContent) {
+    if (welcomeActive || row.media?.kind !== "image" || !imagePanel || !imageContent) {
       hideDesktopImagePreview();
       return;
     }
@@ -983,7 +984,8 @@
   const presentMobilePreview = () => {
     const previewRow = mobilePreviewRow();
     const preview = previewRow && rowMetadata.get(previewRow);
-    if (!previewRow || !mobileContent || !mobilePanel || !mobileToggle || !preview?.media) {
+    if (!previewRow || !mobileContent || !mobilePanel || !mobileToggle || !preview?.media
+        || (welcomeActive && preview.media.kind === "image")) {
       hideMobilePreview();
       return;
     }
@@ -1694,6 +1696,7 @@
           const label = document.createElement("span");
 
           link.className = `collection-invite${past ? " is-past" : ""}`;
+          link.dataset.collectionInvite = event.id;
           link.href = `/invites/?event=${encodeURIComponent(event.id)}`;
           link.setAttribute("role", "listitem");
           link.setAttribute("aria-label", `${event.title}${past ? " (past event)" : ""}`);
@@ -1739,6 +1742,7 @@
   const initialise = () => {
     if (initialised || !document.querySelector("[data-collection-welcome]")) return ready;
     initialised = true;
+    welcomeActive = document.querySelector("[data-collection-welcome]").classList.contains("is-welcome-active");
     setupMobileControls();
     ready = Promise.all([hydrateInvites(), ...subsections.map(hydrateSubsection)]);
     window.addEventListener("scroll", scheduleMobileSelection, { passive: true });
@@ -1772,6 +1776,12 @@
 
   window.Collection = {
     initialise,
+    setWelcomeActive(active) {
+      if (welcomeActive === active) return;
+      welcomeActive = active;
+      if (active && desktopImageRow) hideDesktopImagePreview();
+      if (!isDesktopMedia()) presentMobilePreview();
+    },
     suspend() {
       collectionSuspended = true;
       closeDesktopImagePreview();

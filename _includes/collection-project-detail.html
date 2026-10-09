@@ -1,5 +1,5 @@
 <main class="collection-page project-detail-page" data-project-page {% unless page.project_detail or page.project_preview %}hidden{% endunless %}>
-  <article class="collection-poster project-detail project-detail--modular" data-project-surface aria-busy="true">
+  <article class="collection-poster project-detail project-detail--modular has-ground" data-project-surface aria-busy="true">
     <nav class="project-detail__nav" aria-label="Project navigation">
       <a class="project-detail__back" href="{{ '/' | relative_url }}#projects-title" data-collection-home>← PROJECTS</a>
       <span class="project-detail__signature">PERSPECTIVE</span>
@@ -10,4 +10,7 @@
     <div class="project-detail__body" data-project-loading role="status"><p>Loading project…</p></div>
     <noscript><p class="project-detail__notice">Enable JavaScript to read projects from the collection.</p></noscript>
   </article>
+  <footer class="collection-outro project-detail__ground" aria-hidden="true">
+    <img class="collection-outro__image project-detail__ground-image" src="{{ '/assets/img/black-white-perspective-grid-background-vector.jpg' | relative_url }}" width="1920" height="521" alt="" draggable="false" decoding="async">
+  </footer>
 </main>
