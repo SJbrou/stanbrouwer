@@ -35,10 +35,12 @@ are written to the ignored `docs/project-details-check/` directory.
 The homepage welcome opens automatically in about 1.2 seconds without scrolling
 the document. Scrolling then expands its frame into the collection over 75svh
 (360–720px). The frame follows viewport geometry, so loading additional rows
-cannot resize it mid-transition. The handover finishes sizing in its first 80%,
-then crossfades PERSPECTIVE into the collection over the final 20%. Reversal hides
-the collection before contracting. Input finishes the opening; reduced motion and
-asset failures show the static page.
+cannot resize it mid-transition. The first scroll handover finishes sizing before
+the reading view starts at 90% of the entrance range. Later cycles retain 80% for
+frame sizing and 20% for the crossfade within their handover stage. Both use the
+same reveal boundary, which enables reversal before any collection text appears.
+Reversal hides the collection before contracting. Input finishes the opening;
+reduced motion and asset failures show the static page.
 After reaching the collection, scrolling back up reverses the full entrance into
 the perspective opening. Scrolling down opens it again over the same scroll
 range: 10% for the grid, 40% for the large panel, and 50% for the reading view.
@@ -48,8 +50,9 @@ navigation and reloads without replaying the initial autoplay.
 
 Run `node scripts/check-welcome.cjs` against the local preview (port 4000 by
 default). It accepts the same browser and preview URL overrides described above.
-The checks cover perspective alignment, delayed content, short feeds, interrupted
-playback, resizing, static fallbacks, and history restoration. Screenshots go to
+The checks cover reversal from the first reveal before reaching the entrance's
+endpoint, linear movement and crossfades, perspective alignment, delayed content,
+short feeds, interrupted playback, resizing, static fallbacks, and history restoration. Screenshots go to
 the ignored `docs/welcome-check/` directory.
 
 Perspective footers stay in normal page flow with the same responsive paper

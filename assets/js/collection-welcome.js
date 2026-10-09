@@ -15,6 +15,10 @@
     return (p - .05) / .9;
   };
   const scrollStages = { gridEnd: .1, panelEnd: .5 };
+  const handoverSizing = .8;
+  // The initial handover and later scroll cycles share the same reading
+  // boundary, so visible collection content always has a reversible entrance.
+  const readingStart = scrollStages.panelEnd + (1 - scrollStages.panelEnd) * handoverSizing;
   // Border of the rear opening in the original 954 × 953 artwork. Every
   // animated edge follows these same corner rays, including the white panel.
   const aperture = { x: 98 / 954, y: 654 / 953, width: 188 / 954, height: 188 / 953 };
@@ -130,9 +134,9 @@
       const { source, target, pageTop, handoverEnd } = geometry;
       const scroll = Math.max(0, scrollY - pageTop);
       const complete = scroll >= handoverEnd - .5;
-      // Once the collection has been reached, the entire entrance follows the
-      // same scroll range in both directions. The first visit keeps its autoplay.
-      if (complete) reversible = true;
+      // Enable reversal at the first reveal, rather than requiring the reader
+      // to scroll beyond the whole entrance. Both modes agree at this boundary.
+      if (scroll >= handoverEnd * readingStart) reversible = true;
       const cycle = clamp(scroll / handoverEnd);
       const openingDistance = reversible ? handoverEnd * scrollStages.panelEnd : 0;
       const progress = complete ? 1 : clamp((scroll - openingDistance) / (handoverEnd - openingDistance));
@@ -178,8 +182,8 @@
       }
       // Finish the frame before revealing the collection. On the way back,
       // conceal its content before contracting, using the same scroll positions.
-      const sizing = clamp(progress / .8);
-      const handover = reversible ? scrollPhase(sizing) : ease(sizing);
+      const sizing = reversible ? clamp(progress / handoverSizing) : clamp(cycle / readingStart);
+      const handover = scrollPhase(sizing);
       const horizontal = handover;
       const x = mix(source.x, target.x, horizontal);
       const y = source.y + Math.min(scroll, handoverEnd);
@@ -191,7 +195,7 @@
       ].map(value => value + "px").join(" "));
       // Translate the copy with the left edge, preserving its finished type size.
       page.style.setProperty("--collection-welcome-copy-transform", "translateX(" + (x - source.x) + "px)");
-      const contentOpacity = ease(clamp((progress - .8) / .2));
+      const contentOpacity = scrollPhase((cycle - readingStart) / (1 - readingStart));
       page.style.setProperty("--collection-welcome-copy-opacity", 1 - contentOpacity);
       const visibleHeight = Math.max(0, y + height - target.y);
       poster.style.setProperty("--collection-welcome-clip", [

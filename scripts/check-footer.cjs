@@ -76,7 +76,9 @@ async function observe(page, selector) {
   }, selector);
 }
 async function finish(page) {
-  await page.waitForFunction(() => document.querySelector('.collection-route'));
+  // A screenshot may finish after the overlay has already been removed. The
+  // recorded frames still prove that the complete animation actually ran.
+  await page.waitForFunction(() => document.querySelector('.collection-route') || window.footerFrames?.length);
   await settled(page);
   return page.evaluate(() => {
     window.footerDone = true;

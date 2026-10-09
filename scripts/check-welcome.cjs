@@ -70,6 +70,81 @@ const scroll = async (page, y) => {
   const ready = page => page.waitForFunction(() =>
     document.querySelector('.collection-intro')?.dataset.welcomeState === 'ready');
   try {
+    // Turn around while reading the first visible collection, before scrolling
+    // beyond the entrance. This must already reverse the panel and grid.
+    for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+      const { page, context } = await open({ viewport });
+      await ready(page);
+      const initial = await read(page);
+      const end = initial.snapshot.handoverEnd;
+      for (const position of [.3, .4, .5]) {
+        await scroll(page, end * position);
+      }
+      const firstHalf = await read(page);
+      await scroll(page, end * .4);
+      const firstMiddle = await read(page);
+      await scroll(page, end * .3);
+      const firstEarly = await read(page);
+      for (const key of ['x', 'y', 'width', 'height']) {
+        near((firstHalf.frame[key] - firstMiddle.frame[key]) / (firstHalf.scroll - firstMiddle.scroll),
+          (firstMiddle.frame[key] - firstEarly.frame[key]) / (firstMiddle.scroll - firstEarly.scroll),
+          'First handover follows scroll evenly: ' + key, .02);
+      }
+      await scroll(page, end * .899);
+      const beforeReveal = await read(page);
+      await scroll(page, end * .901);
+      const afterReveal = await read(page);
+      assert(afterReveal.snapshot.reversible, 'The reveal boundary immediately enables full reversal');
+      for (const key of ['x', 'y', 'width', 'height']) near(afterReveal.frame[key], beforeReveal.frame[key], 'No frame jump when reversal activates: ' + key, 1);
+      const fade = [];
+      for (const position of [.92, .94, .96]) {
+        await scroll(page, end * position);
+        fade.push(await read(page));
+      }
+      near((Number(fade[1].posterOpacity) - Number(fade[0].posterOpacity)) / (fade[1].scroll - fade[0].scroll),
+        (Number(fade[2].posterOpacity) - Number(fade[1].posterOpacity)) / (fade[2].scroll - fade[1].scroll),
+        'Reading crossfade follows scroll evenly', .001);
+      await scroll(page, end * .94);
+      const reading = await read(page);
+      assert(reading.scroll < end && Number(reading.posterOpacity) > 0,
+        'Read the collection before reaching the end of the entrance');
+      assert(reading.snapshot.reversible, 'Enable reversal as soon as the collection appears');
+      await page.screenshot({ path: path.join(artifacts, 'partial-reading-' + viewport.width + '.png') });
+      const positions = [.94, .75, .3, .05, 0];
+      const states = ['handover', 'handover', 'clearing', 'building', 'building'];
+      const returning = [reading];
+      await page.mouse.move(10, 10);
+      for (let index = 1; index < positions.length; index++) {
+        const target = Math.round(end * positions[index]);
+        await page.mouse.wheel(0, target - (await read(page)).scroll);
+        await page.waitForFunction(y => Math.abs(scrollY - y) <= 1, target);
+        await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+        const sample = await read(page);
+        assert.equal(sample.state, states[index], 'Partial first visit reverses the entire entrance');
+        if (positions[index] === .3) await page.screenshot({ path: path.join(artifacts, 'partial-reverse-panel-' + viewport.width + '.png') });
+        returning.push(sample);
+        await page.waitForTimeout(120);
+        const paused = await read(page);
+        for (const key of ['x', 'y', 'width', 'height']) near(paused.frame[key], sample.frame[key], 'Reverse stops with scrolling: ' + key, .1);
+      }
+      const closed = returning.at(-1);
+      near(closed.frame.width + closed.stroke, closed.image.width * 188 / 954, 'Reverse returns to the rear opening');
+      // Subsequent downward movement retraces exactly the same frames and fade.
+      for (const sample of returning.slice().reverse()) {
+        await scroll(page, sample.scroll);
+        const forward = await read(page);
+        for (const key of ['x', 'y', 'width', 'height']) near(forward.frame[key], sample.frame[key], 'Retrace partial-reading reversal: ' + key, .1);
+        near(Number(forward.posterOpacity), Number(sample.posterOpacity), 'Retrace the reading fade', .01);
+      }
+      await page.reload({ waitUntil: 'networkidle' });
+      const restored = await read(page);
+      assert(restored.snapshot.reversible, 'A reload retains reversal before the end of the entrance');
+      near(restored.scroll, reading.scroll, 'A reload keeps the partial reading position');
+      await scroll(page, 0);
+      assert.equal((await read(page)).state, 'building', 'Partial reading can reverse after a reload');
+      await context.close();
+      console.log('PASS: reverse before the entrance endpoint, linear scroll and partial-reading reload at ' + viewport.width);
+    }
     for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }, { width: 320, height: 568 }]) {
       const { page, context } = await open({ viewport });
       await ready(page);
@@ -98,10 +173,10 @@ const scroll = async (page, y) => {
       await page.screenshot({ path: path.join(artifacts, 'handover-' + viewport.width + '.png') });
       await page.evaluate(() => document.querySelector('#late-welcome-content').remove());
       // Collection text must only appear inside an already finished frame.
-      for (const position of [.25, .5, .79, .81, .9, .98]) {
+      for (const position of [.25, .5, .79, .81, .89, .9, .98]) {
         await scroll(page, initial.snapshot.handoverEnd * position);
         const sample = await read(page);
-        if (position < .8) {
+        if (position < .9) {
           assert.equal(Number(sample.posterOpacity), 0, 'Hide collection during frame resizing');
           assert.equal(sample.posterPointer, 'none', 'Hidden collection cannot intercept pointer input');
           near(Number(sample.copyOpacity), 1, 'Keep PERSPECTIVE visible until the crossfade', .01);
@@ -365,7 +440,10 @@ const scroll = async (page, y) => {
       const reloaded = await read(page);
       assert(reloaded.snapshot.reversible, 'Reload restores the scroll-controlled entrance');
       near(reloaded.copy.width, closed.copy.width, 'Reload must not reopen a closed entrance');
-      await scroll(page, reloaded.snapshot.handoverEnd);
+      await page.mouse.move(10, 10);
+      await page.mouse.wheel(0, reloaded.snapshot.handoverEnd - reloaded.scroll);
+      await page.waitForFunction(end => Math.abs(scrollY - end) <= 1, reloaded.snapshot.handoverEnd);
+      await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
       assert.equal((await read(page)).state, 'complete', 'Scroll down after reload reveals the collection');
       await scroll(page, reloaded.snapshot.handoverEnd * .3);
       const beforeReturnResize = await read(page);
