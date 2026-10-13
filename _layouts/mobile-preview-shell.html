@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{{ page.title }} — {{ site.title }}</title>
+  <link rel="icon" href="{{ '/assets/img/favicon.svg' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/styles/collection.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/styles/mobile-preview.css' | relative_url }}">
+  <script src="{{ '/assets/js/mobile-preview-shell.js' | relative_url }}" defer></script>
+</head>
+<body class="collection-body mobile-preview-shell">
+  <main class="mobile-preview-workbench" data-demo-url="{{ '/mobile/design-preview/demo/' | relative_url }}">
+    <header class="mobile-preview-heading">
+      <a href="{{ '/' | relative_url }}">← Collection</a>
+      <h1>PERSPECTIVE<br><span>A mobile collection.</span></h1>
+      <p>Three entrances. Compact tables. Floating previews.</p>
+    </header>
+    <form class="mobile-preview-tools" aria-label="Preview settings">
+      <label>Entrance<select name="entrance"><option value="compact">Short, optional entrance</option><option value="full">Full reversible sequence</option><option value="tap">Tap to enter</option></select></label>
+      <label>View<select name="view"><option value="collection">Collection</option><option value="project">Project</option><option value="invite">Invite / tickets</option><option value="details">Your details</option><option value="overview">Review</option><option value="confirmation">Confirmation</option></select></label>
+      <label>Content<select name="fixture"><option value="populated">Populated</option><option value="long">Long titles and stories</option><option value="no-image">Without images / metadata</option><option value="failed-image">Image failure</option><option value="empty">Empty collection</option><option value="unavailable">Content unavailable</option><option value="closed">Reservations closed</option></select></label>
+      <label>Phone width<select name="width"><option value="320">320px</option><option value="390" selected>390px</option><option value="430">430px</option></select></label>
+      <button type="button" data-preview-replay>Replay entrance</button>
+      <button type="button" data-preview-compare aria-pressed="false">Compare entrances</button>
+      <a data-preview-open href="{{ '/mobile/design-preview/demo/' | relative_url }}">Open full screen ↗</a>
+    </form>
+    <p class="mobile-preview-note">Sample content. Audio and reservations are simulated; nothing is sent or saved to the live service.</p>
+    <div class="mobile-preview-frames" data-preview-frames></div>
+    <p class="mobile-preview-status" data-preview-status role="status"></p>
+    <noscript><p>Enable JavaScript to compare the mobile previews.</p></noscript>
+  </main>
+</body>
+</html>

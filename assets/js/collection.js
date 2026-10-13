@@ -43,6 +43,7 @@
   // Optional adapters let isolated design previews reuse the live row renderer.
   let runtimeOptions = {};
   let windowResize = null;
+  const placesLinkColumnIndex = 5;
   const placesImageColumnIndex = 6;
 
   const subsections = [
@@ -126,6 +127,7 @@
     const activeColumnIndexes = new Set();
     const urlColumnIndexes = new Set();
     const hiddenColumnIndexes = new Set(subsection.hiddenColumnIndexes || []);
+    const usesPlacesSheetSchema = subsection.tab === "PLACES" && !runtimeOptions.loadSheet;
 
     rawRows.forEach((row) => {
       (row.c || []).forEach((cell, index) => {
@@ -138,10 +140,12 @@
       });
     });
 
-    const visibleColumnIndexes = Array.from(activeColumnIndexes)
-      .filter((index) => !urlColumnIndexes.has(index) && !hiddenColumnIndexes.has(index)
-        && (subsection.tab !== "PROJECTS" || index < 3))
-      .sort((first, second) => first - second);
+    const visibleColumnIndexes = usesPlacesSheetSchema
+      ? [0, 1, 3, 4]
+      : Array.from(activeColumnIndexes)
+        .filter((index) => !urlColumnIndexes.has(index) && !hiddenColumnIndexes.has(index)
+          && (subsection.tab !== "PROJECTS" || index < 3))
+        .sort((first, second) => first - second);
     const orderedUrlColumnIndexes = Array.from(urlColumnIndexes)
       .sort((first, second) => first - second);
     const gridWeights = visibleColumnIndexes.map((index) => rawRows.reduce((longest, row) => (
@@ -160,16 +164,13 @@
       .map((row) => {
         const cells = row.c || [];
         const values = visibleColumnIndexes.map((index) => visibleValue(cells[index]));
-        const urlCells = orderedUrlColumnIndexes
-          .map((index) => ({ index, url: linkValue(cells[index]) }))
-          .filter(({ url }) => url);
-        const links = urlCells.map(({ url }) => url);
+        const links = orderedUrlColumnIndexes.map((index) => linkValue(cells[index])).filter(Boolean);
         const project = subsection.tab === "PROJECTS" ? window.CollectionProjects.fromCells(cells) : null;
         const routing = project ? {
           media: project.image ? { kind: "image", source: project.image } : null,
           destination: project.description ? window.CollectionProjects.href(project.slug) : project.externalUrl
-        } : subsection.tab === "PLACES" && !runtimeOptions.loadSheet
-          ? placeMediaForRow(cells, urlCells)
+        } : usesPlacesSheetSchema
+          ? placeMediaForRow(cells)
           : mediaForRow(subsection, links);
 
         return {
@@ -189,11 +190,11 @@
     };
   };
 
-  const placeMediaForRow = (cells, urlCells) => {
+  const placeMediaForRow = (cells) => {
     const source = linkValue(cells[placesImageColumnIndex]);
     return {
       media: source ? { kind: "image", source } : null,
-      destination: urlCells.find(({ index }) => index !== placesImageColumnIndex)?.url || null
+      destination: linkValue(cells[placesLinkColumnIndex])
     };
   };
 
