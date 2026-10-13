@@ -636,6 +636,19 @@ a.invite-button:focus-visible::after {
   text-align: right;
 }
 
+@media (max-width: 47.999rem) {
+  .collection-subsection--places .collection-row__columns[data-column-count="4"] {
+    grid-template-columns:
+      minmax(6ch, 0.55fr)
+      minmax(0, 2.5fr)
+      minmax(9ch, 0.9fr);
+  }
+
+  .collection-subsection--places .collection-row__columns[data-column-count="4"] .collection-cell:nth-child(3) {
+    display: none;
+  }
+}
+
 .collection-load-error {
   font-size: clamp(0.665rem, calc(1.1vw + 2px), 0.945rem);
 }

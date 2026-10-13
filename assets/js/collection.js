@@ -86,7 +86,16 @@
     || values.find((value) => value.trim() !== "")
     || fallback;
 
-  const mediaForRow = (subsection, links) => {
+  const mediaForRow = (subsection, links, cells) => {
+    // Places: F is the webpage; G is the photo.
+    if (subsection.tab === "PLACES") {
+      const source = linkValue(cells[6]);
+      return {
+        media: source ? { kind: "image", source } : null,
+        destination: linkValue(cells[5])
+      };
+    }
+
     const source = links[0];
     if (!source) {
       return { media: null, destination: null };
@@ -133,9 +142,12 @@
       });
     });
 
-    const visibleColumnIndexes = Array.from(activeColumnIndexes)
-      .filter((index) => !urlColumnIndexes.has(index) && !hiddenColumnIndexes.has(index))
-      .sort((first, second) => first - second);
+    // Places displays A, B, D and E; the remaining columns are metadata.
+    const visibleColumnIndexes = subsection.tab === "PLACES"
+      ? [0, 1, 3, 4]
+      : Array.from(activeColumnIndexes)
+        .filter((index) => !urlColumnIndexes.has(index) && !hiddenColumnIndexes.has(index))
+        .sort((first, second) => first - second);
     const orderedUrlColumnIndexes = Array.from(urlColumnIndexes)
       .sort((first, second) => first - second);
     const gridWeights = visibleColumnIndexes.map((index) => rawRows.reduce((longest, row) => (
@@ -155,7 +167,7 @@
         const cells = row.c || [];
         const values = visibleColumnIndexes.map((index) => visibleValue(cells[index]));
         const links = orderedUrlColumnIndexes.map((index) => linkValue(cells[index])).filter(Boolean);
-        const routing = mediaForRow(subsection, links);
+        const routing = mediaForRow(subsection, links, cells);
 
         return {
           values,
@@ -179,6 +191,7 @@
 
     target.replaceChildren();
     delete target.dataset.mediaKey;
+    delete target.dataset.mediaState;
     delete target.dataset.soundcloudAutoplay;
     delete target.dataset.soundcloudPlaying;
   };
@@ -189,6 +202,7 @@
     }
 
     target.replaceChildren();
+    target.dataset.mediaState = "unavailable";
     const message = document.createElement("p");
     message.className = "collection-media__status";
     message.textContent = "PREVIEW UNAVAILABLE";
@@ -198,12 +212,20 @@
   const renderImageMedia = (target, source, label, key) => {
     const image = document.createElement("img");
     image.className = "collection-media__image";
-    image.src = source;
     image.alt = `Preview for ${label}`;
-    image.loading = "lazy";
+    image.loading = "eager";
     image.decoding = "async";
     image.referrerPolicy = "no-referrer";
-    image.addEventListener("error", () => renderUnavailableMedia(target, key), { once: true });
+    const isCurrentImage = () => target.dataset.mediaKey === key && target.firstElementChild === image;
+    image.addEventListener("load", () => {
+      if (isCurrentImage()) {
+        target.dataset.mediaState = "loaded";
+      }
+    }, { once: true });
+    image.addEventListener("error", () => {
+      if (isCurrentImage()) renderUnavailableMedia(target, key);
+    }, { once: true });
+    image.src = source;
     target.replaceChildren(image);
   };
 
@@ -477,6 +499,7 @@
     const { kind, source } = row.media;
     const key = `${kind}:${source}`;
     target.dataset.mediaKey = key;
+    target.dataset.mediaState = "loading";
     if (kind === "soundcloud") {
       target.dataset.soundcloudAutoplay = options.autoPlay ? "true" : "false";
       target.dataset.soundcloudPlaying = "false";
@@ -675,7 +698,8 @@
     setImageWindowTitle(row.label);
 
     const key = `${row.media.kind}:${row.media.source}`;
-    if (imageContent.dataset.mediaKey !== key || !imageContent.firstElementChild) {
+    if (imageContent.dataset.mediaKey !== key || !imageContent.firstElementChild
+      || imageContent.dataset.mediaState === "unavailable") {
       renderMedia(imageContent, row);
     }
   };
@@ -744,6 +768,8 @@
     const focusedRow = desktopFocusedRow === document.activeElement ? desktopFocusedRow : null;
     const entry = hoveredRow || focusedRow;
     const row = entry && rowMetadata.get(entry);
+
+    if (entry && !row?.media) hideDesktopImagePreview();
 
     if (desktopPinnedRow?.isConnected) {
       if (entry && entry !== desktopPinnedRow && row?.media?.kind === "image" && desktopDismissedRow !== entry) {
@@ -814,6 +840,7 @@
       }
     } else {
       hideDesktopPreview();
+      hideDesktopImagePreview();
     }
   };
 
@@ -984,7 +1011,8 @@
     }
     setAudioPlayerMinimised(showingAudioPlayer && audioPlayerMinimised);
     const key = `${preview.media.kind}:${preview.media.source}`;
-    if (mobileContent.dataset.mediaKey !== key || !mobileContent.firstElementChild) {
+    if (mobileContent.dataset.mediaKey !== key || !mobileContent.firstElementChild
+      || (preview.media.kind === "image" && mobileContent.dataset.mediaState === "unavailable")) {
       renderMedia(mobileContent, preview);
     }
   };
