@@ -226,17 +226,20 @@
   const renderImageMedia = (target, source, label, key) => {
     const image = document.createElement("img");
     image.className = "collection-media__image";
-    image.src = source;
     image.alt = `Preview for ${label}`;
-    image.loading = "lazy";
+    image.loading = "eager";
     image.decoding = "async";
     image.referrerPolicy = "no-referrer";
+    const isCurrentImage = () => target.dataset.mediaKey === key && target.firstElementChild === image;
     image.addEventListener("load", () => {
-      if (target.dataset.mediaKey === key) {
+      if (isCurrentImage()) {
         target.dataset.mediaState = "loaded";
       }
     }, { once: true });
-    image.addEventListener("error", () => renderUnavailableMedia(target, key), { once: true });
+    image.addEventListener("error", () => {
+      if (isCurrentImage()) renderUnavailableMedia(target, key);
+    }, { once: true });
+    image.src = source;
     target.replaceChildren(image);
   };
 
@@ -802,6 +805,8 @@
     const entry = hoveredRow || focusedRow;
     const row = entry && rowMetadata.get(entry);
 
+    if (entry && !row?.media) hideDesktopImagePreview();
+
     if (desktopPinnedRow?.isConnected) {
       if (entry && entry !== desktopPinnedRow && row?.media?.kind === "image" && desktopDismissedRow !== entry) {
         desktopDismissedRow = null;
@@ -871,6 +876,7 @@
       }
     } else {
       hideDesktopPreview();
+      hideDesktopImagePreview();
     }
   };
 
@@ -1042,7 +1048,8 @@
     }
     setAudioPlayerMinimised(showingAudioPlayer && audioPlayerMinimised);
     const key = `${preview.media.kind}:${preview.media.source}`;
-    if (mobileContent.dataset.mediaKey !== key || !mobileContent.firstElementChild) {
+    if (mobileContent.dataset.mediaKey !== key || !mobileContent.firstElementChild
+      || (preview.media.kind === "image" && mobileContent.dataset.mediaState === "unavailable")) {
       renderMedia(mobileContent, preview);
     }
   };
