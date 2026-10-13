@@ -40,7 +40,65 @@
     return Math.max(0, current.handoverEnd + scroll - end);
   };
 
+  // Tap cover shares the same artwork and controller interface as scroll entrances.
+  function createTap(page) {
+    const intro = page.querySelector('.collection-intro');
+    const artwork = intro.querySelector('.collection-intro__artwork');
+    const poster = page.querySelector('.collection-poster');
+    let entered = !!history.state?.mobilePreview?.entered;
+    let animation;
+    let overlay;
+    page.classList.add('is-welcome-tap', 'has-welcome-typography');
+    const captions = intro.querySelector('.collection-captions');
+    if (captions) artwork.querySelector('.collection-perspective-copy').append(captions);
+    const display = () => {
+      page.classList.toggle('is-tap-entered', entered);
+      // Reduced motion exposes the ordinary document immediately.
+      poster.inert = !entered && !motion.matches;
+      intro.dataset.welcomeState = entered ? 'complete' : motion.matches ? 'static' : 'cover';
+      window.Collection?.setWelcomeActive(!entered && !motion.matches);
+    };
+    const finish = () => {
+      animation?.cancel(); animation = undefined;
+      overlay?.remove(); overlay = undefined;
+      entered = true;
+      display();
+      window.scrollTo({ top: page.getBoundingClientRect().top + scrollY, behavior: 'instant' });
+      window.dispatchEvent(new Event('collection-welcome-settled'));
+    };
+    const enter = async () => {
+      if (entered || animation) return;
+      if (motion.matches || !artwork.querySelector('img').naturalWidth) { finish(); return; }
+      const source = artwork.getBoundingClientRect();
+      overlay = document.createElement('div');
+      overlay.className = 'mobile-tap-plane';
+      overlay.setAttribute('aria-hidden', 'true');
+      document.body.append(overlay);
+      animation = overlay.animate([
+        { left: source.left + source.width * aperture.x + 'px', top: source.top + source.height * aperture.y + 'px', width: source.width * aperture.width + 'px', height: source.height * aperture.height + 'px' },
+        { left: '12px', top: '12px', width: Math.max(0, innerWidth - 24) + 'px', height: Math.max(0, innerHeight - 24) + 'px' }
+      ], { duration: 400, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' });
+      try { await animation.finished; finish(); } catch (_) { /* Interrupted input or navigation owns cleanup. */ }
+    };
+    const cover = () => {
+      animation?.cancel(); overlay?.remove(); animation = overlay = undefined;
+      entered = false; display(); window.scrollTo({ top: 0, behavior: 'instant' });
+    };
+    const snapshot = () => ({ version: 2, variant: 'tap', openingComplete: entered, entered, reversible: false, handoverStart: 0, handoverEnd: 0 });
+    motion.addEventListener?.('change', () => { if (animation) finish(); display(); });
+    ['wheel', 'touchstart', 'keydown'].forEach(type => window.addEventListener(type, () => { if (animation) finish(); }, { passive: true }));
+    window.addEventListener('resize', () => { if (animation) finish(); });
+    window.addEventListener('pagehide', () => { animation?.cancel(); overlay?.remove(); animation = overlay = undefined; });
+    const coverImage = artwork.querySelector('img');
+    coverImage.addEventListener('error', () => { entered = true; display(); });
+    if (coverImage.complete && !coverImage.naturalWidth) entered = true;
+    display();
+    return { ready: Promise.resolve(), enter, cover, resume: display, suspend: () => { animation?.cancel(); overlay?.remove(); animation = overlay = undefined; }, snapshot, scrollFor: scroll => scroll };
+  }
+
   function create(page, options) {
+    if (options.variant === 'tap') return createTap(page);
+    if (options.variant === 'compact') page.classList.add('is-welcome-compact');
     const intro = page.querySelector(".collection-intro");
     const artwork = intro?.querySelector(".collection-intro__artwork");
     const image = artwork?.querySelector(".collection-intro__image");
@@ -273,9 +331,11 @@
       const started = performance.now();
       const tick = now => {
         if (!autoplayAllowed || suspended || page.hidden || document.hidden) { finishOpening(); return; }
-        reveal = ease((now - started) / 200);
+        const fadeDuration = options.variant === 'compact' ? 120 : 200;
+        const openingDuration = options.variant === 'compact' ? 580 : 1000;
+        reveal = ease((now - started) / fadeDuration);
         // Fade immediately even on a cold image load. The grid opens once decoded.
-        if (settled) opening = clamp((now - Math.max(started + 200, readyAt)) / 1000);
+        if (settled) opening = clamp((now - Math.max(started + fadeDuration, readyAt)) / openingDuration);
         render();
         if (opening < 1) autoplayRequest = requestAnimationFrame(tick);
         else finishOpening();
@@ -352,12 +412,18 @@
       else finishLoading(false);
     }
     startAutoplay();
-    return { ready, resume, suspend, snapshot, scrollFor };
+    const enter = () => {
+      finishOpening();
+      if (needsMeasure) measure();
+      window.scrollTo({ top: geometry.pageTop + geometry.handoverEnd, behavior: 'instant' });
+      render();
+    };
+    return { ready, resume, suspend, snapshot, scrollFor, enter };
   }
 
   const initialise = (page, options = {}) => {
     if (!page) return null;
-    if (!controllers.has(page)) controllers.set(page, create(page, options));
+    if (!controllers.has(page)) controllers.set(page, create(page, { variant: page.dataset.welcomeVariant, ...options }));
     return controllers.get(page);
   };
   const page = document.querySelector("[data-collection-welcome]");

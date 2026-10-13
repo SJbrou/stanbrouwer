@@ -2,6 +2,34 @@
 
 stanbrouwer.com
 
+## Mobile collection preview
+
+Compare the short optional entrance, full reversible scroll sequence, and tap-to-enter
+cover at `/mobile/design-preview/`. The preview includes 320/390/430px phone presets,
+side-by-side entrance comparison, and collection, project, invite, details, review,
+and confirmation views. Open `/mobile/design-preview/demo/` for a full-screen phone
+preview. Query parameters `entrance=compact|full|tap`, `view`, and `fixture` make
+individual examples shareable.
+
+Words, Sounds, Places, and Projects keep a tabular overview on phones: the first,
+second, and last visible data columns remain aligned across rows. Tables use the
+desktop's borderless, single-line rows and consistent black typography at a smaller
+scale; only section boundaries use rules. Sounds shows date, title, and duration.
+Invites keeps its separate layout. Each highlighted collection row shows a compact
+preview window at the bottom left, above any audio controls. Scroll, focus, or hover
+a row to update it; missing images keep the window visible with a placeholder.
+Drag its title bar, resize its corner, or close it to clear the highlight. Selecting
+another row opens the window again; the section heading can reopen the same row.
+Website thumbnails and audio artwork use local sample
+images in this preview. The three entrance animations remain available.
+
+This is an isolated design preview: public layouts retain their current appearance.
+Content is deterministic and local; audio playback and reservations are simulated,
+and the preview never calls Google Sheets or the booking webhook. Examples include
+long content, missing metadata, missing/broken images, empty/unavailable collections,
+and closed reservations. Use `node scripts/check-mobile-preview.cjs` against the
+Windows preview to validate the complete sample journey and entrance variants.
+
 ## Project details
 
 The public `PROJECTS` sheet supplies date (A), title (B), category (C), image URL

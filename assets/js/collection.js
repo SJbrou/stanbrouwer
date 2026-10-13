@@ -40,12 +40,15 @@
   let collectionSuspended = false;
   let welcomeActive = false;
   let mobileDrag = null;
+  // Optional adapters let isolated design previews reuse the live row renderer.
+  let runtimeOptions = {};
   let windowResize = null;
+  const placesImageColumnIndex = 6;
 
   const subsections = [
     { tab: "WORDS", targetId: "collection-words", mediaKind: "website" },
     { tab: "SOUNDS", targetId: "collection-sounds", mediaKind: "soundcloud", hiddenColumnIndexes: [4] },
-    { tab: "PLACES", targetId: "collection-places", mediaKind: "image", hiddenColumnIndexes: [2] },
+    { tab: "PLACES", targetId: "collection-places", mediaKind: "image", hiddenColumnIndexes: [2, placesImageColumnIndex] },
     { tab: "PROJECTS", targetId: "collection-projects", mediaKind: "image", hiddenColumnIndexes: [3, 4, 5] }
   ];
 
@@ -157,15 +160,21 @@
       .map((row) => {
         const cells = row.c || [];
         const values = visibleColumnIndexes.map((index) => visibleValue(cells[index]));
-        const links = orderedUrlColumnIndexes.map((index) => linkValue(cells[index])).filter(Boolean);
+        const urlCells = orderedUrlColumnIndexes
+          .map((index) => ({ index, url: linkValue(cells[index]) }))
+          .filter(({ url }) => url);
+        const links = urlCells.map(({ url }) => url);
         const project = subsection.tab === "PROJECTS" ? window.CollectionProjects.fromCells(cells) : null;
         const routing = project ? {
           media: project.image ? { kind: "image", source: project.image } : null,
           destination: project.description ? window.CollectionProjects.href(project.slug) : project.externalUrl
-        } : mediaForRow(subsection, links);
+        } : subsection.tab === "PLACES" && !runtimeOptions.loadSheet
+          ? placeMediaForRow(cells, urlCells)
+          : mediaForRow(subsection, links);
 
         return {
           values,
+          sourceIndexes: visibleColumnIndexes,
           ...routing,
           projectSlug: project?.description ? project.slug : null,
           label: itemLabel(values, subsection.tab)
@@ -180,6 +189,14 @@
     };
   };
 
+  const placeMediaForRow = (cells, urlCells) => {
+    const source = linkValue(cells[placesImageColumnIndex]);
+    return {
+      media: source ? { kind: "image", source } : null,
+      destination: urlCells.find(({ index }) => index !== placesImageColumnIndex)?.url || null
+    };
+  };
+
   const clearMedia = (target) => {
     if (!target) {
       return;
@@ -187,6 +204,7 @@
 
     target.replaceChildren();
     delete target.dataset.mediaKey;
+    delete target.dataset.mediaState;
     delete target.dataset.soundcloudAutoplay;
     delete target.dataset.soundcloudPlaying;
   };
@@ -197,6 +215,7 @@
     }
 
     target.replaceChildren();
+    target.dataset.mediaState = "unavailable";
     const message = document.createElement("p");
     message.className = "collection-media__status";
     message.textContent = "PREVIEW UNAVAILABLE";
@@ -211,6 +230,11 @@
     image.loading = "lazy";
     image.decoding = "async";
     image.referrerPolicy = "no-referrer";
+    image.addEventListener("load", () => {
+      if (target.dataset.mediaKey === key) {
+        target.dataset.mediaState = "loaded";
+      }
+    }, { once: true });
     image.addEventListener("error", () => renderUnavailableMedia(target, key), { once: true });
     target.replaceChildren(image);
   };
@@ -490,6 +514,7 @@
     const { kind, source } = row.media;
     const key = `${kind}:${source}`;
     target.dataset.mediaKey = key;
+    target.dataset.mediaState = "loading";
     if (kind === "soundcloud") {
       target.dataset.soundcloudAutoplay = options.autoPlay ? "true" : "false";
       target.dataset.soundcloudPlaying = "false";
@@ -688,7 +713,8 @@
     setImageWindowTitle(row.label);
 
     const key = `${row.media.kind}:${row.media.source}`;
-    if (imageContent.dataset.mediaKey !== key || !imageContent.firstElementChild) {
+    if (imageContent.dataset.mediaKey !== key || !imageContent.firstElementChild
+      || imageContent.dataset.mediaState === "unavailable") {
       renderMedia(imageContent, row);
     }
   };
@@ -1064,6 +1090,7 @@
   };
 
   const scheduleMobileSelection = () => {
+    if (runtimeOptions.disableFloatingMedia) return;
     if (collectionSuspended || document.querySelector("[data-collection-welcome]")?.hidden) return;
     if (isDesktopMedia() || mobileSelectionPending) {
       return;
@@ -1077,6 +1104,7 @@
   };
 
   const setMediaMode = () => {
+    if (runtimeOptions.disableFloatingMedia) return;
     document.querySelectorAll(".collection-row.is-active").forEach((entry) => entry.classList.remove("is-active"));
 
     if (isDesktopMedia()) {
@@ -1284,6 +1312,7 @@
   };
 
   const truncateCollectionCells = (scope = document) => {
+    if (runtimeOptions.preserveText) return;
     scope.querySelectorAll?.(".collection-cell").forEach(truncateCell);
   };
 
@@ -1334,6 +1363,7 @@
         cell.className = "collection-cell";
         cell.textContent = value;
         cell.dataset.fullValue = value;
+        cell.dataset.sourceColumn = String(row.sourceIndexes[index]);
         if (nonTruncatableColumns[index]) {
           cell.dataset.noTruncate = "true";
           cell.classList.add("collection-cell--numeric");
@@ -1343,7 +1373,8 @@
 
       entry.append(columns);
       rowMetadata.set(entry, row);
-      bindRowInteractions(entry, subsectionElement, row);
+      if (runtimeOptions.bindRow) runtimeOptions.bindRow(entry, subsectionElement, row);
+      else bindRowInteractions(entry, subsectionElement, row);
       item.append(entry);
       fragment.append(item);
     });
@@ -1351,7 +1382,8 @@
     target.append(fragment);
     target.setAttribute("aria-busy", "false");
     scheduleCollectionTruncation();
-    initialiseDesktopPreview(subsectionElement);
+    if (!runtimeOptions.disableFloatingMedia) initialiseDesktopPreview(subsectionElement);
+    runtimeOptions.onRowsRendered?.(target, collection, subsection);
     scheduleMobileSelection();
   };
 
@@ -1369,7 +1401,9 @@
     scheduleMobileSelection();
   };
 
-  const loadTab = (subsection) => subsection.tab === "PROJECTS"
+  const loadTab = (subsection) => runtimeOptions.loadSheet
+    ? Promise.resolve().then(() => runtimeOptions.loadSheet(subsection.tab)).then(response => normaliseRows(response, subsection))
+    : subsection.tab === "PROJECTS"
     ? window.CollectionProjects.loadResponse().then(response => normaliseRows(response, subsection))
     : new Promise((resolve, reject) => {
     callbackCount += 1;
@@ -1648,7 +1682,7 @@
     }
 
     try {
-      const events = (await window.TZInvites.load()).filter((event) => event.publish);
+      const events = (await (runtimeOptions.loadInvites ? runtimeOptions.loadInvites() : window.TZInvites.load())).filter((event) => event.publish);
       target.replaceChildren();
 
       if (events.length === 0) {
@@ -1726,6 +1760,7 @@
       }
 
       target.setAttribute("aria-busy", "false");
+      runtimeOptions.onInvitesRendered?.(target, events);
     } catch (error) {
       console.warn("INVITES sheet load failed:", error);
       target.replaceChildren();
@@ -1739,11 +1774,12 @@
 
   let initialised = false;
   let ready;
-  const initialise = () => {
+  const initialise = (options = window.COLLECTION_PREVIEW_OPTIONS || {}) => {
     if (initialised || !document.querySelector("[data-collection-welcome]")) return ready;
     initialised = true;
+    runtimeOptions = options;
     welcomeActive = document.querySelector("[data-collection-welcome]").classList.contains("is-welcome-active");
-    setupMobileControls();
+    if (!runtimeOptions.disableFloatingMedia) setupMobileControls();
     ready = Promise.all([hydrateInvites(), ...subsections.map(hydrateSubsection)]);
     window.addEventListener("scroll", scheduleMobileSelection, { passive: true });
     window.addEventListener("resize", () => {
@@ -1770,12 +1806,14 @@
       desktopMediaQuery.addListener(setMediaMode);
     }
 
-    setMediaMode();
+    if (!runtimeOptions.disableFloatingMedia) setMediaMode();
     return ready;
   };
 
   window.Collection = {
     initialise,
+    // Refresh is used by fixture controls; normal public initialization remains one-shot.
+    refresh: () => Promise.all([hydrateInvites(), ...subsections.map(hydrateSubsection)]),
     setWelcomeActive(active) {
       if (welcomeActive === active) return;
       welcomeActive = active;
@@ -1798,5 +1836,5 @@
       scheduleMobileSelection();
     }
   };
-  document.addEventListener("DOMContentLoaded", initialise);
+  document.addEventListener("DOMContentLoaded", () => initialise());
 })();
