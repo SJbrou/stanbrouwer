@@ -1,9 +1,12 @@
 (function () {
   'use strict';
 
-  document.addEventListener('DOMContentLoaded', function () {
-    var target = document.getElementById('invite-content');
-    var eventId = new URLSearchParams(window.location.search).get('event');
+  function mount(root = document, options = {}) {
+    let disposed = false;
+    const storage = options.storage || sessionStorage;
+    const navigate = options.navigate || (url => window.location.assign(url));
+    var target = root.querySelector('#invite-content');
+    var eventId = options.eventId || new URLSearchParams(window.location.search).get('event');
 
     if (!target || !window.TZInvites) return;
     if (!eventId) {
@@ -11,7 +14,8 @@
       return;
     }
 
-    window.TZInvites.load().then(function (events) {
+    const ready = window.TZInvites.load().then(function (events) {
+      if (disposed) return;
       var event = events.find(function (candidate) {
         return candidate.id === eventId && candidate.publish;
       });
@@ -23,8 +27,9 @@
 
       renderEvent(target, event);
       target.setAttribute('aria-busy', 'false');
-      document.title = event.title + ' - Stan Brouwer';
+      if (!options.isActive || options.isActive()) document.title = event.title + ' - Stan Brouwer';
     }).catch(function (error) {
+      if (disposed) return;
       console.warn('Invite detail load failed:', error);
       renderMessage(target, 'Invite content unavailable.', '/');
     });
@@ -104,6 +109,22 @@
 
       if (!isOpen || !event.ticketTypes.length) return;
 
+      {
+        try {
+          const savedEvent = JSON.parse(storage.getItem('tz_event') || 'null');
+          if (savedEvent?.id === event.id) {
+            const saved = JSON.parse(storage.getItem('tz_selection') || '[]');
+            const details = JSON.parse(storage.getItem('tz_details') || '{}');
+            event.ticketTypes.forEach(ticket => {
+              counts[ticket.id] = Math.min(ticket.max, Math.max(0, Number(saved.find(item => item.id === ticket.id)?.count || 0)));
+              updateTicketRow(container, ticket.id, counts[ticket.id], ticket.max);
+            });
+            for (const name of ['firstName', 'lastName', 'email']) container.querySelector('form').elements[name].value = details[name] || '';
+            updateTotal(container, counts);
+          }
+        } catch (_) { /* A malformed draft starts with an empty form. */ }
+      }
+
       var ticketTable = container.querySelector('.invite-ticket-table');
       ticketTable.addEventListener('click', function (clickEvent) {
         var button = clickEvent.target.closest('button[data-action]');
@@ -143,13 +164,13 @@
         }
         if (!valid) return;
 
-        sessionStorage.setItem('tz_event', JSON.stringify(event));
-        sessionStorage.setItem('tz_selection', JSON.stringify(event.ticketTypes.filter(function (ticket) { return counts[ticket.id] > 0; }).map(function (ticket) {
+        storage.setItem('tz_event', JSON.stringify(event));
+        storage.setItem('tz_selection', JSON.stringify(event.ticketTypes.filter(function (ticket) { return counts[ticket.id] > 0; }).map(function (ticket) {
           return { id: ticket.id, name: ticket.name, descriptionMarkdown: ticket.descriptionMarkdown, price: ticket.price, max: ticket.max, count: counts[ticket.id] };
         })));
-        sessionStorage.setItem('tz_details', JSON.stringify(details));
-        sessionStorage.removeItem('tz_confirmed');
-        window.location.href = '/tickets/overview/';
+        storage.setItem('tz_details', JSON.stringify(details));
+        storage.removeItem('tz_confirmed');
+        navigate('/tickets/overview/');
       });
     }
 
@@ -169,5 +190,13 @@
       container.querySelector('[data-total]').textContent = total + (total === 1 ? ' ticket' : ' tickets');
       container.querySelector('.invite-reservation-footer .invite-button').disabled = total < 1;
     }
+    const cleanup = () => { disposed = true; };
+    cleanup.ready = ready;
+    return cleanup;
+  }
+
+  window.InviteDetail = { mount };
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!window.CollectionNavigation) mount();
   });
 })();

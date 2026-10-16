@@ -187,6 +187,7 @@
       if (needsMeasure) measure();
       if (!enabled) {
         intro.dataset.welcomeState = "static";
+        window.CollectionWindowMotion?.welcome(1);
         return;
       }
       const { source, target, pageTop, handoverEnd } = geometry;
@@ -228,6 +229,7 @@
         poster.style.setProperty("--collection-welcome-clip", "0 0 100% 0");
         poster.style.setProperty("--collection-welcome-content-opacity", "0");
         intro.dataset.welcomeState = building ? "building" : "clearing";
+        window.CollectionWindowMotion?.welcome(0);
         return;
       }
 
@@ -236,6 +238,7 @@
         poster.style.removeProperty("--collection-welcome-clip");
         poster.style.removeProperty("--collection-welcome-content-opacity");
         intro.dataset.welcomeState = "complete";
+        window.CollectionWindowMotion?.welcome(1);
         return;
       }
       // Finish the frame before revealing the collection. On the way back,
@@ -254,6 +257,7 @@
       // Translate the copy with the left edge, preserving its finished type size.
       page.style.setProperty("--collection-welcome-copy-transform", "translateX(" + (x - source.x) + "px)");
       const contentOpacity = scrollPhase((cycle - readingStart) / (1 - readingStart));
+      window.CollectionWindowMotion?.welcome(contentOpacity);
       page.style.setProperty("--collection-welcome-copy-opacity", 1 - contentOpacity);
       const visibleHeight = Math.max(0, y + height - target.y);
       poster.style.setProperty("--collection-welcome-clip", [
@@ -437,10 +441,15 @@
   const page = document.querySelector("[data-collection-welcome]");
   const visit = performance.getEntriesByType("navigation")[0]?.type;
   const saved = history.state?.collectionView;
-  const autoplayOnLoad = !!page && visit !== "back_forward" && !location.hash
+  const autoplayOnLoad = !!page && !page.hidden && visit !== "back_forward" && !location.hash
     && (saved?.scroll ?? 0) <= 1 && !saved?.homeWelcome?.openingComplete;
   window.CollectionWelcome = {
     autoplayOnLoad, initialise,
+    rectangleAt: (rect, progress) => {
+      const shape = plane(clamp(progress));
+      return { left: rect.left + rect.width * shape.x, top: rect.top + rect.height * shape.y,
+        width: rect.width * shape.width, height: rect.height * shape.height };
+    },
     suspend: page => controllers.get(page)?.suspend(),
     resume: page => initialise(page)?.resume(),
     snapshot: page => controllers.get(page)?.snapshot(),

@@ -15,7 +15,6 @@
   let desktopHoveredRow = null;
   let desktopFocusedRow = null;
   let desktopPreviewRow = null;
-  let desktopImageRow = null;
   let desktopPinnedRow = null;
   let desktopDismissedRow = null;
   let desktopPreviewRefreshPending = false;
@@ -30,6 +29,7 @@
   let mobileToggle;
   let mobileCandidate;
   let mobileCurrentRow = null;
+  let mobileLastPreviewRow = null;
   let mobileNowPlayingRow = null;
   let mobileCandidateRow = null;
   let mobileMinimised = false;
@@ -39,6 +39,11 @@
   let collectionTruncationPending = false;
   let mobileDrag = null;
   let windowResize = null;
+  let collectionPageActive = !document.querySelector("[data-collection-welcome]")?.hidden;
+  let collectionHydrated = false;
+  let controlsReady = false;
+  let collectionWelcomeActive = false;
+  let lastMediaMode = desktopMediaQuery.matches;
 
   const subsections = [
     { tab: "WORDS", targetId: "collection-words", mediaKind: "website" },
@@ -48,6 +53,14 @@
   ];
 
   const isDesktopMedia = () => desktopMediaQuery.matches;
+
+  // Without the window lifecycle adapter, updates remain synchronous.
+  const withWindowMotion = (panelFor, update, sourceFor) => (...args) => {
+    const motion = window.CollectionWindowMotion;
+    return motion
+      ? motion.change(panelFor(), () => update(...args), sourceFor?.(...args))
+      : update(...args);
+  };
 
   const visibleValue = (cell) => {
     if (!cell) {
@@ -207,6 +220,7 @@
     message.className = "collection-media__status";
     message.textContent = "PREVIEW UNAVAILABLE";
     target.append(message);
+    window.CollectionWindowMotion?.ready(target, key);
   };
 
   const renderImageMedia = (target, source, label, key) => {
@@ -220,6 +234,7 @@
     image.addEventListener("load", () => {
       if (isCurrentImage()) {
         target.dataset.mediaState = "loaded";
+        window.CollectionWindowMotion?.ready(target, key);
       }
     }, { once: true });
     image.addEventListener("error", () => {
@@ -227,6 +242,7 @@
     }, { once: true });
     image.src = source;
     target.replaceChildren(image);
+    window.CollectionWindowMotion?.loading(target);
   };
 
   const fallbackSoundcloudPlayerUrl = (source) => {
@@ -444,6 +460,8 @@
     }
     requestAnimationFrame(() => updateSoundcloudMarquee(target));
 
+    window.CollectionWindowMotion?.ready(target, key);
+
     loadSoundcloudWidgetApi()
       .then((soundcloud) => {
         if (!frame.isConnected || target.dataset.mediaKey !== key) {
@@ -474,6 +492,7 @@
     message.className = "collection-media__status";
     message.textContent = "LOADING…";
     target.replaceChildren(message);
+    window.CollectionWindowMotion?.loading(target);
 
     soundcloudEmbed(row.media.source)
       .then(({ artworkUrl }) => {
@@ -521,8 +540,10 @@
       frame.referrerPolicy = "no-referrer";
       frame.tabIndex = -1;
       frame.setAttribute("sandbox", "allow-scripts allow-forms allow-popups");
+      frame.addEventListener("load", () => window.CollectionWindowMotion?.ready(target, key), { once: true });
       frame.addEventListener("error", () => renderUnavailableMedia(target, key), { once: true });
       target.replaceChildren(frame);
+      window.CollectionWindowMotion?.loading(target);
       return;
     }
 
@@ -588,9 +609,6 @@
     if (desktopPreviewRow && subsectionElement.contains(desktopPreviewRow)) {
       hideDesktopPreview();
     }
-    if (desktopImageRow && subsectionElement.contains(desktopImageRow)) {
-      hideDesktopImagePreview();
-    }
   };
 
   const setMediaWindowTitle = (title = "MEDIA") => {
@@ -605,114 +623,53 @@
     }
   };
 
-  const updateImageWindowPosition = () => {
-    imagePanel?.classList.toggle("is-secondary", Boolean(desktopPinnedRow || desktopPreviewRow));
-  };
+  const updateImageWindowPosition = withWindowMotion(() => imagePanel, () => {
+    imagePanel?.classList.toggle("is-secondary", Boolean(desktopPinnedRow));
+  });
 
-  const hideDesktopImagePreview = () => {
-    if (desktopImageRow) {
-      desktopImageRow.classList.remove("is-active");
+  const hideDesktopPreview = withWindowMotion(() => imagePanel, () => {
+    if (desktopPreviewRow && desktopPreviewRow !== desktopPinnedRow) {
+      desktopPreviewRow.classList.remove("is-active");
     }
     if (imagePanel) {
       imagePanel.hidden = true;
       imagePanel.classList.remove("is-secondary");
     }
-    desktopImageRow = null;
+    desktopPreviewRow = null;
     clearMedia(imageContent);
     setImageWindowTitle();
-  };
+  });
 
-  const hideDesktopPreview = () => {
-    if (desktopPinnedRow) {
-      return;
-    }
-
-    if (desktopPreviewRow && desktopPreviewRow !== desktopPinnedRow) {
-      desktopPreviewRow.classList.remove("is-active");
-    }
-    desktopPreviewRow = null;
-    updateImageWindowPosition();
-    if (mobilePanel) {
-      mobilePanel.hidden = true;
-      mobilePanel.classList.remove("is-pinned", "is-minimized");
-    }
-    if (audioMinimizeButton) {
-      audioMinimizeButton.hidden = true;
-    }
-    setAudioPlayerMinimised(false);
-    clearMedia(mobileContent);
-    setMediaWindowTitle();
-  };
-
-  const showDesktopPreview = (entry, row) => {
-    if (!row.media || !mobilePanel || !mobileContent || desktopPinnedRow) {
-      return;
-    }
-
-    if (desktopPreviewRow && desktopPreviewRow !== entry && desktopPreviewRow !== desktopPinnedRow) {
-      desktopPreviewRow.classList.remove("is-active");
-    }
-
-    desktopPreviewRow = entry;
-    updateImageWindowPosition();
-    entry.classList.add("is-active");
-    mobilePanel.hidden = false;
-    mobilePanel.classList.remove("is-pinned");
-    setAudioPlayerMinimised(false);
-    if (audioMinimizeButton) {
-      audioMinimizeButton.hidden = true;
-    }
-    if (mobileToggle) {
-      mobileToggle.hidden = true;
-      mobileToggle.setAttribute("aria-expanded", "true");
-    }
-    setMediaWindowTitle(row.label);
-
-    const key = row.media.kind === "soundcloud"
-      ? `soundcloud-artwork:${row.media.source}`
-      : `${row.media.kind}:${row.media.source}`;
-    if (mobileContent.dataset.mediaKey === key && mobileContent.firstElementChild) {
-      return;
-    }
-
-    if (row.media.kind === "soundcloud") {
-      renderSoundcloudArtwork(mobileContent, row);
-    } else {
-      renderMedia(mobileContent, row);
-    }
-  };
-
-  const showDesktopImagePreview = (entry, row) => {
-    if (row.media?.kind !== "image" || !imagePanel || !imageContent) {
-      hideDesktopImagePreview();
+  const showDesktopPreview = withWindowMotion(() => imagePanel, (entry, row) => {
+    if (!row.media || !imagePanel || !imageContent) {
+      hideDesktopPreview();
       return;
     }
 
     entry.classList.add("is-active");
     imagePanel.hidden = false;
-    if (desktopImageRow && desktopImageRow !== entry) {
-      desktopImageRow.classList.remove("is-active");
+    if (desktopPreviewRow && desktopPreviewRow !== entry && desktopPreviewRow !== desktopPinnedRow) {
+      desktopPreviewRow.classList.remove("is-active");
     }
-    desktopImageRow = entry;
+    desktopPreviewRow = entry;
     updateImageWindowPosition();
     setImageWindowTitle(row.label);
 
-    const key = `${row.media.kind}:${row.media.source}`;
+    const key = row.media.kind === "soundcloud"
+      ? `soundcloud-artwork:${row.media.source}`
+      : `${row.media.kind}:${row.media.source}`;
     if (imageContent.dataset.mediaKey !== key || !imageContent.firstElementChild
       || imageContent.dataset.mediaState === "unavailable") {
-      renderMedia(imageContent, row);
+      if (row.media.kind === "soundcloud") renderSoundcloudArtwork(imageContent, row);
+      else renderMedia(imageContent, row);
     }
-  };
+  }, (entry) => entry);
 
-  const showDesktopAudioPlayer = (entry, row) => {
+  const showDesktopAudioPlayer = withWindowMotion(() => mobilePanel, (entry, row) => {
     if (row.media?.kind !== "soundcloud" || !mobilePanel || !mobileContent) {
       return;
     }
 
-    if (desktopPreviewRow && desktopPreviewRow !== entry) {
-      desktopPreviewRow.classList.remove("is-active");
-    }
-    desktopPreviewRow = null;
     updateImageWindowPosition();
     entry.classList.add("is-active");
     mobilePanel.hidden = false;
@@ -731,7 +688,7 @@
     if (mobileContent.dataset.mediaKey !== key || !mobileContent.firstElementChild) {
       renderMedia(mobileContent, row);
     }
-  };
+  }, (entry) => entry);
 
   const initialiseDesktopPreview = (subsectionElement) => {
     if (!isDesktopMedia()) {
@@ -751,13 +708,10 @@
     if (desktopPreviewRow && !desktopPreviewRow.isConnected) {
       hideDesktopPreview();
     }
-
-    if (desktopImageRow && !desktopImageRow.isConnected) {
-      hideDesktopImagePreview();
-    }
   };
 
   const refreshDesktopPreview = () => {
+    if (!collectionPageActive || collectionWelcomeActive) return;
     if (!isDesktopMedia()) {
       return;
     }
@@ -769,12 +723,12 @@
     const entry = hoveredRow || focusedRow;
     const row = entry && rowMetadata.get(entry);
 
-    if (entry && !row?.media) hideDesktopImagePreview();
+    if (entry && !row?.media && !window.CollectionWindowMotion) hideDesktopPreview();
 
     if (desktopPinnedRow?.isConnected) {
-      if (entry && entry !== desktopPinnedRow && row?.media?.kind === "image" && desktopDismissedRow !== entry) {
+      if (entry && entry !== desktopPinnedRow && row?.media && desktopDismissedRow !== entry) {
         desktopDismissedRow = null;
-        showDesktopImagePreview(entry, row);
+        showDesktopPreview(entry, row);
       }
       return;
     }
@@ -785,19 +739,15 @@
       }
 
       desktopDismissedRow = null;
-      if (row.media.kind === "image") {
-        hideDesktopPreview();
-        showDesktopImagePreview(entry, row);
-        return;
-      }
       showDesktopPreview(entry, row);
       return;
     }
 
-    if (mobilePanel?.matches(":hover") || mobilePanel?.contains(document.activeElement)) {
-      return;
-    }
+    // Keep the last media preview open. New media rows
+    // update it in place, so its reveal does not replay as the pointer moves.
+    if (window.CollectionWindowMotion) return;
 
+    if (imagePanel?.matches(":hover") || imagePanel?.contains(document.activeElement)) return;
     hideDesktopPreview();
   };
 
@@ -814,6 +764,7 @@
   };
 
   const activateDesktopPreview = (entry, row) => {
+    if (!collectionPageActive || collectionWelcomeActive) return;
     if (!isDesktopMedia()) {
       return;
     }
@@ -832,40 +783,23 @@
     }
 
     if (row.media) {
-      if (row.media.kind === "image") {
-        hideDesktopPreview();
-        showDesktopImagePreview(entry, row);
-      } else {
-        showDesktopPreview(entry, row);
-      }
-    } else {
+      showDesktopPreview(entry, row);
+    } else if (!window.CollectionWindowMotion) {
       hideDesktopPreview();
-      hideDesktopImagePreview();
     }
+  };
+
+  const closeDesktopAudioPlayer = () => {
+    desktopDismissedRow = desktopPinnedRow || desktopHoveredRow || desktopFocusedRow;
+    hideDesktopAudioPlayer();
   };
 
   const closeDesktopPreview = () => {
-    const hoveredRow = desktopHoveredRow?.matches(":hover") ? desktopHoveredRow : null;
-    const dismissedRow = hoveredRow || desktopFocusedRow || desktopPreviewRow || desktopPinnedRow;
-    if (desktopPinnedRow) {
-      const subsectionElement = desktopPinnedRow.closest(".collection-subsection");
-      desktopPinnedRow.classList.remove("is-active");
-      if (subsectionElement) {
-        desktopSelectedRows.delete(subsectionElement);
-      }
-      desktopPinnedRow = null;
-    }
-
-    desktopDismissedRow = dismissedRow;
+    desktopDismissedRow = desktopPreviewRow || desktopHoveredRow || desktopFocusedRow;
     hideDesktopPreview();
   };
 
-  const closeDesktopImagePreview = () => {
-    desktopDismissedRow = desktopImageRow || desktopHoveredRow || desktopFocusedRow;
-    hideDesktopImagePreview();
-  };
-
-  const hideDesktopAudioPlayer = () => {
+  const hideDesktopAudioPlayer = withWindowMotion(() => mobilePanel, () => {
     if (desktopPinnedRow) {
       desktopPinnedRow.classList.remove("is-active");
       const subsectionElement = desktopPinnedRow.closest(".collection-subsection");
@@ -886,9 +820,9 @@
     clearMedia(mobileContent);
     setMediaWindowTitle();
     updateImageWindowPosition();
-  };
+  });
 
-  const setAudioPlayerMinimised = (minimised) => {
+  const setAudioPlayerMinimised = withWindowMotion(() => mobilePanel, (minimised) => {
     if (!mobilePanel) {
       audioPlayerMinimised = minimised;
       return;
@@ -913,7 +847,7 @@
       audioMinimizeButton.setAttribute("aria-label", minimised ? "Maximize audio player" : "Minimize audio player");
     }
     requestAnimationFrame(() => updateSoundcloudMarquee(mobileContent));
-  };
+  });
 
   const toggleAudioPlayerMinimised = () => setAudioPlayerMinimised(!audioPlayerMinimised);
 
@@ -929,7 +863,7 @@
     mobilePositionInitialised = true;
   };
 
-  const hideMobilePreview = () => {
+  const hideMobilePreview = withWindowMotion(() => mobilePanel, () => {
     if (mobilePanel) {
       mobilePanel.hidden = true;
     }
@@ -947,11 +881,13 @@
       mobileCandidateRow = null;
       clearMedia(mobileCandidate);
     }
-  };
+  });
 
   const mobilePreviewRow = () => {
     const nowPlaying = mobileNowPlayingRow && rowMetadata.get(mobileNowPlayingRow);
-    return nowPlaying?.media?.kind === "soundcloud" ? mobileNowPlayingRow : mobileCurrentRow;
+    return nowPlaying?.media?.kind === "soundcloud"
+      ? mobileNowPlayingRow
+      : mobileLastPreviewRow?.isConnected ? mobileLastPreviewRow : null;
   };
 
   const updateMobileSoundCandidate = () => {
@@ -978,7 +914,7 @@
     renderSoundcloudArtwork(mobileCandidate, currentRow);
   };
 
-  const presentMobilePreview = () => {
+  const presentMobilePreview = withWindowMotion(() => mobilePanel, () => {
     const previewRow = mobilePreviewRow();
     const preview = previewRow && rowMetadata.get(previewRow);
     if (!previewRow || !mobileContent || !mobilePanel || !mobileToggle || !preview?.media) {
@@ -1015,7 +951,7 @@
       || (preview.media.kind === "image" && mobileContent.dataset.mediaState === "unavailable")) {
       renderMedia(mobileContent, preview);
     }
-  };
+  }, () => mobilePreviewRow());
 
   const setMobileActiveRow = (entry) => {
     if (mobileCurrentRow === entry) {
@@ -1029,6 +965,7 @@
     mobileCurrentRow = entry;
     if (mobileCurrentRow) {
       mobileCurrentRow.classList.add("is-active");
+      if (rowMetadata.get(mobileCurrentRow)?.media) mobileLastPreviewRow = mobileCurrentRow;
     }
 
     updateMobileSoundCandidate();
@@ -1036,6 +973,7 @@
   };
 
   const selectMobileMiddleRow = () => {
+    if (!collectionPageActive || collectionWelcomeActive) return;
     if (isDesktopMedia()) {
       return;
     }
@@ -1061,6 +999,7 @@
   };
 
   const scheduleMobileSelection = () => {
+    if (!collectionPageActive || collectionWelcomeActive) return;
     if (isDesktopMedia() || mobileSelectionPending) {
       return;
     }
@@ -1073,6 +1012,8 @@
   };
 
   const setMediaMode = () => {
+    if (!collectionPageActive || collectionWelcomeActive) return;
+    lastMediaMode = isDesktopMedia();
     document.querySelectorAll(".collection-row.is-active").forEach((entry) => entry.classList.remove("is-active"));
 
     if (isDesktopMedia()) {
@@ -1106,14 +1047,13 @@
       mobileNowPlayingRow = desktopPinnedRow;
       desktopPinnedRow = null;
       mobilePanel?.classList.remove("is-pinned");
-      hideDesktopImagePreview();
     } else {
       hideMobilePreview();
       clearMedia(mobileContent);
     }
+    hideDesktopPreview();
     desktopHoveredRow = null;
     desktopFocusedRow = null;
-    desktopPreviewRow = null;
 
     scheduleMobileSelection();
   };
@@ -1122,6 +1062,8 @@
     if (row.media?.kind !== "soundcloud") {
       return;
     }
+
+    window.CollectionWindowMotion?.startAudio();
 
     if (isDesktopMedia()) {
       if (desktopPinnedRow && desktopPinnedRow !== entry) {
@@ -1201,7 +1143,7 @@
       if (desktopDismissedRow === entry) {
         desktopDismissedRow = null;
       }
-      if (!isPersistedSoundSelection() && desktopImageRow !== entry && document.activeElement !== entry) {
+      if (!isPersistedSoundSelection() && desktopPreviewRow !== entry && document.activeElement !== entry) {
         entry.classList.remove("is-active");
       }
       scheduleDesktopPreviewRefresh();
@@ -1214,7 +1156,7 @@
       if (desktopFocusedRow === entry) {
         desktopFocusedRow = null;
       }
-      if (!entry.matches(":hover") && !isPersistedSoundSelection() && desktopImageRow !== entry) {
+      if (!entry.matches(":hover") && !isPersistedSoundSelection() && desktopPreviewRow !== entry) {
         entry.classList.remove("is-active");
       }
       scheduleDesktopPreviewRefresh();
@@ -1434,6 +1376,7 @@
       return;
     }
 
+    window.CollectionWindowMotion?.takeControl(panel);
     const rect = panel.getBoundingClientRect();
     windowResize = {
       panel,
@@ -1471,6 +1414,7 @@
       return;
     }
 
+    window.CollectionWindowMotion?.takeControl(panel);
     const rect = panel.getBoundingClientRect();
     setWindowSize(panel, rect.width + widthChange, rect.height + heightChange, rect.left, rect.top);
     event.preventDefault();
@@ -1497,9 +1441,10 @@
     const rect = panel.getBoundingClientRect();
     const padding = 8;
     const maxLeft = Math.max(padding, window.innerWidth - rect.width - padding);
-    const maxTop = Math.max(padding, window.innerHeight - rect.height - padding);
+    const topPadding = window.CollectionWindowMotion?.topInset() ?? padding;
+    const maxTop = Math.max(topPadding, window.innerHeight - rect.height - padding);
     const left = Math.min(Math.max(padding, event.clientX - mobileDrag.offsetX), maxLeft);
-    const top = Math.min(Math.max(padding, event.clientY - mobileDrag.offsetY), maxTop);
+    const top = Math.min(Math.max(topPadding, event.clientY - mobileDrag.offsetY), maxTop);
 
     panel.style.left = `${left}px`;
     panel.style.right = "auto";
@@ -1539,6 +1484,7 @@
       return;
     }
 
+    window.CollectionWindowMotion?.takeControl(panel);
     const rect = panel.getBoundingClientRect();
     mobileDrag = {
       panel,
@@ -1569,18 +1515,20 @@
     const imageResizeHandle = imagePanel?.querySelector(".collection-window__resize");
 
     closeButton?.addEventListener("click", () => {
+      window.CollectionWindowMotion?.stopAudio();
       if (isDesktopMedia()) {
-        closeDesktopPreview();
+        closeDesktopAudioPlayer();
       } else {
         mobileMinimised = true;
         presentMobilePreview();
       }
     });
 
-    imageCloseButton?.addEventListener("click", closeDesktopImagePreview);
+    imageCloseButton?.addEventListener("click", closeDesktopPreview);
     audioMinimizeButton?.addEventListener("click", toggleAudioPlayerMinimised);
 
     mobileToggle?.addEventListener("click", () => {
+      if (mobileNowPlayingRow) window.CollectionWindowMotion?.startAudio();
       mobileMinimised = false;
       presentMobilePreview();
     });
@@ -1720,10 +1668,39 @@
     }
   };
 
-  document.addEventListener("DOMContentLoaded", () => {
-    setupMobileControls();
+  const hydrateCollection = () => {
+    if (collectionHydrated || !controlsReady) return;
+    collectionHydrated = true;
     hydrateInvites();
     subsections.forEach(hydrateSubsection);
+  };
+
+  // Keep the collection and playlist mounted while another page is active.
+  if (window.CollectionWindowMotion) {
+    const resumeSelection = () => {
+      if (!collectionPageActive || collectionWelcomeActive) return;
+      if (lastMediaMode !== isDesktopMedia()) setMediaMode();
+      scheduleMobileSelection();
+    };
+    window.Collection = {
+      isPageActive: () => collectionPageActive,
+      setPageActive(active) {
+        collectionPageActive = active;
+        if (!active) { desktopHoveredRow = desktopFocusedRow = null; }
+        else { hydrateCollection(); resumeSelection(); }
+      },
+      setWelcomeActive(active) {
+        if (collectionWelcomeActive === active) return;
+        collectionWelcomeActive = active;
+        if (!active) resumeSelection();
+      }
+    };
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    setupMobileControls();
+    controlsReady = true;
+    if (collectionPageActive) hydrateCollection();
     window.addEventListener("scroll", scheduleMobileSelection, { passive: true });
     window.addEventListener("resize", () => {
       scheduleMobileSelection();

@@ -1,15 +1,17 @@
 (function () {
   'use strict';
 
-  document.addEventListener('DOMContentLoaded', function () {
-    var app = document.querySelector('[data-ticket-step]');
-    if (!app || !window.TZInvites) return;
+  const reservationSaves = new Map();
 
+  function mount(root = document, options = {}) {
+    const storage = options.storage || sessionStorage;
+    const navigate = options.navigate || (url => window.location.assign(url));
+    var app = root.querySelector('[data-ticket-step]');
+    if (!app || !window.TZInvites) return () => {};
     var step = app.getAttribute('data-ticket-step');
     if (step === 'details') renderDetails(app);
     if (step === 'overview') renderOverview(app);
     if (step === 'confirmation') renderConfirmation(app);
-  });
 
   function esc(value) {
     return window.TZInvites.escapeHtml(value == null ? '' : value);
@@ -142,8 +144,8 @@
       }
       if (!valid) return;
 
-      sessionStorage.setItem('tz_details', JSON.stringify(details));
-      window.location.href = '/tickets/overview/';
+      storage.setItem('tz_details', JSON.stringify(details));
+      navigate('/tickets/overview/');
     });
   }
 
@@ -160,6 +162,7 @@
       return;
     }
 
+    const detailsHref = '/invites/?event=' + encodeURIComponent(event.id) + '#invite-reservation-title';
     app.innerHTML = eventChrome(event, 2) +
       '<section class="ticket-flow-section" aria-labelledby="ticket-overview-title">' +
         sectionHeading('02 / REVIEW', 'One last look.', 'Check the details below. You can still go back and make changes.', 'ticket-overview-title') +
@@ -170,19 +173,19 @@
             facts('GUEST', [['Name', details.firstName + ' ' + details.lastName], ['Email', details.email]]) +
           '</div>' +
         '</div>' +
-        '<div class="ticket-flow-footer"><a class="invite-back-link" href="/invites/?event=' + encodeURIComponent(event.id) + '#invite-reservation-title">Change details</a><button class="invite-button" type="button" data-place-order>Confirm reservation &rarr;</button></div>' +
+        '<div class="ticket-flow-footer"><a class="invite-back-link" href="' + attr(detailsHref) + '">Change details</a><button class="invite-button" type="button" data-place-order>Confirm reservation &rarr;</button></div>' +
       '</section>';
 
     app.querySelector('[data-place-order]').addEventListener('click', function (clickEvent) {
       clickEvent.currentTarget.disabled = true;
-      sessionStorage.setItem('tz_confirmed', JSON.stringify({
+      storage.setItem('tz_confirmed', JSON.stringify({
         event: event,
         selection: selection,
         details: details,
         orderId: 'ORD-' + Date.now().toString(36).toUpperCase(),
         timestamp: new Date().toISOString()
       }));
-      window.location.href = '/tickets/confirmation/';
+      navigate('/tickets/confirmation/');
     });
   }
 
@@ -216,12 +219,16 @@
       '</section>';
 
     app.querySelectorAll('[data-ticket-name]').forEach(function (button) {
-      button.addEventListener('click', function () {
+      button.addEventListener('click', async function () {
         if (event.ticketPdf) {
           window.open(event.ticketPdf, '_blank', 'noopener');
-        } else {
-          generatePdf(event, confirmed.details, button.getAttribute('data-ticket-name'), button.getAttribute('data-ticket-count'), confirmed.orderId);
+          return;
         }
+        if (options.loadPdf) {
+          try { await options.loadPdf(); }
+          catch (_) { window.alert('The ticket download could not load. Please try again.'); return; }
+        }
+        generatePdf(event, confirmed.details, button.getAttribute('data-ticket-name'), button.getAttribute('data-ticket-count'), confirmed.orderId);
       });
     });
     syncReservation(confirmed, app.querySelector('[data-sync]'));
@@ -252,9 +259,15 @@
       return;
     }
 
-    fetch(window.TZ_WEBHOOK_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) })
+    if (!reservationSaves.has(confirmed.orderId)) {
+      reservationSaves.set(confirmed.orderId, fetch(window.TZ_WEBHOOK_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(payload) }));
+    }
+    reservationSaves.get(confirmed.orderId)
       .then(function () { notice.innerHTML = '<b>Reservation saved.</b><span>Your reservation was added to the guest list.</span>'; })
-      .catch(function () { notice.innerHTML = '<b>Reservation confirmed.</b><span>Automatic guest-list sync failed. Please contact the organiser.</span>'; });
+      .catch(function () {
+        reservationSaves.delete(confirmed.orderId);
+        notice.innerHTML = '<b>Reservation confirmed.</b><span>Automatic guest-list sync failed. Please contact the organiser.</span>';
+      });
   }
 
   function generatePdf(event, details, ticketName, count, orderId) {
@@ -285,6 +298,12 @@
   }
 
   function readSession(key) {
-    try { return JSON.parse(sessionStorage.getItem(key) || 'null'); } catch (error) { return null; }
+    try { return JSON.parse(storage.getItem(key) || 'null'); } catch (error) { return null; }
   }
+    return () => {};
+  }
+  window.InviteTicketing = { mount };
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!window.CollectionNavigation) mount();
+  });
 })();

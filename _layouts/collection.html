@@ -8,20 +8,11 @@
     <title>{{ page.title | default: 'Collection' | escape }} - {{ site.title | escape }}</title>
     <meta name="description" content="A carefully curated collection of experiences by Stan Brouwer.">
     <link rel="canonical" href="{{ page.url | replace:'index.html','' | absolute_url }}">
-    <link rel="stylesheet" href="{{ '/assets/styles/collection.css' | relative_url }}?v={{ site.time | date: '%s' }}">
-    {% if page.welcome %}
-    <script src="{{ '/assets/js/collection-welcome.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
-    {% endif %}
-    <script>
-      window.TZ_INVITES_CONFIG = {
-        sheetId: {{ site.invites_sheet_id | jsonify }},
-        sheetName: {{ site.invites_sheet_name | default: 'INVITES' | jsonify }}
-      };
-    </script>
-    <script src="{{ '/assets/js/invites.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
-    <script src="{{ '/assets/js/collection.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+    {% include collection-shell-head.html %}
   </head>
-  <body class="collection-body">
+  <body class="collection-body collection-shell">
     {{ content }}
+    <div class="collection-route-outlet" hidden></div>
+    {% include collection-shell-windows.html %}
   </body>
 </html>

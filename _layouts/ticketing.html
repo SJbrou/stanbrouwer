@@ -7,20 +7,11 @@
     <link rel="icon" type="image/svg+xml" href="{{ '/assets/img/favicon.svg' | relative_url }}">
     <title>{{ page.title | default: 'Tickets' | escape }} - {{ site.title | escape }}</title>
     <link rel="canonical" href="{{ page.url | absolute_url }}">
-    <link rel="stylesheet" href="{{ '/assets/styles/collection.css' | relative_url }}?v={{ site.time | date: '%s' }}">
-    <link rel="stylesheet" href="{{ '/assets/styles/ticketing.css' | relative_url }}?v={{ site.time | date: '%s' }}">
-    <script>
-      window.TZ_INVITES_CONFIG = {
-        sheetId: {{ site.invites_sheet_id | jsonify }},
-        sheetName: {{ site.invites_sheet_name | default: 'INVITES' | jsonify }}
-      };
-      window.TZ_WEBHOOK_URL = {{ site.ticketing_webhook_url | default: '' | jsonify }};
-      window.TZ_WEBHOOK_TOKEN = {{ site.ticketing_webhook_token | default: '' | jsonify }};
-    </script>
-    <script src="{{ '/assets/js/invites.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
-    <script src="{{ '/assets/js/invite-ticketing.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+    {% include collection-shell-head.html %}
   </head>
-  <body class="collection-body tz-page">
+  <body class="collection-body tz-page collection-shell">
+    {% include collection-content.html %}
+    <div class="collection-route-outlet">
     <main class="collection-page ticket-page">
       <article class="collection-poster ticket-poster" aria-label="Ticket reservation">
         {{ content }}
@@ -34,5 +25,7 @@
         </div>
       </footer>
     </main>
+    </div>
+    {% include collection-shell-windows.html %}
   </body>
 </html>

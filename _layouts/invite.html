@@ -8,17 +8,13 @@
     <title>{{ page.title | default: 'Invite' | escape }} - {{ site.title | escape }}</title>
     <meta name="description" content="{{ page.description | default: 'An invitation by Stan Brouwer.' | escape }}">
     <link rel="canonical" href="{{ page.url | absolute_url }}">
-    <link rel="stylesheet" href="{{ '/assets/styles/collection.css' | relative_url }}?v={{ site.time | date: '%s' }}">
-    <script>
-      window.TZ_INVITES_CONFIG = {
-        sheetId: {{ site.invites_sheet_id | jsonify }},
-        sheetName: {{ site.invites_sheet_name | default: 'INVITES' | jsonify }}
-      };
-    </script>
-    <script src="{{ '/assets/js/invites.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
-    <script src="{{ '/assets/js/invite-detail.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
+    {% include collection-shell-head.html %}
   </head>
-  <body class="collection-body invite-body">
+  <body class="collection-body invite-body collection-shell">
+    {% include collection-content.html %}
+    <div class="collection-route-outlet">
     {{ content }}
+    </div>
+    {% include collection-shell-windows.html %}
   </body>
 </html>

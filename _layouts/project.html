@@ -8,9 +8,11 @@
     <title>{{ page.title | escape }} - {{ site.title | escape }}</title>
     <meta name="description" content="{{ page.title | escape }} — project deep dive by Stan Brouwer.">
     <link rel="canonical" href="{{ page.url | absolute_url }}">
-    <link rel="stylesheet" href="{{ '/assets/styles/collection.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+    {% include collection-shell-head.html %}
   </head>
-  <body class="collection-body project-body">
+  <body class="collection-body project-body collection-shell">
+    {% include collection-content.html %}
+    <div class="collection-route-outlet">
     <main class="collection-page project-page">
       <article class="collection-poster project-poster">
         <a class="project-back-link" href="{{ '/' | relative_url }}">Back to collection</a>
@@ -41,5 +43,7 @@
         </div>
       </article>
     </main>
+    </div>
+    {% include collection-shell-windows.html %}
   </body>
 </html>
